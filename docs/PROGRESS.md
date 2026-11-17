@@ -10,12 +10,12 @@ behind each choice, see `docs/DECISIONS.md`. Numbers like #4 refer to entries th
 | 0. Kickoff readings | Done | in `bd260db` (DECISIONS #1–32) |
 | 1. Engine: one playable fight | Done | `bd260db` |
 | 2. Content: procedural Spanish | Done, waiting for native review | `c332f2e`, `d1d64d2` |
-| 3. Learning and world | Not started | |
+| 3. Learning and world | Done | see git log |
 | 4. Art, audio, settings | Not started | |
 | 5. Playtest and tuning | Not started | |
 
-All checks pass at `d1d64d2`: `npm run typecheck`, `npm run lint`, `npm test` (120 tests),
-`npm run build`, `npm run test:e2e`, `npm run review-pack`.
+All checks pass at the Milestone 3 commit: `npm run typecheck`, `npm run lint`, `npm test`
+(205 tests), `npm run build`, `npm run test:e2e`.
 
 ## Milestone 1: Engine (done)
 
@@ -83,28 +83,68 @@ One fight, playable start to finish in the browser (`npm run dev`, then press En
 - **Review pack:** `npm run review-pack` (vite-node) writes `docs/review/zone1-sentences.md`: 200
   sentences with a reviewer checklist and open questions.
 
+## Milestone 3: Learning and world (done)
+
+`npm run dev`, then open `/` for the world. `/?seed=N` is still the practice fight.
+
+- **Learning (pure, `src/learning/`):**
+  - `scheduler.ts`: Leitner boxes 1–5 (1/3/7/14/30 days), at most one promotion a day (#57).
+  - `mastery.ts`: Learned = untelegraphed correct answers on 2 different days. Combat never
+    counts; an untelegraphed miss resets the streak (#59).
+  - `learner.ts`: per-component records, `recordAnswer`, `dueComponents`.
+  - `gate.ts`: `gateProgress` against `GATE_THRESHOLD` (0.8).
+  - `picker.ts`: due-first, ghost and echo questions by card-set membership (#58); typed review
+    questions and review order (#60).
+- **Content:** `components.ts` enumerates the zone universe (120 for Zone 1, #68), maps
+  components to card text, and splits a question's components per strike.
+- **Combat:** flasks (`useFlask`, greyed cards unpickable), and the exchange log now carries
+  components and `assisted` (#61).
+- **World (pure, `src/world/`):** `zone.ts` covers exits, `$back`, shortcut doors, the gate,
+  and the map layout. `state.ts` holds the run (visits, doors, defeated enemies, ghosts, echo,
+  XP, flasks, readings, learner) and the rest/die/win rules (#62–#64).
+- **Save (`src/save/store.ts`):** a localStorage key with validated JSON export and import (#65).
+- **Platform:** `clock.ts` (local day plus the dev day skip), `storage.ts`, `files.ts`; input
+  now emits `key` events.
+- **Scenes:**
+  - `fight.ts`: the shared fight presenter, extracted from M1's combat scene.
+  - `combat.ts`: the practice fight.
+  - `game.ts`: title, explore, fights, rest and review, map.
+  - `review.ts`, `worldView.ts`.
+- **Controls:** arrows/WASD walk and answer. Enter fights a foe or rests at the bonfire. F
+  drinks a flask. M opens the map, where E exports and I imports a save. Dev only: F8 skips a
+  day, F9 marks everything Learned.
+- **Content edit:** the bonfire room has a `reading` (goal "Find the well.", answer west). No new
+  Spanish was written.
+- **Verified by hand in a browser script, not kept as a test** (CLAUDE.md allows one Playwright
+  test):
+  - new game, then the reading choice
+  - win at the well, then die in the cellar, which drops a 50 XP echo and three ghosts
+  - beat the well again, then beat the Whisperer to recover the echo
+  - open the shortcut, clear the lane and chapel
+  - the gate stays sealed at 0/120; F9 opens it into the arena
+  - flask greying and a ghost fight
+
 ## Open items and known risks
 
-- **Native review pending.** Milestone 2's gate needs a native speaker to go through
-  `docs/review/zone1-sentences.md`. Its open questions: `mirar` + animal (`al lobo`?), which nouns
-  are mass nouns, whether `unos/unas` + plural sounds natural, and the `tocar`/`llevar` glosses.
+- **Native review pending** (M2 gate) for `docs/review/zone1-sentences.md`. M3 adds no Spanish.
+- **Design questions raised by M3:**
+  - 96 Learned components, each needing two separate days, is a long road to the first boss.
+    Tune `GATE_THRESHOLD`, `REVIEW_ROUND_SIZE`, or the universe at playtest.
+  - Only one sign has a reading choice (#62). More need hand-written, native-checked Spanish.
+  - Reading components (`w_*`) sit outside the gate universe.
+  - Should Hollow mode count toward mastery? Still open.
 - Accepted risks, to watch at the playtest:
   - Riposte words can be copied from the card that just won (#10).
   - A reader can pick up shallow sentence cues and cognates (#49).
   - The tab hidden during a wind-up times out as a hit (#38).
 - A content change changes what each seed produces (#50).
-- Not built yet: grab (listening/audio), sweep (word order), feints, flasks, echoes, ghosts,
-  bonfire, world, save, settings, pixel font.
+- Not built yet: grab (listening/audio), sweep (word order), feints, boss fight and blind
+  rounds (the `blind` mastery context exists but nothing records it), items, NPC dialogue,
+  settings (Hollow mode, reduced motion, larger text), pixel font, real art and audio.
 
-## Next: Milestone 3 (Learning and world)
+## Next: Milestone 4
 
-Follow Prompt 3 in `docs/PROMPTS.md`. Hooks already in place:
-- Every `Question` carries canonical `components` (`v_levantar:present:3sg`,
-  `art:definite:f:sg`, `n_manzana:plural`, `n_espada`). The scheduler can key on them.
-- `createDeck(rng, templates)` is the seam for a question picker that serves due components
-  first. It will need a way to target a component (for example, constrain a template's fills),
-  which the generator doesn't support yet.
-- Mastery counts only untelegraphed answers (CLAUDE.md rule 6, #29). Reading choices need the
-  `reading` field on room contents described in #27.
-- `src/learning/` and `src/save/` are empty placeholders. `zone1-rooms.json` is validated but
-  not used by any scene yet.
+Follow Prompt 4 in `docs/PROMPTS.md`. Notes:
+- The room-entry fade in `worldView.ts` and the hit shake in `fight.ts` must respect reduced motion.
+- Hollow mode (no timers) should pause wind-ups. Fixing #38 (visibility pause) fits there.
+- Sprites replace the flat shapes in `fight.ts` (combat) and `worldView.ts` (rooms, map).
