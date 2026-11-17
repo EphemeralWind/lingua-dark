@@ -45,6 +45,9 @@ describe('content validation', () => {
     ['a person with no pronoun', (c) => (c.templates.pronouns = c.templates.pronouns.filter((p: any) => p.person !== 'vosotros')), /no pronoun for person vosotros/],
     ['an exit to a missing room', (c) => (c.rooms.rooms[0].exits.north = 'r1_nowhere'), /missing room r1_nowhere/],
     ['a locked door nothing unlocks', (c) => delete c.rooms.rooms.find((r: any) => r.id === 'r1_cellar').exits.north.unlocks, /shortcut_cellar is locked but nothing unlocks it/],
+    ['a reading answer that is not an exit', (c) => (c.rooms.rooms[0].contents.reading.correct = 'north', delete c.rooms.rooms[0].exits.north), /reading answer north is not an exit/],
+    ['a reading choice without a sign', (c) => delete c.rooms.rooms[0].contents.sign, /has a reading choice but no sign/],
+    ['a reading with fewer than three exits', (c) => (c.rooms.rooms[1].contents.sign = 'x', c.rooms.rooms[1].contents.reading = { goal_en: 'g', correct: 'north', components: ['w'], wrongCost: 'detour' }), /reading choice needs at least three exits/],
     ['an item missing from the lexicon', (c) => (c.rooms.rooms[0].contents.item = 'n_grial'), /n_grial is not in the lexicon/],
     ['an unknown enemy attack', (c) => (c.rooms.rooms[1].contents.enemy.attack = 'kick'), /zone1-rooms\.json: rooms\.1\.contents\.enemy\.attack/],
   ])('rejects %s', (_name, mutate, pattern) => {

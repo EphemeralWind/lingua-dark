@@ -117,6 +117,15 @@ export const roomsFileSchema = z.strictObject({
         contents: z.strictObject({
           bonfire: z.boolean().optional(),
           sign: z.string().optional(),
+          /** Makes the sign a reading choice (DECISIONS #27, #62). */
+          reading: z
+            .strictObject({
+              goal_en: z.string().min(1),
+              correct: direction,
+              components: z.array(z.string().min(1)).min(1),
+              wrongCost: z.enum(['detour', 'ambush']),
+            })
+            .optional(),
           item: z.string().optional(),
           enemy: z.strictObject({ id: z.string(), attack: z.enum(['jab', 'overhead', 'delayed', 'grab', 'sweep', 'combo']) }).optional(),
           boss: z.strictObject({ id: z.string(), phases: z.array(z.string()).min(1) }).optional(),

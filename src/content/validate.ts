@@ -79,6 +79,13 @@ function checkRooms(file: string, rooms: RoomsFile, c: Content, errors: string[]
         if (exit.unlocks) keys.add(exit.unlocks);
       }
     }
+    const reading = r.contents.reading;
+    if (reading) {
+      if (!r.contents.sign) errors.push(`${file}: ${r.id} has a reading choice but no sign`);
+      if (!r.exits[reading.correct]) errors.push(`${file}: ${r.id} reading answer ${reading.correct} is not an exit`);
+      const exitCount = Object.keys(r.exits).length;
+      if (exitCount < 3) errors.push(`${file}: ${r.id} reading choice needs at least three exits, has ${exitCount}`);
+    }
     if (r.contents.item) {
       try {
         c.noun(r.contents.item);

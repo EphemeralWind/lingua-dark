@@ -19,7 +19,16 @@
       },
       "contents": {
         "bonfire": true,
-        "sign": "A la izquierda hay un pozo. A la derecha hay una fragua."
+        "sign": "A la izquierda hay un pozo. A la derecha hay una fragua.",
+        "reading": {
+          "goal_en": "Find the well.",
+          "correct": "west",
+          "components": [
+            "w_izquierda",
+            "w_pozo"
+          ],
+          "wrongCost": "detour"
+        }
       }
     },
     {
