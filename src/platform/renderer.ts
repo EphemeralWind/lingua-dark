@@ -1,6 +1,8 @@
 // 320x180 offscreen buffer, scaled by whole numbers, letterboxed, nearest-neighbour.
-// Text is drawn on the scaled display canvas so accents stay crisp until a pixel font
-// is chosen in milestone 4 (DECISIONS #31). Positions are always in internal pixels.
+// Text uses the game's bitmap font (src/platform/font.ts), drawn on the scaled display canvas
+// in whole screen pixels: size 6 puts one font pixel on half an art pixel ("1x" body text) and
+// size 12 on one art pixel ("2x", the prompt). Positions are always in internal pixels.
+import { FONT_MIDDLE_ROW, FONT_ROWS, GLYPHS, glyphOf, measureText, MISSING, type Glyph } from './font';
 
 export const VIEW_W = 320;
 export const VIEW_H = 180;
@@ -13,6 +15,54 @@ export interface TextStyle {
   bold?: boolean;
   /** Shrink to fit this internal-pixel width. */
   maxWidth?: number;
+  /** Draw a one-font-pixel outline in this colour first (high contrast on busy art). */
+  outline?: string;
+}
+
+/** Font size whose font pixel is one art pixel. */
+const FULL_SIZE = 12;
+
+/** The glyph sheet: every glyph in one row, white, plus tinted copies made on demand. */
+class GlyphSheet {
+  private readonly base: HTMLCanvasElement;
+  private readonly tinted = new Map<string, HTMLCanvasElement>();
+  readonly at = new Map<Glyph, number>();
+
+  constructor() {
+    const glyphs = [...GLYPHS.values(), MISSING];
+    let x = 0;
+    for (const g of glyphs) {
+      this.at.set(g, x);
+      x += g.width + 1;
+    }
+    this.base = document.createElement('canvas');
+    this.base.width = x;
+    this.base.height = FONT_ROWS;
+    const c = this.base.getContext('2d');
+    if (!c) throw new Error('Canvas 2D not available');
+    c.fillStyle = '#fff';
+    for (const g of glyphs) {
+      const gx = this.at.get(g) ?? 0;
+      g.rows.forEach((row, y) => row.forEach((ink, i) => ink && c.fillRect(gx + i, g.top + y, 1, 1)));
+    }
+  }
+
+  inColor(color: string): HTMLCanvasElement {
+    let sheet = this.tinted.get(color);
+    if (!sheet) {
+      sheet = document.createElement('canvas');
+      sheet.width = this.base.width;
+      sheet.height = this.base.height;
+      const c = sheet.getContext('2d');
+      if (!c) throw new Error('Canvas 2D not available');
+      c.drawImage(this.base, 0, 0);
+      c.globalCompositeOperation = 'source-in';
+      c.fillStyle = color;
+      c.fillRect(0, 0, sheet.width, sheet.height);
+      this.tinted.set(color, sheet);
+    }
+    return sheet;
+  }
 }
 
 export class Renderer {
@@ -23,6 +73,9 @@ export class Renderer {
   private offsetX = 0;
   private offsetY = 0;
   private dpr = 1;
+  private readonly glyphs = new GlyphSheet();
+  /** Larger-text setting multiplies every text size (LARGE_TEXT_SCALE). */
+  textScale = 1;
 
   constructor(private readonly canvas: HTMLCanvasElement) {
     this.lowCanvas = document.createElement('canvas');
@@ -67,21 +120,67 @@ export class Renderer {
     d.drawImage(this.lowCanvas, this.offsetX, this.offsetY, VIEW_W * this.scale, VIEW_H * this.scale);
   }
 
-  text(str: string, x: number, y: number, style: TextStyle = {}): void {
-    const d = this.display;
-    const size = (style.size ?? 7) * this.scale;
-    d.font = `${style.bold ? 'bold ' : ''}${size}px ui-monospace, Menlo, Consolas, monospace`;
-    d.fillStyle = style.color ?? '#e8e6df';
-    d.textAlign = style.align ?? 'left';
-    d.textBaseline = 'middle';
-    const px = this.offsetX + x * this.scale;
-    const py = this.offsetY + y * this.scale;
+  /** Screen pixels per font pixel for a text size, before fitting. */
+  private fontPixel(size: number): number {
+    return Math.max(1, Math.round((this.scale * size * this.textScale) / FULL_SIZE));
+  }
+
+  /** Font pixel after shrinking to fit `maxWidth` (internal px), never below one screen pixel. */
+  private fitPixel(str: string, style: TextStyle): number {
+    let p = this.fontPixel(style.size ?? 7);
+    const w = measureText(str) + (style.bold ? 1 : 0);
     if (style.maxWidth !== undefined) {
       const max = style.maxWidth * this.scale;
-      const w = d.measureText(str).width;
-      if (w > max) d.font = `${style.bold ? 'bold ' : ''}${Math.floor((size * max) / w)}px ui-monospace, Menlo, Consolas, monospace`;
+      while (p > 1 && w * p > max) p -= 1;
     }
-    d.fillText(str, px, py);
+    return p;
+  }
+
+  /** Width of a line in internal pixels, as `text` would draw it. */
+  measure(str: string, style: TextStyle = {}): number {
+    return ((measureText(str) + (style.bold ? 1 : 0)) * this.fitPixel(str, style)) / this.scale;
+  }
+
+  /** Line pitch for a text size, in internal pixels (grows with larger text). */
+  lineHeight(size: number): number {
+    return (this.fontPixel(size) * 12) / this.scale;
+  }
+
+  /** Draws one line. `y` is the vertical middle of the capitals. */
+  text(str: string, x: number, y: number, style: TextStyle = {}): void {
+    const p = this.fitPixel(str, style);
+    const width = (measureText(str) + (style.bold ? 1 : 0)) * p;
+    const align = style.align ?? 'left';
+    let left = this.offsetX + Math.round(x * this.scale);
+    if (align === 'center') left -= Math.round(width / 2);
+    else if (align === 'right' || align === 'end') left -= width;
+    const top = this.offsetY + Math.round(y * this.scale - (FONT_MIDDLE_ROW + 0.5) * p);
+    const d = this.display;
+    d.imageSmoothingEnabled = false;
+    if (style.outline) {
+      const sheet = this.glyphs.inColor(style.outline);
+      for (const [dx, dy] of [[-p, 0], [p, 0], [0, -p], [0, p]] as const) this.drawRun(sheet, str, left + dx, top + dy, p, style.bold ?? false);
+    }
+    this.drawRun(this.glyphs.inColor(style.color ?? '#e8e6df'), str, left, top, p, style.bold ?? false);
+  }
+
+  private drawRun(sheet: HTMLCanvasElement, str: string, left: number, top: number, p: number, bold: boolean): void {
+    let cx = left;
+    for (const ch of str) {
+      const g = glyphOf(ch);
+      const sx = this.glyphs.at.get(g) ?? 0;
+      if (g.width > 0) {
+        this.display.drawImage(sheet, sx, 0, g.width, FONT_ROWS, cx, top, g.width * p, FONT_ROWS * p);
+        if (bold) this.display.drawImage(sheet, sx, 0, g.width, FONT_ROWS, cx + p, top, g.width * p, FONT_ROWS * p);
+      }
+      cx += g.advance * p;
+    }
+  }
+
+  /** Fills a rectangle on the display layer (over text already drawn), in internal pixels. */
+  panel(x: number, y: number, w: number, h: number, color: string): void {
+    this.display.fillStyle = color;
+    this.display.fillRect(this.offsetX + Math.round(x * this.scale), this.offsetY + Math.round(y * this.scale), Math.round(w * this.scale), Math.round(h * this.scale));
   }
 
   /** Converts a client (CSS pixel) point to internal pixels, or null if in the letterbox. */

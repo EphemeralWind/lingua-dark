@@ -15,6 +15,8 @@ function validateContentPlugin(): Plugin {
 export default defineConfig({
   plugins: [validateContentPlugin()],
   server: { port: 5173, strictPort: true },
+  // Second page: the font test (Prompt 4), at /font-test.html.
+  build: { rollupOptions: { input: { main: 'index.html', fontTest: 'font-test.html' } } },
   test: {
     include: ['src/**/*.test.ts'],
     environment: 'node',
