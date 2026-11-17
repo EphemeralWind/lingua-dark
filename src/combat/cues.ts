@@ -23,8 +23,7 @@ export type Cue =
   | 'bonfire'
   | 'seal'
   | 'phase'
-  | 'reviewRight'
-  | 'reviewWrong'
+  | 'stone'
   | 'menu';
 
 /**
@@ -43,11 +42,10 @@ export const CUE_VISUAL: Record<Cue, { caption: string; visual: string }> = {
   lost: { caption: 'you fall', visual: 'YOU DIED banner and caption' },
   step: { caption: 'steps', visual: 'room transition and caption' },
   blocked: { caption: 'clunk', visual: 'message line and caption' },
-  bonfire: { caption: 'fire crackles', visual: 'bonfire review screen and caption' },
+  bonfire: { caption: 'fire crackles', visual: 'bonfire rest scene and caption' },
   seal: { caption: 'chime', visual: 'seal socket ◆ and message' },
   phase: { caption: 'bell tolls', visual: 'phase title card and caption' },
-  reviewRight: { caption: 'chime', visual: '✓ verdict line and caption' },
-  reviewWrong: { caption: 'low note', visual: '✗ verdict line and caption' },
+  stone: { caption: 'stone grinds', visual: 'the lesson page opens or turns, its numeral marker moves, and caption' },
   menu: { caption: '', visual: 'menu cursor moves' },
 };
 

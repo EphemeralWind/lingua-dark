@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { perksFor } from '../learning/perks';
-import { WARDEN_XP } from '../tuning';
+import { FLASKS_PER_REST, PLAYER_VITALITY, WARDEN_XP } from '../tuning';
 import { sealProgress, sealTemplates, socketLine } from './seals';
 import { die, enemyAlive, newGame, rest, walk, winFight } from './state';
 import { ZONE1 } from './zone';
@@ -70,13 +69,12 @@ describe('seals', () => {
     expect(newGame(ZONE1, 2).seals).toEqual([]);
   });
 
-  it('rest and new runs use the perk stats', () => {
-    const perks = perksFor(120);
-    const s = newGame(ZONE1, 1, perks);
-    expect([s.vitality, s.flasks]).toEqual([130, 4]);
+  it('rest and new runs use the base stats (perks are paused, DECISIONS #96)', () => {
+    const s = newGame(ZONE1, 1);
+    expect([s.vitality, s.flasks]).toEqual([PLAYER_VITALITY, FLASKS_PER_REST]);
     s.vitality = 5;
     s.flasks = 0;
-    rest(s, 'r1_bonfire', perks);
-    expect([s.vitality, s.flasks]).toEqual([130, 4]);
+    rest(s, 'r1_bonfire');
+    expect([s.vitality, s.flasks]).toEqual([PLAYER_VITALITY, FLASKS_PER_REST]);
   });
 });

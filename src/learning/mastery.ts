@@ -1,7 +1,8 @@
 // Mastery (SPEC 6, CLAUDE.md rule 6). A component is Learned after correct answers in
 // untelegraphed contexts on MASTERY_CORRECT_DAYS different days. Combat answers never count.
 // An untelegraphed miss clears the streak and un-learns the component, so guessing four-way
-// choices cannot add up to Learned over many tries (DECISIONS #59).
+// choices cannot add up to Learned over many tries (DECISIONS #59). With the bonfire review
+// gone, only reading choices count, and nothing shows or spends Learned (DECISIONS #96).
 import { MASTERY_CORRECT_DAYS } from '../tuning';
 
 /** Where an answer was given. Only `combat` is telegraphed. */

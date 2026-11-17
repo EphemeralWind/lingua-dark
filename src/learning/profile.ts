@@ -6,7 +6,7 @@ import type { AnswerContext } from './mastery';
 export interface Profile {
   version: 1;
   learner: LearnerState;
-  /** Highest Learned count ever reached. Perks read this, so forgetting never takes them back. */
+  /** Highest Learned count ever reached. Kept for saves while perks are paused (DECISIONS #96). */
   bestLearned: number;
 }
 

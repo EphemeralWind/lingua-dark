@@ -2,7 +2,7 @@
 // browser), with JSON export and import. Local only. Pure: the store and the time are injected.
 //
 // Two keys (DECISIONS #75): the run (`lingua-dark/save`), which New Game replaces, and the
-// profile (`lingua-dark/profile`: knowledge and Learned perks), which outlives runs. An export
+// profile (`lingua-dark/profile`: knowledge and the review schedule), which outlives runs. An export
 // file bundles both. Version 1 saves kept the learner inside the game; they migrate on load.
 import { newProfile, type Profile } from '../learning/profile';
 import type { LearnerState } from '../learning/learner';

@@ -29,9 +29,9 @@ export interface EncounterConfig {
   vitalityMax?: number;
   /** Picks which wrong cards a flask greys out. Needed only if flasks are used. */
   flaskRng?: Rng;
-  /** Wrong cards one flask greys out, capped at FLASK_POWER_MAX (perks raise it). */
+  /** Wrong cards one flask greys out, capped at FLASK_POWER_MAX . */
   flaskPower?: number;
-  /** Damage per correct riposte word (perks raise it). */
+  /** Damage per correct riposte word . */
   riposteDamage?: number;
   /**
    * Questions per exchange (default 1). A boss chains several questions into one flurry: the

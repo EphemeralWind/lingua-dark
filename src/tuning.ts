@@ -19,6 +19,7 @@ export const FLASKS_PER_REST = 3;
 /**
  * Wrong cards one flask greys out. The design doc says 2; the user changed it to start at 1 and
  * grow to 2 through Learned perks. Never 3: at least two cards always stay (DECISIONS #74).
+ * Perks are paused (DECISIONS #96), so flasks stay at FLASK_POWER_BASE for now.
  */
 export const FLASK_POWER_BASE = 1;
 export const FLASK_POWER_MAX = 2;
@@ -56,8 +57,6 @@ export const MASTERY_CORRECT_DAYS = 2;
 export const MAX_GHOSTS_PER_ROOM = 3;
 
 // --- default (not in design doc), added in Milestone 3 ---
-/** Questions in one bonfire review round. */
-export const REVIEW_ROUND_SIZE = 5;
 /** A ghost breaks on one parry (any drain exceeds this) and dies to one riposte word. */
 export const GHOST_STANCE_MAX = 1;
 export const GHOST_HP = 15;
@@ -67,37 +66,16 @@ export const GHOST_XP = 10;
 export const AMBUSH_DAMAGE = 15;
 /** Seeds tried when looking for a question that shows a target component on its cards. */
 export const TARGET_TRIES = 800;
-/** Seeds tried when looking for a review question that tests a component exactly. */
-export const REVIEW_TRIES = 8000;
 /** Room-to-room walk transition. */
 export const ROOM_TRANSITION_MS = 350;
 /** Warden HP: a warden guards one seal of the boss gate (DECISIONS #73). */
 export const WARDEN_HP = 90;
 export const WARDEN_XP = 150;
 
-/**
- * Meta-progression perks by all-time best Learned count (DECISIONS #75). Each row adds to the
- * base: vitality to max vitality, riposte to damage per riposte word, flaskPower to wrong
- * cards greyed (capped at FLASK_POWER_MAX), flasks to flasks per rest. Default (not in design doc).
- */
-export interface PerkRow {
-  at: number;
-  vitality?: number;
-  riposte?: number;
-  flaskPower?: number;
-  flasks?: number;
-}
-export const PERKS: readonly PerkRow[] = [
-  { at: 10, vitality: 10 },
-  { at: 25, flaskPower: 1 },
-  { at: 40, riposte: 3 },
-  { at: 60, vitality: 10 },
-  { at: 80, flasks: 1 },
-  { at: 100, vitality: 10 },
-  { at: 115, riposte: 3 },
-];
-
 // --- default (not in design doc), added in Milestone 4 ---
+/** Bonfire lesson pages (DECISIONS #96): how long a page takes to slide when turned (none with reduced motion). */
+export const LESSON_TURN_MS = 150;
+
 /** Zone boss (SPEC 3.7): HP of each phase in order (the harder second phase lasts longer), and the stance meter. */
 export const BOSS_PHASE_HP: readonly number[] = [60, 80];
 export const BOSS_STANCE_MAX = 100;

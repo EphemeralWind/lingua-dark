@@ -62,7 +62,7 @@ A delayed swing may show a fake flicker in its wind-up. The flicker is random no
 ### 3.6 Resources
 
 - **Vitality:** the player's health.
-- **Flasks:** three per bonfire rest. A flask greys out one wrong answer for the current question, two once the player has earned the flask perk (see 6). It never greys out all three. *(Changed from the design doc's "two wrong answers" by the designer, 2026-11-17.)*
+- **Flasks:** three per bonfire rest. A flask greys out one wrong answer for the current question, two once the player has earned the flask perk (see 6). It never greys out all three. *(Changed from the design doc's "two wrong answers" by the designer, 2026-11-17. Perks are paused, so a flask greys out one, DECISIONS #96.)*
 - **Echoes:** on death the player drops unspent XP at the spot. Recovering it means beating the enemy that killed them, which asks the same target word again.
 - There is no Focus resource.
 
@@ -86,7 +86,7 @@ Each phase has its own stance meter, HP and longer combos, and its deck mixes ev
 | `FLASKS_PER_REST` | 3 | design doc |
 | `FLASK_POWER_BASE` / `FLASK_POWER_MAX` | 1 / 2 wrong answers | designer change (was `FLASK_GREYS_OUT` = 2) |
 | `WARDEN_HP` / `WARDEN_XP` | 90 / 150 | default (not in design doc) |
-| `PERKS` | Learned thresholds, see 6 | default (not in design doc) |
+| ~~`PERKS`~~ | Paused with Learned (DECISIONS #96) | removed |
 | `HIT_STOP_MS` | 80 | design doc |
 | `STANCE_MAX` | 100 | default (not in design doc) |
 | `STANCE_DRAIN` | 25 (four perfect parries break stance) | default (not in design doc) |
@@ -105,7 +105,7 @@ Each phase has its own stance meter, HP and longer combos, and its deck mixes ev
 5. Distractors are near-misses: other forms of the same verb, wrong gender, false friends.
 6. Feints test reading, not reflexes.
 7. Guessing is costly: a wrong answer takes the hit, a random guess succeeds one time in four, hits refill the enemy's stance, and the riposte requires typing.
-8. Winning is not mastery. A word counts as mastered only when answered correctly in untelegraphed contexts: bonfire reviews and exploration reading choices.
+8. Winning is not mastery. A word counts as mastered only when answered correctly in untelegraphed contexts: exploration reading choices. *(Bonfire reviews were removed and Learned is paused, DECISIONS #96.)*
 9. Litmus test for every build: a skilled gamer who speaks no Spanish must not be able to clear the first boss.
 
 ## 5. Content system
@@ -114,7 +114,8 @@ Each phase has its own stance meter, HP and longer combos, and its deck mixes ev
 
 | Content | Source |
 | --- | --- |
-| Regular enemies, bonfire reviews, ghost enemies | Procedural (templates + lexicon) |
+| Regular enemies, ghost enemies | Procedural (templates + lexicon) |
+| Bonfire lesson objects (the stele) | Static English verse; example rows spelled from the lexicon |
 | Distractors | Procedural (change one grammatical feature) |
 | Bosses, NPC dialogue, item text, lore, signs | Static, hand-written, native-checked |
 | Idioms and cultural phrases | Static |
@@ -144,8 +145,8 @@ Quality control: automated agreement tests per template over many seeds (start a
 
 - Track **knowledge components**: a word form or grammar feature, for example `v_levantar:present:3sg` and `art:definite:f`.
 - **Leitner boxes:** five boxes, review intervals of 1, 3, 7, 14, and 30 days. A correct answer moves a component up one box. A wrong answer sends it to box 1.
-- **Learned** requires two correct answers in untelegraphed contexts (bonfire review, exploration reading choice) on different days. Learned is **meta-progression**: it lives in a profile that survives New Game, and Learned thresholds grant small perks (more vitality, more riposte damage, a stronger flask, one extra flask per rest). Perks follow the best Learned count ever reached. A player who cannot read Spanish never earns them.
-- **Bonfires:** save progress, refill flasks, run a short review of due components, and respawn normal enemies.
+- **Learned** requires two correct answers in untelegraphed contexts (bonfire review, exploration reading choice) on different days. Learned is **meta-progression**: it lives in a profile that survives New Game, and Learned thresholds grant small perks (more vitality, more riposte damage, a stronger flask, one extra flask per rest). Perks follow the best Learned count ever reached. A player who cannot read Spanish never earns them. *(Paused: with the bonfire review gone, nothing shows or spends Learned and there are no perks, DECISIONS #96.)*
+- **Bonfires:** save progress, refill flasks, and respawn normal enemies. Resting opens the **lesson hub**: the player sits by the fire with the zone's lesson objects (Zone 1: a four-sided stele) and can zoom in on one to read its pages of grammar. *(Replaces the short review of due components, 2026-11-18, DECISIONS #96.)*
 - **Ghosts:** missed components return as ghost enemies, up to three per room. Beating a ghost with a correct answer moves its component up a box.
 - **Boss gate:** the locked door in front of each boss's arena. It opens when the player holds every **seal** of the zone, so a zone can be cleared in one sitting. Each seal stands for one grammar aspect and is won by beating its **warden**, a tougher enemy whose questions come only from that aspect's templates. Wardens never respawn; seals last for the run. Zone 1: Seal of Articles (cellar warden), Seal of Verbs (chapel warden), Seal of Words (orchard warden). The boss then tests the seals combined: every phase mixes all three (3.7). *(Replaces the earlier "80% of components Learned" gate, 2026-11-17.)*
 - **Saving:** localStorage first (IndexedDB if saves grow), with JSON export and import. Local only for now.
@@ -248,5 +249,5 @@ Estimates assume one developer and are starting guesses.
 ## 12. Open questions
 
 - Should Hollow mode (no timers) count toward mastery, or only toward progress?
-- Is the perk table right (thresholds and sizes)? Are three wardens the right length for Zone 1?
+- Should Learned and perks come back, and from which untelegraphed source? Are three wardens the right length for Zone 1?
 - Which pixel font covers all Spanish accents and punctuation (á é í ó ú ñ ü ¿ ¡)?

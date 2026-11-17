@@ -255,3 +255,31 @@ Each entry: what was ambiguous, the reading picked, and why. Revisit any of them
       - The Spanish is shown large with its English below, and spoken by the es-ES voice. The text is the visual twin.
     - **Blind mode is removed everywhere:** the fight's fog, banner and wind-up speech, and the `blind` answer context. The untelegraphed contexts are now bonfire reviews and exploration reading choices. This supersedes #29 and #86.
 
+
+### 2026-11-18: The bonfire is a lesson hub; the review, Learned and perks are paused
+
+96. **Resting at a bonfire now opens a lesson hub, not a review round.** The designer found that typing missing words tested the player without teaching anything. The bonfire scene now holds objects to examine. Selecting one zooms in on it, and its pages give the grammar as a short in-world riddle above carved rows of examples. The demo has one object: a four-sided stele.
+    - **The review is removed,** along with **Learned and the perks** (#75). The review was the only real source of untelegraphed answers (Zone 1 has one reading choice), so Learned could no longer rise, and the designer chose to drop it for now instead of adding a new source.
+      - Removed: `scenes/review.ts`, `learning/perks.ts`, `reviewTargets`/`reviewQuestion`, `REVIEW_ROUND_SIZE`, `REVIEW_TRIES`, `PERKS`, the Learned and perk lines on the title and map, and the F9 dev key.
+      - Runs use the base stats (`PLAYER_VITALITY`, `FLASKS_PER_REST`, `RIPOSTE_DAMAGE_PER_WORD`, `FLASK_POWER_BASE`).
+      - Kept: the learner and the Leitner schedule, which still order fight questions (#58); `mastery.ts`; and `profile.bestLearned`, so saves load unchanged and Learned can return without a migration. Reading choices still record `reading` answers.
+      - CLAUDE.md rule 6 and SPEC 2 and 6 are updated to match.
+    - **Data: `src/content/data/lessons.json`,** schema-checked and validated at build like the other content. An object has an `id`, `zone`, `name_en`, a `sprite` for the rest scene, a `pageSprite` (frame *i* is page *i*), and its pages. Each page has `title_en`, `verse_en` (1 to 4 lines) and `rows`.
+    - **Rows name lexicon entries; they are not written-out Spanish.**
+      - `{ kind: 'articles', art, nouns }` shows each noun with its article, singular then plural.
+      - `{ kind: 'conjugation', tense: 'present', verbs }` shows one row per person: every pronoun of that person, then each verb's form.
+
+      `content/lessons.ts` spells them out from `lexicon.json` and `templates.json`, so a lesson can never show a form the fights would mark wrong, and the stele adds no Spanish. Validation rejects unknown nouns or verbs, and mass nouns in article rows.
+    - **Generic by design.** `world/hub.ts` is a pure state machine for any set of objects. While browsing: Left/Right selects, Enter or a click opens, Esc leaves. While reading: Left/Right or a click on the outer thirds turns the page (wrapping round), and Enter, Esc or a middle click closes. `scenes/hub.ts` draws any object.
+      - Objects stand at `REST_SPOTS` in `sceneryLayout.ts`, in data order.
+      - Every page sprite keeps `PAGE_TEXT` clean for the text; `art.test.ts` checks this.
+      - A new object kind is a `lessons.json` entry plus art, or one new row `kind` if it needs a new kind of table.
+    - **The stele's four faces:**
+      - I, "The keepers": el/la/los/las, with -s and -es plurals (escudo, espada, puente, llave, pan). Puente and llave show that the ending is not a sure guide to gender.
+      - II, "The strangers": un/una/unos/unas (lobo, antorcha, cuervo, campana).
+      - III, "The first oath": present tense of -ar verbs (levantar).
+      - IV, "The second oath": present tense of -er and -ir verbs side by side (comer, escribir), which differ only at nosotros and vosotros.
+
+      Each face wears differently in shape, not only in colour: I cracked, II mossed with lichen, III with its corner broken off and pitted, IV soot-blackened and rain-streaked. The wear stays outside the text area. Roman numerals I to IV mark the face, the current one boxed. R speaks the page's Spanish (pronoun plus form, or article plus noun). A turned page slides in over `LESSON_TURN_MS` (150 ms), and cuts with reduced motion.
+    - **Cues:** `reviewRight`/`reviewWrong` are replaced by `stone` ("stone grinds"), which plays when a page opens or turns.
+    - **Draft text:** the English titles and verse are drafts by Claude, to be tuned by the designer. The example rows come from seed data that is already listed for native review.

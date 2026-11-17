@@ -129,12 +129,13 @@ The notes below describe the current state.
 - **Scenes:**
   - `fight.ts`: the shared fight presenter.
   - `combat.ts`: the practice fight.
-  - `game.ts`: title (with Learned and perks), explore, fights (wardens use their seal deck and
-    `WARDEN_HP`), rest and review, map.
-  - `review.ts`, `worldView.ts` (seal sockets ◆/◇ on the HUD, the gate and the map).
+  - `game.ts`: title, explore, fights (wardens use their seal deck and `WARDEN_HP`), the bonfire
+    lesson hub, map.
+  - `hub.ts` (the lesson hub, #96), `worldView.ts` (seal sockets ◆/◇ on the HUD, the gate and the map).
 - **Controls:** arrows/WASD walk and answer. Enter fights a foe or rests at the bonfire. F
   drinks a flask. M opens the map, where E exports and I imports a save. Dev only: F8 skips a
-  day, F9 marks everything Learned, F10 grants every seal.
+  day, F10 grants every seal. At the bonfire, ←→ picks an object, Enter reads it, ←→ turns its
+  pages, R speaks them, Esc steps back.
 - **Blind bots:** all 14 now play the whole deck and each seal deck: 23.8%–25.9%, no wins. The
   articles warden runs 1,500 fights, because guessers die faster there (#73). Memory bots
   against the due-first picker: 25.5% / 25.3% (#58).
@@ -246,6 +247,24 @@ Decisions #77–#90.
   (combo template, flurry 1/3, 80 HP).
 - Tests: 395 passing (the blind-phase arena's bots are gone; new boss and validation tests added).
 
+### After M4: the bonfire lesson hub (#96)
+
+- Resting opens a lesson hub instead of the review. The player sits by the fire beside a
+  four-sided stele. Selecting it zooms in on a face; ←→ turns between the four faces:
+  - I: el/la/los/las with plurals;
+  - II: un/una/unos/unas;
+  - III: present tense -ar;
+  - IV: present tense -er and -ir.
+
+  Each face has a short English riddle above carved example rows, and its own wear: cracked,
+  mossed, chipped, rain-streaked.
+- The rows are spelled from the lexicon (`content/lessons.ts`), so the stele adds no Spanish. The
+  objects live in `content/data/lessons.json`, validated at build. `world/hub.ts` is the shared,
+  pure state machine. A new object is a data entry plus art.
+- Removed: the review round, Learned display and perks, and the F9 key. Saves load unchanged
+  (`profile.bestLearned` stays).
+- Verified in the browser: rest → hub → all four faces → back to the room.
+
 ## Open items and known risks
 
 - **Native review pending** (M2 gate) for `docs/review/zone1-sentences.md`, plus the boss's battle cry «¡Escucha! ¡La campana dobla por ti!» (#95). Otherwise M4 adds no Spanish:
@@ -257,9 +276,10 @@ Decisions #77–#90.
   - Hollow mode and mastery: provisionally no effect (#82). Designer to confirm.
   - Grab (listening) attacks: matching sound to written cards may be possible without Spanish (#89).
     Needs a design before it is built. Feints, sweep, NPC dialogue and items are also not built.
-  - Tune `BOSS_CHAIN`, `BOSS_PHASE_HP`, `BATTLE_CRY_MS`, the perk table and `WARDEN_HP` at playtest. Also check that the phase-2 pool feels harder, not just longer.
+  - Tune `BOSS_CHAIN`, `BOSS_PHASE_HP`, `BATTLE_CRY_MS` and `WARDEN_HP` at playtest.
+  - Learned and perks are paused (#96): decide whether they return, and from what untelegraphed source.
+  - The stele's English verse is a draft (#96). Also check that the phase-2 pool feels harder, not just longer.
   - Only one sign has a reading choice (#62). More need hand-written, native-checked Spanish.
-  - Reading components (`w_*`) count toward the profile but are outside the 120 shown as Learned.
 - Accepted risks, to watch at the playtest:
   - Riposte words can be copied from the card that just won (#10).
   - A reader can pick up shallow sentence cues and cognates (#49).

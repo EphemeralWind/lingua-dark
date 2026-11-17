@@ -15,7 +15,7 @@ Non-negotiables:
 3. A small HUD icon may name the attack type. It must never carry anything about the answer.
 4. No rhythm skill: the answer is the parry. Earlier answers parry better, but there is no narrow timing window.
 5. Distractors are plausible near-misses (same verb other person, wrong gender or number). Never include a form that is also correct.
-6. Mastery counts only answers in untelegraphed contexts: bonfire reviews, blind rounds, and exploration reading choices. Combat answers update the review schedule but do not mark a component Learned.
+6. Mastery (Learned) is paused while the bonfire is a lesson hub (DECISIONS #96). If it returns, it counts only answers in untelegraphed contexts, such as exploration reading choices. Combat answers update the review schedule only and never mark a component Learned.
 7. The `blind-bot` test must pass in CI: a bot that sees only animation state and card positions scores no better than chance (25% on four cards, with a tolerance defined in the test).
 
 ## Stack and commands

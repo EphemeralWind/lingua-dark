@@ -1,15 +1,15 @@
-// The game: title, exploration of the zone graph, fights, bonfire rest and review, map, and
+// The game: title, exploration of the zone graph, fights, the bonfire lesson hub, map, and
 // saving. Rules live in the pure modules (world/, learning/, save/); this scene wires them to
 // input, the clock, the renderer and localStorage.
 import { cardRepresentable, templateComponents, zoneComponents } from '../content/components';
+import { lessonObjectsFor } from '../content/lessons';
 import { createRng } from '../content/rng';
 import type { Template } from '../content/schema';
 import type { Direction } from '../content/types';
 import { Encounter } from '../combat/encounter';
-import { nextPerkAt, perkLines, perksFor, type Perks } from '../learning/perks';
 import type { AnswerContext } from '../learning/mastery';
-import { learnedCount, recordInProfile, type Profile } from '../learning/profile';
-import { createPicker, reviewQuestion, reviewTargets } from '../learning/picker';
+import { recordInProfile, type Profile } from '../learning/profile';
+import { createPicker } from '../learning/picker';
 import type { Mood } from '../platform/audio';
 import type { DayClock } from '../platform/clock';
 import { downloadText, pickTextFile } from '../platform/files';
@@ -17,7 +17,7 @@ import type { InputEvent } from '../platform/input';
 import { C } from '../platform/palette';
 import type { Renderer } from '../platform/renderer';
 import type { SaveStore } from '../save/store';
-import { BATTLE_CRY_MS, CRY_SHAKE_MS, GHOST_HP, HIT_SHAKE_PX, GHOST_STANCE_MAX, PHASE_TRANSITION_MS, REVIEW_ROUND_SIZE, ROOM_TRANSITION_MS, WARDEN_HP } from '../tuning';
+import { BATTLE_CRY_MS, CRY_SHAKE_MS, GHOST_HP, HIT_SHAKE_PX, GHOST_STANCE_MAX, FLASK_POWER_BASE, PHASE_TRANSITION_MS, PLAYER_VITALITY, ROOM_TRANSITION_MS, WARDEN_HP } from '../tuning';
 import { bossIn, type BossDef } from '../world/boss';
 import { sealProgress, sealTemplates, socketLine, type SealProgress } from '../world/seals';
 import {
@@ -40,7 +40,7 @@ import {
 } from '../world/state';
 import { BACK, layoutZone, resolveExit, ZONE1, type Zone } from '../world/zone';
 import { drawArena, Fight } from './fight';
-import { Review } from './review';
+import { Hub } from './hub';
 import type { Services } from './services';
 import { drawMap, drawRoom, drawTitle, type ExitLook } from './worldView';
 
@@ -57,7 +57,7 @@ interface FightMode {
   boss: { def: BossDef; index: number; cardUntil: number | null; cardFrom: number } | null;
 }
 
-type Mode = { kind: 'title'; confirmNew: boolean } | { kind: 'explore' } | FightMode | { kind: 'review'; review: Review } | { kind: 'map' };
+type Mode = { kind: 'title'; confirmNew: boolean } | { kind: 'explore' } | FightMode | { kind: 'hub'; hub: Hub } | { kind: 'map' };
 
 const MESSAGE_MS = 4000;
 
@@ -69,7 +69,7 @@ function enemyLabel(id: string): string {
 export interface GameDeps {
   store: SaveStore;
   clock: DayClock;
-  /** Dev builds only: F8 skips a day, F9 marks the zone Learned, F10 grants every seal. */
+  /** Dev builds only: F8 skips a day, F10 grants every seal. */
   dev: boolean;
 }
 
@@ -87,7 +87,7 @@ export class GameScene {
   private now = 0;
   /** The stored game as of the last title visit, for the title menu. */
   private saved: GameState | null = null;
-  /** Knowledge and perks that outlive runs (DECISIONS #75). */
+  /** Knowledge that outlives runs (DECISIONS #75); it orders fight questions by the review schedule. */
   private profile: Profile;
 
   constructor(
@@ -111,17 +111,6 @@ export class GameScene {
     return sealProgress(this.game?.seals ?? [], this.zone);
   }
 
-  private perks(): Perks {
-    return perksFor(this.profile.bestLearned);
-  }
-
-  /** "Learned 37/120 (all time). Next perk at 40." */
-  private learnedLine(): string {
-    const next = nextPerkAt(this.profile.bestLearned);
-    const n = learnedCount(this.profile.learner);
-    return `Learned ${n}/${this.universe.length} (all time).${next === null ? ' All perks earned.' : ` Next perk at ${next}.`}`;
-  }
-
   private record(ids: readonly string[], correct: boolean, ctx: AnswerContext, assisted = false): void {
     recordInProfile(this.profile, ids, correct, ctx, this.day, { assisted });
     this.deps.store.saveProfile(this.profile);
@@ -141,7 +130,7 @@ export class GameScene {
     returnToBonfire(game);
     this.mode = { kind: 'explore' };
     this.enteredAt = this.now;
-    this.say(`You wake by the bonfire. Seals ${this.seals().held}/${this.seals().total}.`, 'Enter: rest and review.  M: map.');
+    this.say(`You wake by the bonfire. Seals ${this.seals().held}/${this.seals().total}.`, 'Enter: rest by the fire.  M: map.');
   }
 
   private exportSave(): void {
@@ -175,7 +164,7 @@ export class GameScene {
     const m = this.mode;
     if (m.kind === 'title') return 'title';
     if (m.kind === 'fight') return m.boss ? 'boss' : 'fight';
-    if (m.kind === 'review') return 'rest';
+    if (m.kind === 'hub') return 'rest';
     const g = this.game;
     return g && this.zone.room(g.room).contents.bonfire ? 'rest' : 'explore';
   }
@@ -206,13 +195,12 @@ export class GameScene {
       case 'fight':
         this.updateFight(m, nowMs, events);
         break;
-      case 'review':
-        m.review.update(events, nowMs);
-        if (m.review.finished) {
-          m.review.dispose();
-          this.save();
+      case 'hub':
+        m.hub.update(events, nowMs);
+        if (m.hub.finished) {
+          m.hub.dispose();
           this.mode = { kind: 'explore' };
-          this.say(this.learnedLine());
+          this.enteredAt = this.now;
         }
         break;
     }
@@ -222,6 +210,11 @@ export class GameScene {
     ds['room'] = this.game?.room ?? '';
     if (this.mode.kind === 'fight') this.mode.fight.publishTestState();
     else ds['phase'] = this.mode.kind;
+    if (this.mode.kind === 'hub') Object.assign(ds, this.mode.hub.publicState);
+    else {
+      delete ds['viewing'];
+      delete ds['page'];
+    }
   }
 
   private handleTitle(m: { kind: 'title'; confirmNew: boolean }, ev: InputEvent): void {
@@ -241,7 +234,7 @@ export class GameScene {
 
   private newGame(): void {
     // A new run's base seed comes from the wall clock (platform code, not game logic).
-    const g = newGame(this.zone, this.deps.clock.nowMs() >>> 0, this.perks());
+    const g = newGame(this.zone, this.deps.clock.nowMs() >>> 0);
     this.deps.store.save(g, this.deps.clock.nowMs());
     this.startGame(g);
     const reading = this.zone.room(g.room).contents.reading;
@@ -264,11 +257,6 @@ export class GameScene {
       else if (this.deps.dev && ev.code === 'F8') {
         this.deps.clock.skipDay();
         this.say(`Dev: skipped to day ${this.day}.`);
-      } else if (this.deps.dev && ev.code === 'F9') {
-        recordInProfile(this.profile, this.universe, true, 'review', this.day - 1);
-        recordInProfile(this.profile, this.universe, true, 'review', this.day);
-        this.deps.store.saveProfile(this.profile);
-        this.say('Dev: every Zone 1 component marked Learned.', 'Perks apply from the next rest or fight.');
       } else if (this.deps.dev && ev.code === 'F10') {
         g.seals = Object.keys(this.zone.seals);
         this.save();
@@ -369,7 +357,7 @@ export class GameScene {
     this.message = [];
   }
 
-  /** One fight against `foe` with a deck (default: the whole zone) and the player's perks. */
+  /** One fight against `foe` with a deck (default: the whole zone). */
   private makeFight(
     g: GameState,
     foe: FoeKey,
@@ -389,13 +377,9 @@ export class GameScene {
       among,
       ...(templates ? { templates } : {}),
     });
-    const perks = this.perks();
     const enc = new Encounter(picker, {
       zone: g.zone,
-      vitality: Math.min(g.vitality, perks.vitalityMax),
-      vitalityMax: perks.vitalityMax,
-      riposteDamage: perks.riposteDamage,
-      flaskPower: perks.flaskPower,
+      vitality: Math.min(g.vitality, PLAYER_VITALITY),
       flaskRng: createRng(rng.nextSeed()),
       untimed: this.svc.settings.hollow,
       ...(o.enemyHp !== undefined ? { enemyHp: o.enemyHp } : {}),
@@ -405,7 +389,7 @@ export class GameScene {
     return new Fight(enc, this.svc, {
       label: o.label,
       character: o.character,
-      flasks: { count: () => g.flasks, spend: () => (g.flasks = Math.max(0, g.flasks - 1)), power: perks.flaskPower },
+      flasks: { count: () => g.flasks, spend: () => (g.flasks = Math.max(0, g.flasks - 1)), power: FLASK_POWER_BASE },
       ...(o.note ? { note: o.note } : {}),
       ...(o.arena ? { arena: o.arena } : {}),
     });
@@ -491,7 +475,7 @@ export class GameScene {
     } else {
       addGhosts(g, m.room, m.missed);
       const xp = g.xp;
-      die(g, m.foe, m.lastMiss, this.perks());
+      die(g, m.foe, m.lastMiss);
       this.say('YOU DIED. You wake by the bonfire.', xp > 0 ? `Your echo (${xp} XP) waits where you fell.` : 'You carried no XP.');
     }
     this.save();
@@ -501,16 +485,12 @@ export class GameScene {
 
   // --- bonfire ---------------------------------------------------------------
 
+  /** Rest at the bonfire, then sit by the fire with the zone's lesson objects (DECISIONS #96). */
   private restAt(g: GameState): void {
-    rest(g, g.room, this.perks());
-    const rng = createRng(nextFightSeed(g));
-    const day = this.day;
-    const targets = reviewTargets(this.profile.learner, this.universe, day, REVIEW_ROUND_SIZE, rng);
-    const questions = targets.flatMap((t) => reviewQuestion(rng, t) ?? []);
+    rest(g, g.room);
     this.save();
-    const review = new Review(questions, this.svc, (q, correct) => this.record(q.components, correct, 'review'), g.zone <= 1);
     this.svc.cues.play('bonfire', this.now);
-    this.mode = { kind: 'review', review };
+    this.mode = { kind: 'hub', hub: new Hub(lessonObjectsFor(g.zone), this.svc) };
     this.message = [];
   }
 
@@ -527,8 +507,7 @@ export class GameScene {
           : saved
             ? ['Enter: continue', 'N: new game   I: import save   O: settings']
             : ['Enter: new game', 'I: import save   O: settings'];
-      const perks = perkLines(this.profile.bestLearned);
-      drawTitle(r, lines, [this.learnedLine(), perks.length > 0 ? `Perks: ${perks.join(', ')}` : 'Perks: none yet. Learn words at the bonfire.'], this.titleError);
+      drawTitle(r, lines, ['Rest at a bonfire to study what the stones remember.'], this.titleError);
       return;
     }
     if (m.kind === 'fight') {
@@ -547,9 +526,8 @@ export class GameScene {
       return;
     }
     const seals = this.seals();
-    const perks = this.perks();
-    if (m.kind === 'review') {
-      m.review.render(r, this.learnedLine(), nowMs);
+    if (m.kind === 'hub') {
+      m.hub.render(r, `Seals ${seals.held}/${seals.total}`, nowMs);
       return;
     }
     if (m.kind === 'map') {
@@ -566,7 +544,6 @@ export class GameScene {
         ),
         lines: [
           `${this.deps.dev ? `Day ${this.day}   ` : ''}XP ${g.xp}   Flasks ${g.flasks}   Seals: ${socketLine(seals)}`,
-          this.learnedLine(),
           'M / Esc: back    E: export save    I: import save',
         ],
       });
@@ -603,7 +580,7 @@ export class GameScene {
       ghosts: g.ghosts[g.room]?.length ?? 0,
       echo: g.echo && g.echo.room === g.room ? g.echo : null,
       readingGoal: room.contents.reading && !g.readingsDone.includes(g.room) ? room.contents.reading.goal_en : null,
-      hud: { vitality: g.vitality, vitalityMax: perks.vitalityMax, flasks: g.flasks, xp: g.xp, seals, day: this.deps.dev ? this.day : null },
+      hud: { vitality: g.vitality, vitalityMax: PLAYER_VITALITY, flasks: g.flasks, xp: g.xp, seals, day: this.deps.dev ? this.day : null },
       hint,
       message: this.message,
       fade,

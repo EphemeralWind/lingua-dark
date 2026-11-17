@@ -11,7 +11,7 @@ export type InputEvent =
   | { type: 'key'; code: string; atMs: number };
 
 /** Other keys the game uses; their browser default is suppressed. */
-const GAME_KEYS = new Set(['KeyF', 'KeyM', 'KeyE', 'KeyI', 'KeyN', 'KeyO', 'KeyR', 'Escape', 'F8', 'F9', 'F10']);
+const GAME_KEYS = new Set(['KeyF', 'KeyM', 'KeyE', 'KeyI', 'KeyN', 'KeyO', 'KeyR', 'Escape', 'F8', 'F10']);
 
 const KEY_DIRECTIONS: Record<string, Direction> = {
   ArrowUp: 'north',

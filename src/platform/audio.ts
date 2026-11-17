@@ -207,12 +207,12 @@ export class Sound {
         [262, 330, 392].forEach((f) => this.tone(f, 1.2, 'triangle', 0.05));
         break;
       case 'seal':
-      case 'reviewRight':
         this.tone(784, 0.25, 'triangle', 0.1);
         this.tone(1175, 0.4, 'triangle', 0.08, { at: now + 0.09 });
         break;
-      case 'reviewWrong':
-        this.tone(220, 0.35, 'triangle', 0.1, { slideTo: 196 });
+      case 'stone':
+        this.noise(0.22, 'lowpass', 260, 0.3);
+        this.tone(70, 0.2, 'triangle', 0.06, { slideTo: 55 });
         break;
       case 'phase':
         [65.4, 130.8, 196].forEach((f) => this.tone(f, 2.2, 'sine', 0.2));

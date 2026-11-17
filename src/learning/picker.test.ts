@@ -8,7 +8,7 @@ import { DIRECTIONS, type Direction } from '../content/types';
 import { Encounter } from '../combat/encounter';
 import { RESOLVE_MS } from '../tuning';
 import { newLearner, recordAnswer, type LearnerState } from './learner';
-import { createPicker, reviewQuestion, reviewTargets, targetedQuestion } from './picker';
+import { createPicker, targetedQuestion } from './picker';
 
 const universe = zoneComponents(1);
 const representable = universe.filter((c) => cardRepresentable(c));
@@ -118,34 +118,5 @@ describe('memory bots against the due-first picker', () => {
     expect(missedStrikes).toBeGreaterThan(2000);
     expect(shownMissed / strikes).toBeGreaterThan(0.5);
     expect(parries / strikes).toBeLessThanOrEqual(0.25 + 0.025);
-  });
-});
-
-describe('review questions (typed, untelegraphed)', () => {
-  it('test the target exactly, with one blank, for every Zone 1 component', () => {
-    const rng = createRng(3);
-    for (const c of universe) {
-      const q = reviewQuestion(rng, c);
-      expect(q, c).not.toBeNull();
-      expect(q!.components).toContain(c);
-      expect(q!.strikes).toHaveLength(1);
-      expect(q!.kind).not.toBe('translate');
-    }
-  });
-
-  it('review order: due first, then met but unlearned, then new', () => {
-    let l = newLearner();
-    l = recordAnswer(l, ['a'], false, 'combat', 0); // box 1, due day 1
-    l = recordAnswer(l, ['b'], true, 'combat', 0); // box 2, due day 3
-    const out = reviewTargets(l, ['a', 'b', 'c', 'd'], 1, 3, createRng(1));
-    expect(out.slice(0, 2)).toEqual(['a', 'b']);
-    expect(['c', 'd']).toContain(out[2]);
-  });
-
-  it('skips components already reviewed today and Learned ones not due', () => {
-    let l = newLearner();
-    l = recordAnswer(l, ['a'], true, 'review', 5);
-    l = recordAnswer(recordAnswer(l, ['b'], true, 'review', 3), ['b'], true, 'review', 4); // learned, due 4 + 3
-    expect(reviewTargets(l, ['a', 'b'], 5, 5, createRng(1))).toEqual([]);
   });
 });

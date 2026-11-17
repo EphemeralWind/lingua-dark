@@ -3,9 +3,8 @@
 // save it through src/save/store.ts. Rules: SPEC 3.6, 6 and 7; readings in DECISIONS #62+.
 import { createRng } from '../content/rng';
 import type { Direction } from '../content/types';
-import { perksFor, type Perks } from '../learning/perks';
 import { recordInProfile, type Profile } from '../learning/profile';
-import { AMBUSH_DAMAGE, BOSS_XP, ENEMY_XP, GHOST_XP, MAX_GHOSTS_PER_ROOM, WARDEN_XP } from '../tuning';
+import { AMBUSH_DAMAGE, BOSS_XP, ENEMY_XP, FLASKS_PER_REST, GHOST_XP, MAX_GHOSTS_PER_ROOM, PLAYER_VITALITY, WARDEN_XP } from '../tuning';
 import { edgeKey, type Zone } from './zone';
 
 /** Who a fight is against: the room's regular enemy, its boss, or a ghost of one component. */
@@ -55,10 +54,7 @@ export interface GameState {
   readingsDone: string[];
 }
 
-/** The parts of the perks a run's resources use. */
-type RunPerks = Pick<Perks, 'vitalityMax' | 'flasksPerRest'>;
-
-export function newGame(zone: Zone, seed: number, perks: RunPerks = perksFor(0)): GameState {
+export function newGame(zone: Zone, seed: number): GameState {
   return {
     version: 1,
     zone: zone.number,
@@ -78,8 +74,8 @@ export function newGame(zone: Zone, seed: number, perks: RunPerks = perksFor(0))
     ghosts: {},
     echo: null,
     xp: 0,
-    flasks: perks.flasksPerRest,
-    vitality: perks.vitalityMax,
+    flasks: FLASKS_PER_REST,
+    vitality: PLAYER_VITALITY,
     readingsDone: [],
   };
 }
@@ -100,10 +96,10 @@ export function walk(s: GameState, to: string, opens: string | null, viaBack = f
 }
 
 /** Bonfire rest: refill vitality and flasks, respawn regular enemies. Ghosts and wardens stay. */
-export function rest(s: GameState, bonfire: string, perks: RunPerks = perksFor(0)): void {
+export function rest(s: GameState, bonfire: string): void {
   s.bonfire = bonfire;
-  s.vitality = perks.vitalityMax;
-  s.flasks = perks.flasksPerRest;
+  s.vitality = PLAYER_VITALITY;
+  s.flasks = FLASKS_PER_REST;
   s.defeated = [];
 }
 
@@ -117,11 +113,11 @@ export function returnToBonfire(s: GameState): void {
  * Death: unspent XP drops as an echo in the room, replacing any older echo. The player wakes
  * at the last bonfire, refilled, with regular enemies respawned (DECISIONS #64).
  */
-export function die(s: GameState, killer: FoeKey, target: string | null, perks: RunPerks = perksFor(0)): void {
+export function die(s: GameState, killer: FoeKey, target: string | null): void {
   // Dying again before recovering loses the older echo.
   s.echo = s.xp > 0 ? { room: s.room, xp: s.xp, killer, target } : null;
   s.xp = 0;
-  rest(s, s.bonfire, perks);
+  rest(s, s.bonfire);
   returnToBonfire(s);
 }
 
