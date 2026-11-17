@@ -1,7 +1,7 @@
 {
   "version": 1,
   "dialect": "es-ES",
-  "note": "Seed templates for Zone 1. Slot rule: verb.takes must intersect noun.tags.",
+  "note": "Seed templates for Zone 1. Slot rule: verb.takes must intersect noun.tags. Milestone 2 added t_indefinite_plural, t_vocab_noun, t_translate_object, gloss_en, and excludeTags; all need native review.",
   "persons": [
     "yo",
     "tu",
@@ -14,42 +14,50 @@
     {
       "id": "yo",
       "surface": "yo",
-      "person": "yo"
+      "person": "yo",
+      "gloss_en": "I"
     },
     {
       "id": "tu",
       "surface": "tú",
-      "person": "tu"
+      "person": "tu",
+      "gloss_en": "you"
     },
     {
       "id": "el",
       "surface": "él",
-      "person": "el"
+      "person": "el",
+      "gloss_en": "he"
     },
     {
       "id": "ella",
       "surface": "ella",
-      "person": "el"
+      "person": "el",
+      "gloss_en": "she"
     },
     {
       "id": "nosotros",
       "surface": "nosotros",
-      "person": "nosotros"
+      "person": "nosotros",
+      "gloss_en": "we"
     },
     {
       "id": "vosotros",
       "surface": "vosotros",
-      "person": "vosotros"
+      "person": "vosotros",
+      "gloss_en": "you all"
     },
     {
       "id": "ellos",
       "surface": "ellos",
-      "person": "ellos"
+      "person": "ellos",
+      "gloss_en": "they"
     },
     {
       "id": "ellas",
       "surface": "ellas",
-      "person": "ellos"
+      "person": "ellos",
+      "gloss_en": "they"
     }
   ],
   "articles": {
@@ -108,7 +116,7 @@
         }
       },
       "tests": [
-        "verb:{verb}:present:{person}"
+        "{verb}:present:{person}"
       ]
     },
     {
@@ -162,7 +170,10 @@
         "noun": {
           "type": "noun",
           "number": "sg",
-          "requires": "verb.takes"
+          "requires": "verb.takes",
+          "excludeTags": [
+            "mass"
+          ]
         },
         "art": {
           "type": "article"
@@ -198,7 +209,10 @@
         "noun": {
           "type": "noun",
           "number": "pl",
-          "requires": "verb.takes"
+          "requires": "verb.takes",
+          "excludeTags": [
+            "mass"
+          ]
         },
         "art": {
           "type": "article",
@@ -218,7 +232,7 @@
       },
       "tests": [
         "art:definite:{gender}:pl",
-        "noun:{noun}:plural"
+        "{noun}:plural"
       ]
     },
     {
@@ -277,8 +291,118 @@
         }
       },
       "tests": [
-        "verb:{verb1}:present:{person1}",
-        "verb:{verb2}:present:{person2}"
+        "{verb1}:present:{person1}",
+        "{verb2}:present:{person2}"
+      ]
+    },
+    {
+      "id": "t_indefinite_plural",
+      "zone": 1,
+      "kind": "grammar",
+      "pattern": "{subj} {verb:present} {art:indefinite}{noun:plural}.",
+      "slots": {
+        "subj": {
+          "type": "subject"
+        },
+        "verb": {
+          "type": "verb"
+        },
+        "noun": {
+          "type": "noun",
+          "number": "pl",
+          "requires": "verb.takes",
+          "excludeTags": [
+            "mass"
+          ]
+        },
+        "art": {
+          "type": "article",
+          "agreesWith": "noun"
+        }
+      },
+      "blanks": [
+        "art"
+      ],
+      "distractors": {
+        "art": {
+          "vary": [
+            "gender",
+            "number"
+          ]
+        }
+      },
+      "tests": [
+        "art:indefinite:{gender}:pl",
+        "{noun}:plural"
+      ]
+    },
+    {
+      "id": "t_vocab_noun",
+      "zone": 1,
+      "kind": "vocab",
+      "pattern": "{art:definite}{noun}",
+      "gloss_en": "the {noun}",
+      "slots": {
+        "noun": {
+          "type": "noun",
+          "number": "sg"
+        },
+        "art": {
+          "type": "article",
+          "agreesWith": "noun"
+        }
+      },
+      "blanks": [
+        "$sentence"
+      ],
+      "distractors": {
+        "$sentence": {
+          "vary": [
+            "lemma"
+          ]
+        }
+      },
+      "tests": [
+        "{noun}"
+      ]
+    },
+    {
+      "id": "t_translate_object",
+      "zone": 1,
+      "kind": "translate",
+      "pattern": "{subj} {verb:present} {art:definite}{noun}.",
+      "gloss_en": "{subj} {verb} the {noun}.",
+      "slots": {
+        "subj": {
+          "type": "subject"
+        },
+        "verb": {
+          "type": "verb"
+        },
+        "noun": {
+          "type": "noun",
+          "number": "sg",
+          "requires": "verb.takes"
+        },
+        "art": {
+          "type": "article",
+          "agreesWith": "noun"
+        }
+      },
+      "blanks": [
+        "$sentence"
+      ],
+      "distractors": {
+        "$sentence": {
+          "vary": [
+            "person",
+            "gender"
+          ]
+        }
+      },
+      "tests": [
+        "{verb}:present:{person}",
+        "art:definite:{gender}:sg"
       ]
     }
   ]

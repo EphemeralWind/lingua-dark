@@ -1,7 +1,7 @@
 {
   "version": 1,
   "dialect": "es-ES",
-  "note": "Seed lexicon. Regular verbs only. Needs native-speaker review before release.",
+  "note": "Seed lexicon. Regular verbs only. Needs native-speaker review before release. English glosses (gloss_en) added in milestone 2 for jab and delayed-swing prompts; they need review too.",
   "entries": [
     {
       "id": "n_espada",
@@ -15,7 +15,8 @@
         "liftable",
         "carriable"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "sword"
     },
     {
       "id": "n_escudo",
@@ -30,7 +31,8 @@
         "carriable",
         "touchable"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "shield"
     },
     {
       "id": "n_martillo",
@@ -44,7 +46,8 @@
         "liftable",
         "carriable"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "hammer"
     },
     {
       "id": "n_antorcha",
@@ -59,7 +62,8 @@
         "carriable",
         "lookable"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "torch"
     },
     {
       "id": "n_llave",
@@ -73,7 +77,8 @@
         "carriable",
         "searchable"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "key"
     },
     {
       "id": "n_libro",
@@ -89,7 +94,8 @@
         "searchable",
         "writable"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "book"
     },
     {
       "id": "n_carta",
@@ -105,7 +111,8 @@
         "searchable",
         "writable"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "letter"
     },
     {
       "id": "n_puerta",
@@ -119,7 +126,8 @@
         "lookable",
         "touchable"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "door"
     },
     {
       "id": "n_campana",
@@ -131,7 +139,8 @@
         "structure",
         "touchable"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "bell"
     },
     {
       "id": "n_cuerda",
@@ -146,7 +155,8 @@
         "liftable",
         "searchable"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "rope"
     },
     {
       "id": "n_capa",
@@ -159,7 +169,8 @@
         "object",
         "carriable"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "cloak"
     },
     {
       "id": "n_pan",
@@ -173,7 +184,8 @@
         "carriable",
         "edible"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "bread"
     },
     {
       "id": "n_queso",
@@ -187,7 +199,8 @@
         "carriable",
         "edible"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "cheese"
     },
     {
       "id": "n_manzana",
@@ -201,7 +214,8 @@
         "carriable",
         "edible"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "apple"
     },
     {
       "id": "n_sopa",
@@ -211,9 +225,11 @@
       "plural": "sopas",
       "tags": [
         "food",
-        "edible"
+        "edible",
+        "mass"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "soup"
     },
     {
       "id": "n_vino",
@@ -223,9 +239,11 @@
       "plural": "vinos",
       "tags": [
         "drink",
-        "drinkable"
+        "drinkable",
+        "mass"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "wine"
     },
     {
       "id": "n_leche",
@@ -235,9 +253,11 @@
       "plural": "leches",
       "tags": [
         "drink",
-        "drinkable"
+        "drinkable",
+        "mass"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "milk"
     },
     {
       "id": "n_puente",
@@ -249,7 +269,8 @@
         "structure",
         "lookable"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "bridge"
     },
     {
       "id": "n_torre",
@@ -262,7 +283,8 @@
         "lookable",
         "touchable"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "tower"
     },
     {
       "id": "n_bosque",
@@ -274,7 +296,8 @@
         "place",
         "lookable"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "forest"
     },
     {
       "id": "n_lobo",
@@ -286,7 +309,8 @@
         "animal",
         "lookable"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "wolf"
     },
     {
       "id": "n_cuervo",
@@ -298,7 +322,8 @@
         "animal",
         "lookable"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "crow"
     },
     {
       "id": "n_caballero",
@@ -310,7 +335,8 @@
         "person",
         "animate"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "knight"
     },
     {
       "id": "n_herrero",
@@ -322,7 +348,8 @@
         "person",
         "animate"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "blacksmith"
     },
     {
       "id": "n_mujer",
@@ -334,7 +361,8 @@
         "person",
         "animate"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "woman"
     },
     {
       "id": "n_niño",
@@ -346,7 +374,8 @@
         "person",
         "animate"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "boy"
     },
     {
       "id": "n_niña",
@@ -358,7 +387,8 @@
         "person",
         "animate"
       ],
-      "cefr": "A1"
+      "cefr": "A1",
+      "gloss_en": "girl"
     },
     {
       "id": "v_levantar",
@@ -376,6 +406,10 @@
         "nosotros": "levantamos",
         "vosotros": "levantáis",
         "ellos": "levantan"
+      },
+      "gloss_en": {
+        "base": "lift",
+        "s3": "lifts"
       }
     },
     {
@@ -394,6 +428,10 @@
         "nosotros": "llevamos",
         "vosotros": "lleváis",
         "ellos": "llevan"
+      },
+      "gloss_en": {
+        "base": "carry",
+        "s3": "carries"
       }
     },
     {
@@ -412,6 +450,10 @@
         "nosotros": "miramos",
         "vosotros": "miráis",
         "ellos": "miran"
+      },
+      "gloss_en": {
+        "base": "look at",
+        "s3": "looks at"
       }
     },
     {
@@ -430,6 +472,10 @@
         "nosotros": "cortamos",
         "vosotros": "cortáis",
         "ellos": "cortan"
+      },
+      "gloss_en": {
+        "base": "cut",
+        "s3": "cuts"
       }
     },
     {
@@ -448,6 +494,10 @@
         "nosotros": "buscamos",
         "vosotros": "buscáis",
         "ellos": "buscan"
+      },
+      "gloss_en": {
+        "base": "look for",
+        "s3": "looks for"
       }
     },
     {
@@ -466,6 +516,10 @@
         "nosotros": "tocamos",
         "vosotros": "tocáis",
         "ellos": "tocan"
+      },
+      "gloss_en": {
+        "base": "touch",
+        "s3": "touches"
       }
     },
     {
@@ -484,6 +538,10 @@
         "nosotros": "comemos",
         "vosotros": "coméis",
         "ellos": "comen"
+      },
+      "gloss_en": {
+        "base": "eat",
+        "s3": "eats"
       }
     },
     {
@@ -502,6 +560,10 @@
         "nosotros": "bebemos",
         "vosotros": "bebéis",
         "ellos": "beben"
+      },
+      "gloss_en": {
+        "base": "drink",
+        "s3": "drinks"
       }
     },
     {
@@ -520,6 +582,10 @@
         "nosotros": "vendemos",
         "vosotros": "vendéis",
         "ellos": "venden"
+      },
+      "gloss_en": {
+        "base": "sell",
+        "s3": "sells"
       }
     },
     {
@@ -538,6 +604,10 @@
         "nosotros": "abrimos",
         "vosotros": "abrís",
         "ellos": "abren"
+      },
+      "gloss_en": {
+        "base": "open",
+        "s3": "opens"
       }
     },
     {
@@ -556,6 +626,10 @@
         "nosotros": "escribimos",
         "vosotros": "escribís",
         "ellos": "escriben"
+      },
+      "gloss_en": {
+        "base": "write",
+        "s3": "writes"
       }
     }
   ]

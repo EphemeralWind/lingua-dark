@@ -1,7 +1,7 @@
 // Combat scene with placeholder art (flat shapes). Every shape is drawn from
 // `view.animation` and the HUD numbers; the wind-up is a function of progress alone.
 // Card text and marks come from `view.cards`; marks only exist after resolution.
-import { createDeck } from '../content/handwritten';
+import { createDeck } from '../content/deck';
 import { createRng } from '../content/rng';
 import type { Direction } from '../content/types';
 import { Encounter } from '../combat/encounter';

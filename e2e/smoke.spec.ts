@@ -3,7 +3,7 @@
 // question tag (id and seed, printed on screen for bug reports), then recomputes the
 // correct direction in Node from the same pure content module (DECISIONS #30).
 import { expect, test, type Page } from '@playwright/test';
-import { buildQuestion, specById } from '../src/content/handwritten';
+import { questionFromTag as rebuild } from '../src/content/deck';
 import type { Direction, Question } from '../src/content/types';
 
 const KEY: Record<Direction, string> = { north: 'ArrowUp', east: 'ArrowRight', south: 'ArrowDown', west: 'ArrowLeft' };
@@ -13,8 +13,7 @@ async function dataset(page: Page): Promise<Record<string, string | undefined>> 
 }
 
 function questionFromTag(tag: string): Question {
-  const [id, seed] = tag.split('#');
-  return buildQuestion(specById(id!), Number(seed));
+  return rebuild(tag);
 }
 
 test('boots and clears a first encounter', async ({ page }) => {

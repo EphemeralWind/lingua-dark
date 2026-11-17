@@ -7,7 +7,8 @@
 // TOLERANCE above chance ("no better than chance"; a bot below chance is covered by
 // also testing its complement). Everything is seeded, so the test is deterministic.
 import { describe, expect, it } from 'vitest';
-import { QUESTION_SPECS, buildQuestion, createDeck } from '../content/handwritten';
+import { createDeck, zoneTemplates } from '../content/deck';
+import { generate } from '../content/generator';
 import { createRng, type Rng } from '../content/rng';
 import { DIRECTIONS, type Direction } from '../content/types';
 import { Encounter } from './encounter';
@@ -27,6 +28,8 @@ interface Observation {
   history: Animation[];
   /** Card text in N/E/S/W order. Animation bots must not read it. */
   cards: Record<Direction, string>;
+  /** Text of the last revealed answer (shown after a strike resolves). Text bots only. */
+  prevAnswer: string | null;
 }
 
 interface Bot {
@@ -42,6 +45,12 @@ function lastStrikeDirection(history: Animation[]): Direction | null {
     if (t) return t;
   }
   return null;
+}
+
+function sharedSuffix(a: string, b: string): number {
+  let n = 0;
+  while (n < a.length && n < b.length && a[a.length - 1 - n] === b[b.length - 1 - n]) n++;
+  return n;
 }
 
 function editDistance(a: string, b: string): number {
@@ -130,6 +139,18 @@ const BOTS: Bot[] = [
     decide: (o, r) =>
       fast(argBest((d) => DIRECTIONS.filter((e) => e !== d && o.cards[e].startsWith(o.cards[d])).length, r)),
   },
+  {
+    // Combo blank 2 after blank 1 is revealed: rule out the card with the same ending
+    // (same person) as the answer just shown. DECISIONS #41 makes this worthless.
+    name: 'text: avoid the ending of the last revealed answer',
+    reads: 'text',
+    decide: (o, r) => fast(argBest((d) => -sharedSuffix(o.cards[d], o.prevAnswer ?? ''), r)),
+  },
+  {
+    name: 'text: match the ending of the last revealed answer',
+    reads: 'text',
+    decide: (o, r) => fast(argBest((d) => sharedSuffix(o.cards[d], o.prevAnswer ?? ''), r)),
+  },
 ];
 
 interface Score {
@@ -148,6 +169,7 @@ function playFight(bot: Bot, seed: number): Score {
   let history: Animation[] = [];
   let pending: { dir: Direction; atMs: number } | null = null;
   let decidedFor: unknown = null;
+  let prevAnswer: string | null = null;
 
   for (let guard = 0; guard < 200_000 && !enc.finished; guard++) {
     const s = enc.state;
@@ -155,7 +177,7 @@ function playFight(bot: Bot, seed: number): Score {
       const view = viewOf(enc, now);
       const cards = {} as Record<Direction, string>;
       for (const c of view.cards) cards[c.dir] = bot.reads === 'text' ? c.text : '';
-      const d = bot.decide({ history, cards }, botRng);
+      const d = bot.decide({ history, cards, prevAnswer: bot.reads === 'text' ? prevAnswer : null }, botRng);
       pending = { dir: d.dir, atMs: s.startMs + d.delayMs };
       decidedFor = s;
       history = [];
@@ -164,6 +186,8 @@ function playFight(bot: Bot, seed: number): Score {
       enc.lockIn(pending.dir, pending.atMs);
       pending = null;
     }
+    const st = enc.state;
+    if (st.kind === 'resolving') prevAnswer = st.question.strikes[st.strike]?.options[st.correct] ?? null;
     if (enc.state.kind === 'riposte') {
       // A bot that cannot read Spanish types nothing useful.
       enc.submitRiposte([], now);
@@ -198,9 +222,9 @@ describe('wind-up animation carries no answer information', () => {
   it('is identical for every question and every answer direction at the same progress', () => {
     const fractions = [0, 0.1, 0.37, 0.5, 0.92, 0.999];
     const reference = new Map<number, Animation>();
-    for (const spec of QUESTION_SPECS) {
+    for (const template of zoneTemplates(1)) {
       for (let seed = 0; seed < 50; seed++) {
-        const q = buildQuestion(spec, seed);
+        const q = generate(template, seed);
         const enc = new Encounter(() => q, { zone: 1 });
         enc.start(0);
         const s = enc.state;
@@ -217,7 +241,7 @@ describe('wind-up animation carries no answer information', () => {
   });
 
   it('only reveals a direction after lock-in', () => {
-    const q = buildQuestion(QUESTION_SPECS[0]!, 3);
+    const q = generate(zoneTemplates(1)[0]!, 3);
     const enc = new Encounter(() => q, { zone: 1 });
     enc.start(0);
     expect(animationOf(enc, 100).toward).toBeNull();
