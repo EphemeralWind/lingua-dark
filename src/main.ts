@@ -6,6 +6,7 @@ import { DayClock } from './platform/clock';
 import { GameTime } from './platform/gameTime';
 import { Input, type InputEvent } from './platform/input';
 import { startLoop } from './platform/loop';
+import { CHARACTERS } from './platform/characters';
 import { buildPlaceholderSheet } from './platform/placeholderArt';
 import { Renderer } from './platform/renderer';
 import { RiposteInput } from './platform/riposteInput';
@@ -66,7 +67,7 @@ async function boot(): Promise<void> {
   const seedParam = new URLSearchParams(window.location.search).get('seed');
   const seed = seedParam === null ? NaN : Number(seedParam);
   const scene = Number.isFinite(seed)
-    ? new CombatScene(seed >>> 0, svc)
+    ? new CombatScene(seed >>> 0, svc, enemyParam(new URLSearchParams(window.location.search).get('enemy')))
     : new GameScene(svc, { store: new SaveStore(kv), clock: new DayClock(), dev: import.meta.env.DEV });
 
   startLoop(
@@ -89,6 +90,12 @@ async function boot(): Promise<void> {
     },
     () => time.now(),
   );
+}
+
+/** `&enemy=<id>` on the practice fight, if it names a non-boss enemy sprite. */
+function enemyParam(id: string | null): string | undefined {
+  const c = id ? CHARACTERS.find((x) => x.id === id) : undefined;
+  return c && c.kind === 'enemy' && !c.boss ? c.id : undefined;
 }
 
 void boot();

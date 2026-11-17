@@ -19,6 +19,8 @@ export class CombatScene {
   constructor(
     seed: number,
     private readonly svc: Services,
+    /** Sprite to fight (`&enemy=` in the URL, for reviewing art); a regular villager by default. */
+    private readonly character = 'hollow_villager',
   ) {
     this.seed = seed;
     this.fight = this.newFight();
@@ -26,7 +28,8 @@ export class CombatScene {
 
   private newFight(): Fight {
     const enc = new Encounter(createDeck(createRng(this.seed)), { zone: 1 });
-    return new Fight(enc, this.svc, { label: 'Hollow villager', character: 'hollow_villager' });
+    const label = this.character.replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase());
+    return new Fight(enc, this.svc, { label, character: this.character });
   }
 
   update(nowMs: number, events: InputEvent[]): void {

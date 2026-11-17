@@ -1,0 +1,792 @@
+{
+ "frames": [
+  {
+   "filename": "player/idle 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/idle 1",
+   "frame": {
+    "x": 48,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/idle 2",
+   "frame": {
+    "x": 96,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/idle 3",
+   "frame": {
+    "x": 144,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/walk 0",
+   "frame": {
+    "x": 192,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/walk 1",
+   "frame": {
+    "x": 240,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/walk 2",
+   "frame": {
+    "x": 288,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/walk 3",
+   "frame": {
+    "x": 336,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/parry_north 0",
+   "frame": {
+    "x": 384,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/parry_north 1",
+   "frame": {
+    "x": 432,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/parry_north 2",
+   "frame": {
+    "x": 480,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/parry_north 3",
+   "frame": {
+    "x": 528,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/parry_east 0",
+   "frame": {
+    "x": 576,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/parry_east 1",
+   "frame": {
+    "x": 624,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/parry_east 2",
+   "frame": {
+    "x": 672,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/parry_east 3",
+   "frame": {
+    "x": 720,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/parry_south 0",
+   "frame": {
+    "x": 768,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/parry_south 1",
+   "frame": {
+    "x": 816,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/parry_south 2",
+   "frame": {
+    "x": 864,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/parry_south 3",
+   "frame": {
+    "x": 912,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/hit_north 0",
+   "frame": {
+    "x": 960,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/hit_north 1",
+   "frame": {
+    "x": 1008,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/hit_north 2",
+   "frame": {
+    "x": 1056,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/hit_east 0",
+   "frame": {
+    "x": 1104,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/hit_east 1",
+   "frame": {
+    "x": 1152,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/hit_east 2",
+   "frame": {
+    "x": 1200,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/hit_south 0",
+   "frame": {
+    "x": 1248,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/hit_south 1",
+   "frame": {
+    "x": 1296,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/hit_south 2",
+   "frame": {
+    "x": 1344,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/death 0",
+   "frame": {
+    "x": 1392,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/death 1",
+   "frame": {
+    "x": 1440,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/death 2",
+   "frame": {
+    "x": 1488,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/death 3",
+   "frame": {
+    "x": 1536,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/death 4",
+   "frame": {
+    "x": 1584,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "player/death 5",
+   "frame": {
+    "x": 1632,
+    "y": 0,
+    "w": 48,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/idle 0",
+   "frame": {
+    "x": 0,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/idle 1",
+   "frame": {
+    "x": 64,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/idle 2",
+   "frame": {
+    "x": 128,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/idle 3",
+   "frame": {
+    "x": 192,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/windup 0",
+   "frame": {
+    "x": 256,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/windup 1",
+   "frame": {
+    "x": 320,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/windup 2",
+   "frame": {
+    "x": 384,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/windup 3",
+   "frame": {
+    "x": 448,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/windup 4",
+   "frame": {
+    "x": 512,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/windup 5",
+   "frame": {
+    "x": 576,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/strike_north 0",
+   "frame": {
+    "x": 640,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/strike_north 1",
+   "frame": {
+    "x": 704,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/strike_north 2",
+   "frame": {
+    "x": 768,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/strike_east 0",
+   "frame": {
+    "x": 832,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/strike_east 1",
+   "frame": {
+    "x": 896,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/strike_east 2",
+   "frame": {
+    "x": 960,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/strike_south 0",
+   "frame": {
+    "x": 1024,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/strike_south 1",
+   "frame": {
+    "x": 1088,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/strike_south 2",
+   "frame": {
+    "x": 1152,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/recoil_north 0",
+   "frame": {
+    "x": 1216,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/recoil_north 1",
+   "frame": {
+    "x": 1280,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/recoil_north 2",
+   "frame": {
+    "x": 1344,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/recoil_north 3",
+   "frame": {
+    "x": 1408,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/recoil_east 0",
+   "frame": {
+    "x": 1472,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/recoil_east 1",
+   "frame": {
+    "x": 1536,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/recoil_east 2",
+   "frame": {
+    "x": 1600,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/recoil_east 3",
+   "frame": {
+    "x": 1664,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/recoil_south 0",
+   "frame": {
+    "x": 1728,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/recoil_south 1",
+   "frame": {
+    "x": 1792,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/recoil_south 2",
+   "frame": {
+    "x": 1856,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/recoil_south 3",
+   "frame": {
+    "x": 1920,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/break 0",
+   "frame": {
+    "x": 1984,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/break 1",
+   "frame": {
+    "x": 2048,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/break 2",
+   "frame": {
+    "x": 2112,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/break 3",
+   "frame": {
+    "x": 2176,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/death 0",
+   "frame": {
+    "x": 2240,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/death 1",
+   "frame": {
+    "x": 2304,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/death 2",
+   "frame": {
+    "x": 2368,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/death 3",
+   "frame": {
+    "x": 2432,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/death 4",
+   "frame": {
+    "x": 2496,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_monk/death 5",
+   "frame": {
+    "x": 2560,
+    "y": 64,
+    "w": 64,
+    "h": 64
+   }
+  }
+ ],
+ "meta": {
+  "image": "atlas.png",
+  "size": {
+   "w": 2624,
+   "h": 128
+  },
+  "frameTags": [
+   {
+    "name": "player/idle",
+    "from": 0,
+    "to": 3
+   },
+   {
+    "name": "player/walk",
+    "from": 4,
+    "to": 7
+   },
+   {
+    "name": "player/parry_north",
+    "from": 8,
+    "to": 11
+   },
+   {
+    "name": "player/parry_east",
+    "from": 12,
+    "to": 15
+   },
+   {
+    "name": "player/parry_south",
+    "from": 16,
+    "to": 19
+   },
+   {
+    "name": "player/hit_north",
+    "from": 20,
+    "to": 22
+   },
+   {
+    "name": "player/hit_east",
+    "from": 23,
+    "to": 25
+   },
+   {
+    "name": "player/hit_south",
+    "from": 26,
+    "to": 28
+   },
+   {
+    "name": "player/death",
+    "from": 29,
+    "to": 34
+   },
+   {
+    "name": "hollow_monk/idle",
+    "from": 35,
+    "to": 38
+   },
+   {
+    "name": "hollow_monk/windup",
+    "from": 39,
+    "to": 44
+   },
+   {
+    "name": "hollow_monk/strike_north",
+    "from": 45,
+    "to": 47
+   },
+   {
+    "name": "hollow_monk/strike_east",
+    "from": 48,
+    "to": 50
+   },
+   {
+    "name": "hollow_monk/strike_south",
+    "from": 51,
+    "to": 53
+   },
+   {
+    "name": "hollow_monk/recoil_north",
+    "from": 54,
+    "to": 57
+   },
+   {
+    "name": "hollow_monk/recoil_east",
+    "from": 58,
+    "to": 61
+   },
+   {
+    "name": "hollow_monk/recoil_south",
+    "from": 62,
+    "to": 65
+   },
+   {
+    "name": "hollow_monk/break",
+    "from": 66,
+    "to": 69
+   },
+   {
+    "name": "hollow_monk/death",
+    "from": 70,
+    "to": 75
+   }
+  ]
+ }
+}

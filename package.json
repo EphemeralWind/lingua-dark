@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "review-pack": "vite-node scripts/review-pack.ts"
+    "review-pack": "vite-node scripts/review-pack.ts",
+    "build-art": "vite-node scripts/build-art.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
