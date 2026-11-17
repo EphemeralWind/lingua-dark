@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ENEMY_XP, FLASKS_PER_REST, GHOST_XP, MAX_GHOSTS_PER_ROOM, PLAYER_VITALITY } from '../tuning';
 import { resolveExit } from './zone';
+import { newProfile } from '../learning/profile';
 import { addGhosts, chooseReading, die, echoAt, foesIn, newGame, nextFightSeed, rest, walk, winFight } from './state';
 import { ZONE1 } from './zone';
 
@@ -88,9 +89,9 @@ describe('game state', () => {
   it('a won ghost fight banishes that ghost and gives ghost XP', () => {
     const s = newGame(ZONE1, 1);
     addGhosts(s, 'r1_lane', ['a', 'b']);
-    winFight(s, 'r1_lane', 'ghost:a');
+    winFight(s, ZONE1, 'r1_lane', 'ghost:a');
     expect(s.ghosts['r1_lane']).toEqual(['b']);
-    winFight(s, 'r1_lane', 'ghost:b');
+    winFight(s, ZONE1, 'r1_lane', 'ghost:b');
     expect(s.ghosts['r1_lane']).toBeUndefined();
     expect(s.xp).toBe(2 * GHOST_XP);
   });
@@ -112,7 +113,7 @@ describe('game state', () => {
     die(s, 'enemy', null);
     expect(echoAt(s, 'r1_lane', 'enemy')).not.toBeNull();
     expect(echoAt(s, 'r1_chapel', 'enemy')).toBeNull();
-    expect(winFight(s, 'r1_lane', 'enemy')).toEqual({ recovered: 120 });
+    expect(winFight(s, ZONE1, 'r1_lane', 'enemy')).toEqual({ recovered: 120, seal: null });
     expect(s.xp).toBe(ENEMY_XP + 120);
     expect(s.echo).toBeNull();
   });
@@ -123,8 +124,8 @@ describe('game state', () => {
     addGhosts(s, 'r1_lane', ['a']);
     walk(s, 'r1_lane', null);
     die(s, 'ghost:a', 'a');
-    expect(winFight(s, 'r1_lane', 'enemy').recovered).toBe(0);
-    expect(winFight(s, 'r1_lane', 'ghost:a').recovered).toBe(30);
+    expect(winFight(s, ZONE1, 'r1_lane', 'enemy').recovered).toBe(0);
+    expect(winFight(s, ZONE1, 'r1_lane', 'ghost:a').recovered).toBe(30);
   });
 
   it('dying again before recovering loses the older echo', () => {
@@ -147,22 +148,25 @@ describe('game state', () => {
 
   it('a reading choice records an untelegraphed answer once per save', () => {
     const s = newGame(ZONE1, 1);
-    const first = chooseReading(s, ZONE1, 'west', 0);
+    const p = newProfile();
+    const first = chooseReading(s, p, ZONE1, 'west', 0);
     expect(first).toEqual({ correct: true, components: ['w_izquierda', 'w_pozo'], damage: 0 });
-    expect(s.learner.components['w_pozo']?.days).toEqual([0]);
-    expect(chooseReading(s, ZONE1, 'west', 1)).toBeNull();
+    expect(p.learner.components['w_pozo']?.days).toEqual([0]);
+    expect(chooseReading(s, p, ZONE1, 'west', 1)).toBeNull();
   });
 
   it('a wrong reading choice records a miss', () => {
     const s = newGame(ZONE1, 1);
-    expect(chooseReading(s, ZONE1, 'east', 0)?.correct).toBe(false);
-    expect(s.learner.components['w_izquierda']).toMatchObject({ box: 1, misses: 1 });
+    const p = newProfile();
+    expect(chooseReading(s, p, ZONE1, 'east', 0)?.correct).toBe(false);
+    expect(p.learner.components['w_izquierda']).toMatchObject({ box: 1, misses: 1 });
   });
 
   it('rooms without a reading record nothing', () => {
     const s = newGame(ZONE1, 1);
     walk(s, 'r1_lane', null);
-    expect(chooseReading(s, ZONE1, 'north', 0)).toBeNull();
-    expect(s.learner.components).toEqual({});
+    const p = newProfile();
+    expect(chooseReading(s, p, ZONE1, 'north', 0)).toBeNull();
+    expect(p.learner.components).toEqual({});
   });
 });

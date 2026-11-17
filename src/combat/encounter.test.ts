@@ -204,16 +204,17 @@ describe('Encounter: combos', () => {
   });
 });
 
-describe('Encounter: riposte, win, lose', () => {
-  function breakStance(t: ReturnType<typeof setup>) {
-    for (let i = 0; i < 4; i++) {
-      const s = expectKind(t.enc.state, 'windup');
-      const strike = s.question.strikes[s.strike];
-      t.lock(strike!.correct);
-      t.advance(RESOLVE_MS);
-    }
-    expectKind(t.enc.state, 'riposte');
+function breakStance(t: ReturnType<typeof setup>) {
+  for (let i = 0; i < 4; i++) {
+    const s = expectKind(t.enc.state, 'windup');
+    const strike = s.question.strikes[s.strike];
+    t.lock(strike!.correct);
+    t.advance(RESOLVE_MS);
   }
+  expectKind(t.enc.state, 'riposte');
+}
+
+describe('Encounter: riposte, win, lose', () => {
 
   it('four perfect parries break stance and open the riposte', () => {
     const t = setup(question('grammar', [N]));
@@ -274,15 +275,27 @@ describe('Encounter: riposte, win, lose', () => {
 });
 
 describe('Encounter: flasks and the exchange log', () => {
-  it('a flask greys out exactly two wrong cards, never the answer', () => {
+  it.each([
+    [undefined, 1],
+    [1, 1],
+    [2, 2],
+    [3, 2], // capped: at least two cards always stay
+  ])('a flask of power %s greys out %i wrong cards, never the answer', (power, expected) => {
     for (let seed = 0; seed < 50; seed++) {
-      const t = setup(question('grammar', [E]), { flaskRng: createRng(seed) });
+      const t = setup(question('grammar', [E]), { flaskRng: createRng(seed), ...(power === undefined ? {} : { flaskPower: power }) });
       expect(t.enc.useFlask()).toBe(true);
       const s = expectKind(t.enc.state, 'windup');
-      expect(s.greyed).toHaveLength(2);
-      expect(new Set(s.greyed).size).toBe(2);
+      expect(s.greyed).toHaveLength(expected);
+      expect(new Set(s.greyed).size).toBe(expected);
       expect(s.greyed).not.toContain(E);
     }
+  });
+
+  it('riposte damage per word is configurable', () => {
+    const t = setup(question('grammar', [N]), { riposteDamage: 21 });
+    breakStance(t);
+    t.enc.submitRiposte(['ok0'], t.now);
+    expect(t.enc.enemy.hp).toBe(60 - 21);
   });
 
   it('one flask per strike; none outside a wind-up or without a flask RNG', () => {
@@ -315,7 +328,7 @@ describe('Encounter: flasks and the exchange log', () => {
   it('logs each strike with its components and whether a flask helped', () => {
     const q = question('combo', [E, N]);
     q.components = ['first', 'second'];
-    const t = setup(q, { flaskRng: createRng(3) });
+    const t = setup(q, { flaskRng: createRng(3), flaskPower: 2 });
     t.lock(E);
     t.advance(RESOLVE_MS);
     t.enc.useFlask();

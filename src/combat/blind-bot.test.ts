@@ -10,6 +10,10 @@ import { describe, expect, it } from 'vitest';
 import { createDeck, zoneTemplates } from '../content/deck';
 import { generate } from '../content/generator';
 import { createRng, type Rng } from '../content/rng';
+import type { Template } from '../content/schema';
+import { WARDEN_HP } from '../tuning';
+import { sealTemplates } from '../world/seals';
+import { ZONE1 } from '../world/zone';
 import { DIRECTIONS, type Direction } from '../content/types';
 import { Encounter } from './encounter';
 import { animationOf, viewOf, type Animation } from './view';
@@ -159,10 +163,32 @@ interface Score {
   wins: number;
 }
 
-function playFight(bot: Bot, seed: number): Score {
+/** A fight's deck and enemy: the whole zone, or one seal's warden (DECISIONS #73). */
+interface Arena {
+  name: string;
+  templates: readonly Template[];
+  enemyHp?: number;
+  /**
+   * Fights to play. Article questions are all high-damage overheads, so a guesser dies in
+   * about four strikes; the articles warden gets more fights to reach a similar sample.
+   */
+  fights: number;
+}
+
+const ARENAS: Arena[] = [
+  { name: 'whole Zone 1 deck', templates: zoneTemplates(1), fights: FIGHTS },
+  ...Object.keys(ZONE1.seals).map((id) => ({
+    name: `warden of ${id}`,
+    templates: sealTemplates(ZONE1, id),
+    enemyHp: WARDEN_HP,
+    fights: id === 'articles' ? FIGHTS * 1.5 : FIGHTS,
+  })),
+];
+
+function playFight(bot: Bot, seed: number, arena: Arena): Score {
   const gameRng = createRng(seed);
   const botRng = createRng(seed ^ 0x9e3779b9);
-  const enc = new Encounter(createDeck(gameRng), { zone: 1 });
+  const enc = new Encounter(createDeck(gameRng, arena.templates), { zone: 1, ...(arena.enemyHp ? { enemyHp: arena.enemyHp } : {}) });
   let now = 0;
   enc.start(now);
 
@@ -201,11 +227,11 @@ function playFight(bot: Bot, seed: number): Score {
   return { strikes: enc.log.length, correct, wins: enc.state.kind === 'won' ? 1 : 0 };
 }
 
-describe('blind bot', () => {
+describe.each(ARENAS.map((a) => [a.name, a] as const))('blind bot: %s', (_arena, arena) => {
   it.each(BOTS.map((b) => [b.name, b] as const))('%s scores no better than chance', (_name, bot) => {
     const total: Score = { strikes: 0, correct: 0, wins: 0 };
-    for (let seed = 1; seed <= FIGHTS; seed++) {
-      const s = playFight(bot, seed);
+    for (let seed = 1; seed <= arena.fights; seed++) {
+      const s = playFight(bot, seed, arena);
       total.strikes += s.strikes;
       total.correct += s.correct;
       total.wins += s.wins;

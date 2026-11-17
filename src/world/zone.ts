@@ -7,12 +7,15 @@ import { DIRECTIONS, type Direction } from '../content/types';
 export type Room = RoomsFile['rooms'][number];
 export type ExitDef = NonNullable<Room['exits'][Direction]>;
 export const BACK = '$back';
+export type SealDef = NonNullable<RoomsFile['seals']>[string];
 
 export class Zone {
   readonly number: number;
   readonly name: string;
   readonly start: string;
   readonly rooms: readonly Room[];
+  /** Seals the boss gate needs, in data order (DECISIONS #73). */
+  readonly seals: Readonly<Record<string, SealDef>>;
   private readonly byId: Map<string, Room>;
 
   constructor(file: RoomsFile) {
@@ -20,6 +23,7 @@ export class Zone {
     this.name = file.name;
     this.start = file.start;
     this.rooms = file.rooms;
+    this.seals = file.seals ?? {};
     this.byId = new Map(file.rooms.map((r) => [r.id, r]));
   }
 
@@ -31,6 +35,11 @@ export class Zone {
 
   has(id: string): boolean {
     return this.byId.has(id);
+  }
+
+  /** The seal this room's warden guards, or null if its enemy (if any) is not a warden. */
+  wardenSeal(roomId: string): string | null {
+    return this.room(roomId).contents.enemy?.seal ?? null;
   }
 }
 

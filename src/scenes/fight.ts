@@ -73,7 +73,7 @@ export interface FightOptions {
   /** Name on the HUD, e.g. "Hollow villager". */
   label: string;
   /** Flask supply owned by the caller; omit for no flasks. */
-  flasks?: { count(): number; spend(): void };
+  flasks?: { count(): number; spend(): void; /** Wrong cards one flask greys out. */ power: number };
   /** Extra HUD line, e.g. that an echo waits on this foe. */
   note?: string;
   /** Ghosts are drawn as outlines. */
@@ -415,7 +415,7 @@ export class Fight {
     if (this.opts.flasks) {
       const left = this.opts.flasks.count();
       const canUse = view.phase === 'windup' && left > 0;
-      r.text(`FLASKS ${left}${canUse ? '  [F]' : ''}`, 8, 165, { size: 6, color: canUse ? C.ember : C.dim });
+      r.text(`FLASKS ${left} (−${this.opts.flasks.power})${canUse ? '  [F]' : ''}`, 8, 165, { size: 6, color: canUse ? C.ember : C.dim });
     }
     if (this.opts.note) r.text(this.opts.note, 316, 165, { size: 6, color: C.signal, align: 'right' });
     r.text('STANCE', 160, 96 + 12, { size: 5, color: C.dim, align: 'center' });

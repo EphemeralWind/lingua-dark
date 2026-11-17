@@ -16,7 +16,12 @@ export const STANCE_FLOOR = 0.25;
 /** Fraction of stanceMax drained when every strike of a combo is parried. */
 export const COMBO_CLEAR_BONUS = 0.25;
 export const FLASKS_PER_REST = 3;
-export const FLASK_GREYS_OUT = 2;
+/**
+ * Wrong cards one flask greys out. The design doc says 2; the user changed it to start at 1 and
+ * grow to 2 through Learned perks. Never 3: at least two cards always stay (DECISIONS #74).
+ */
+export const FLASK_POWER_BASE = 1;
+export const FLASK_POWER_MAX = 2;
 export const HIT_STOP_MS = 80;
 
 // --- default (not in design doc) ---
@@ -48,8 +53,6 @@ export const PARRY_FLASH_MS = 50;
 export const LEITNER_INTERVALS_DAYS: readonly number[] = [1, 3, 7, 14, 30];
 /** Untelegraphed correct answers, on different days, that make a component Learned. */
 export const MASTERY_CORRECT_DAYS = 2;
-/** Share of a zone's components that must be Learned to open its boss gate. */
-export const GATE_THRESHOLD = 0.8;
 export const MAX_GHOSTS_PER_ROOM = 3;
 
 // --- default (not in design doc), added in Milestone 3 ---
@@ -68,3 +71,28 @@ export const TARGET_TRIES = 800;
 export const REVIEW_TRIES = 8000;
 /** Room-to-room walk transition. */
 export const ROOM_TRANSITION_MS = 350;
+/** Warden HP: a warden guards one seal of the boss gate (DECISIONS #73). */
+export const WARDEN_HP = 90;
+export const WARDEN_XP = 150;
+
+/**
+ * Meta-progression perks by all-time best Learned count (DECISIONS #75). Each row adds to the
+ * base: vitality to max vitality, riposte to damage per riposte word, flaskPower to wrong
+ * cards greyed (capped at FLASK_POWER_MAX), flasks to flasks per rest. Default (not in design doc).
+ */
+export interface PerkRow {
+  at: number;
+  vitality?: number;
+  riposte?: number;
+  flaskPower?: number;
+  flasks?: number;
+}
+export const PERKS: readonly PerkRow[] = [
+  { at: 10, vitality: 10 },
+  { at: 25, flaskPower: 1 },
+  { at: 40, riposte: 3 },
+  { at: 60, vitality: 10 },
+  { at: 80, flasks: 1 },
+  { at: 100, vitality: 10 },
+  { at: 115, riposte: 3 },
+];

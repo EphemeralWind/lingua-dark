@@ -6,7 +6,8 @@ import { DIRECTIONS, type Direction, type Question } from '../content/types';
 import {
   COMBO_CLEAR_BONUS,
   ENEMY_HP,
-  FLASK_GREYS_OUT,
+  FLASK_POWER_BASE,
+  FLASK_POWER_MAX,
   HIT_STANCE_REFILL,
   PLAYER_VITALITY,
   RESOLVE_MS,
@@ -28,6 +29,10 @@ export interface EncounterConfig {
   vitalityMax?: number;
   /** Picks which wrong cards a flask greys out. Needed only if flasks are used. */
   flaskRng?: Rng;
+  /** Wrong cards one flask greys out, capped at FLASK_POWER_MAX (perks raise it). */
+  flaskPower?: number;
+  /** Damage per correct riposte word (perks raise it). */
+  riposteDamage?: number;
 }
 
 export class Encounter {
@@ -41,6 +46,8 @@ export class Encounter {
   private readonly zone: number;
   private readonly nextQuestion: () => Question;
   private readonly flaskRng: Rng | null;
+  private readonly flaskPower: number;
+  private readonly riposteDamage: number;
 
   constructor(nextQuestion: () => Question, config: EncounterConfig) {
     this.nextQuestion = nextQuestion;
@@ -51,6 +58,8 @@ export class Encounter {
     this.vitalityMax = config.vitalityMax ?? PLAYER_VITALITY;
     this.vitality = config.vitality ?? this.vitalityMax;
     this.flaskRng = config.flaskRng ?? null;
+    this.flaskPower = Math.max(1, Math.min(FLASK_POWER_MAX, config.flaskPower ?? FLASK_POWER_BASE));
+    this.riposteDamage = config.riposteDamage ?? RIPOSTE_DAMAGE_PER_WORD;
   }
 
   get state(): EncounterState {
@@ -125,7 +134,7 @@ export class Encounter {
   }
 
   /**
-   * Drink a flask: greys out FLASK_GREYS_OUT wrong cards of the current strike, picked by the
+   * Drink a flask: greys out `flaskPower` wrong cards (1 or 2, never all 3) of the current strike, picked by the
    * flask RNG. Returns false if there is no open wind-up or it was already used on this strike.
    * The caller owns the flask count.
    */
@@ -135,7 +144,7 @@ export class Encounter {
     const strike = s.question.strikes[s.strike];
     if (!strike) return false;
     const wrong = DIRECTIONS.filter((d) => d !== strike.correct);
-    s.greyed = this.flaskRng.shuffle(wrong).slice(0, FLASK_GREYS_OUT);
+    s.greyed = this.flaskRng.shuffle(wrong).slice(0, this.flaskPower);
     return true;
   }
 
@@ -147,7 +156,7 @@ export class Encounter {
       judgeWord(words[i] ?? '', strike.options[strike.correct], this.zone <= 1),
     );
     const landed = verdicts.filter((v) => v !== 'wrong').length;
-    this.enemy.hp = Math.max(0, this.enemy.hp - landed * RIPOSTE_DAMAGE_PER_WORD);
+    this.enemy.hp = Math.max(0, this.enemy.hp - landed * this.riposteDamage);
     this.current = {
       kind: 'riposteResult',
       question: s.question,

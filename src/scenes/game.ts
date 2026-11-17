@@ -1,12 +1,12 @@
 // The game: title, exploration of the zone graph, fights, bonfire rest and review, map, and
 // saving. Rules live in the pure modules (world/, learning/, save/); this scene wires them to
 // input, the clock, the renderer and localStorage.
-import { cardRepresentable, zoneComponents } from '../content/components';
+import { cardRepresentable, templateComponents, zoneComponents } from '../content/components';
 import { createRng } from '../content/rng';
 import type { Direction } from '../content/types';
 import { Encounter } from '../combat/encounter';
-import { gateProgress, type GateProgress } from '../learning/gate';
-import { recordAnswer } from '../learning/learner';
+import { nextPerkAt, perkLines, perksFor, type Perks } from '../learning/perks';
+import { learnedCount, recordInProfile, type Profile } from '../learning/profile';
 import { createPicker, reviewQuestion, reviewTargets } from '../learning/picker';
 import type { DayClock } from '../platform/clock';
 import { downloadText, pickTextFile } from '../platform/files';
@@ -14,7 +14,8 @@ import type { InputEvent } from '../platform/input';
 import type { Renderer } from '../platform/renderer';
 import type { RiposteInput } from '../platform/riposteInput';
 import type { SaveStore } from '../save/store';
-import { GHOST_HP, GHOST_STANCE_MAX, PLAYER_VITALITY, REVIEW_ROUND_SIZE, ROOM_TRANSITION_MS } from '../tuning';
+import { GHOST_HP, GHOST_STANCE_MAX, REVIEW_ROUND_SIZE, ROOM_TRANSITION_MS, WARDEN_HP } from '../tuning';
+import { sealProgress, sealTemplates, socketLine, type SealProgress } from '../world/seals';
 import {
   addGhosts,
   chooseReading,
@@ -62,7 +63,7 @@ export interface GameDeps {
   setTextMode: (on: boolean) => void;
   store: SaveStore;
   clock: DayClock;
-  /** Dev builds only: F8 skips a day, F9 marks the zone Learned. */
+  /** Dev builds only: F8 skips a day, F9 marks the zone Learned, F10 grants every seal. */
   dev: boolean;
 }
 
@@ -80,11 +81,14 @@ export class GameScene {
   private now = 0;
   /** The stored game as of the last title visit, for the title menu. */
   private saved: GameState | null = null;
+  /** Knowledge and perks that outlive runs (DECISIONS #75). */
+  private profile: Profile;
 
   constructor(private readonly deps: GameDeps) {
     const loaded = deps.store.load();
     this.saved = loaded.game;
-    this.titleError = loaded.error ? `Saved game unreadable: ${loaded.error}` : null;
+    this.profile = loaded.profile;
+    this.titleError = loaded.error ? `Unreadable: ${loaded.error}` : null;
     if (loaded.game && !this.zone.has(loaded.game.bonfire)) this.titleError = 'Saved game is from another map version.';
   }
 
@@ -94,8 +98,24 @@ export class GameScene {
     return this.deps.clock.today();
   }
 
-  private gate(): GateProgress {
-    return gateProgress(this.game?.learner ?? { components: {} }, this.universe);
+  private seals(): SealProgress {
+    return sealProgress(this.game?.seals ?? [], this.zone);
+  }
+
+  private perks(): Perks {
+    return perksFor(this.profile.bestLearned);
+  }
+
+  /** "Learned 37/120 (all time). Next perk at 40." */
+  private learnedLine(): string {
+    const next = nextPerkAt(this.profile.bestLearned);
+    const n = learnedCount(this.profile.learner);
+    return `Learned ${n}/${this.universe.length} (all time).${next === null ? ' All perks earned.' : ` Next perk at ${next}.`}`;
+  }
+
+  private record(ids: readonly string[], correct: boolean, ctx: 'combat' | 'review' | 'reading', assisted = false): void {
+    recordInProfile(this.profile, ids, correct, ctx, this.day, { assisted });
+    this.deps.store.saveProfile(this.profile);
   }
 
   private say(...lines: string[]): void {
@@ -112,13 +132,13 @@ export class GameScene {
     returnToBonfire(game);
     this.mode = { kind: 'explore' };
     this.enteredAt = this.now;
-    this.say(`You wake by the bonfire. Learned ${this.gate().learned}/${this.gate().total}.`, 'Enter: rest and review.  M: map.');
+    this.say(`You wake by the bonfire. Seals ${this.seals().held}/${this.seals().total}.`, 'Enter: rest and review.  M: map.');
   }
 
   private exportSave(): void {
     if (!this.game) return;
     const date = new Date(this.deps.clock.nowMs()).toISOString().slice(0, 10);
-    downloadText(`lingua-dark-save-${date}.json`, this.deps.store.exportText(this.game, this.deps.clock.nowMs()));
+    downloadText(`lingua-dark-save-${date}.json`, this.deps.store.exportText(this.game, this.profile, this.deps.clock.nowMs()));
     this.say('Save exported as a JSON file.');
   }
 
@@ -135,6 +155,8 @@ export class GameScene {
         return;
       }
       this.titleError = null;
+      if (r.profile) this.profile = r.profile;
+      this.saved = r.game;
       this.startGame(r.game);
       this.say('Save imported. You wake by the bonfire.');
     });
@@ -172,8 +194,7 @@ export class GameScene {
           m.review.dispose();
           this.save();
           this.mode = { kind: 'explore' };
-          const g = this.gate();
-          this.say(`Learned ${g.learned}/${g.total}. The gate needs ${g.needed}.`);
+          this.say(this.learnedLine());
         }
         break;
     }
@@ -201,7 +222,7 @@ export class GameScene {
 
   private newGame(): void {
     // A new run's base seed comes from the wall clock (platform code, not game logic).
-    const g = newGame(this.zone, this.deps.clock.nowMs() >>> 0);
+    const g = newGame(this.zone, this.deps.clock.nowMs() >>> 0, this.perks());
     this.deps.store.save(g, this.deps.clock.nowMs());
     this.startGame(g);
     const reading = this.zone.room(g.room).contents.reading;
@@ -225,9 +246,14 @@ export class GameScene {
         this.deps.clock.skipDay();
         this.say(`Dev: skipped to day ${this.day}.`);
       } else if (this.deps.dev && ev.code === 'F9') {
-        g.learner = recordAnswer(recordAnswer(g.learner, this.universe, true, 'review', this.day - 1), this.universe, true, 'review', this.day);
+        recordInProfile(this.profile, this.universe, true, 'review', this.day - 1);
+        recordInProfile(this.profile, this.universe, true, 'review', this.day);
+        this.deps.store.saveProfile(this.profile);
+        this.say('Dev: every Zone 1 component marked Learned.', 'Perks apply from the next rest or fight.');
+      } else if (this.deps.dev && ev.code === 'F10') {
+        g.seals = Object.keys(this.zone.seals);
         this.save();
-        this.say('Dev: every Zone 1 component marked Learned.');
+        this.say('Dev: every seal granted.');
       }
     }
   }
@@ -246,7 +272,7 @@ export class GameScene {
       this.say(`The ${enemyLabel(room.contents.enemy?.id ?? 'enemy').toLowerCase()} blocks the way.`, 'Enter: fight.  Or go back.');
       return;
     }
-    let res = resolveExit(this.zone, g.room, dir, { cameFrom: g.cameFrom, openDoors: g.openDoors, gateOpen: this.gate().open });
+    let res = resolveExit(this.zone, g.room, dir, { cameFrom: g.cameFrom, openDoors: g.openDoors, gateOpen: this.seals().open });
     // The boss arena has no exits yet; ↓ walks back out (DECISIONS #66).
     if (res.kind === 'none' && Object.keys(room.exits).length === 0 && dir === 'south' && g.cameFrom) {
       res = { kind: 'move', to: g.cameFrom, opens: null, back: true };
@@ -259,13 +285,14 @@ export class GameScene {
         this.say('The door is barred. It does not open from this side.');
         return;
       case 'gate': {
-        const p = this.gate();
-        this.say('The gate is sealed. Only those who know the words may pass.', `Learned ${p.learned}/${p.total}. It opens at ${p.needed}.`);
+        const p = this.seals();
+        this.say(`The gate bears ${p.total} sockets. Win the seals from the wardens.`, socketLine(p));
         return;
       }
       case 'move': {
         const lines: string[] = [];
-        const reading = chooseReading(g, this.zone, dir, this.day);
+        const reading = chooseReading(g, this.profile, this.zone, dir, this.day);
+        if (reading) this.deps.store.saveProfile(this.profile);
         if (reading) lines.push(reading.correct ? 'You read the sign right.' : reading.damage > 0 ? `A wrong turn. An ambush! −${reading.damage}` : 'A wrong turn: a detour.');
         walk(g, res.to, res.opens, res.back);
         if (res.opens) lines.push('You lift the bar. A shortcut back to the bonfire.');
@@ -296,24 +323,35 @@ export class GameScene {
     const rng = createRng(nextFightSeed(g));
     const ghost = ghostComponent(foe);
     const echo = echoAt(g, g.room, foe);
+    // A warden asks only its seal's grammar aspect (DECISIONS #73); ghosts and others the whole zone.
+    const seal = ghost ? null : this.zone.wardenSeal(g.room);
+    const templates = seal ? sealTemplates(this.zone, seal) : undefined;
+    const among = templates ? [...new Set(templates.flatMap((t) => templateComponents(t)))] : this.universe;
+    const target = ghost ?? echo?.target ?? null;
     const picker = createPicker({
       rng: createRng(rng.nextSeed()),
-      target: ghost ?? echo?.target ?? null,
-      learner: () => ({ state: g.learner, day: this.day }),
-      among: this.universe,
+      // A target the seal deck cannot show falls back to the deck's own due-first order.
+      target: target && among.includes(target) ? target : null,
+      learner: () => ({ state: this.profile.learner, day: this.day }),
+      among,
+      ...(templates ? { templates } : {}),
     });
+    const perks = this.perks();
     const enc = new Encounter(picker, {
       zone: g.zone,
-      vitality: g.vitality,
-      vitalityMax: PLAYER_VITALITY,
+      vitality: Math.min(g.vitality, perks.vitalityMax),
+      vitalityMax: perks.vitalityMax,
+      riposteDamage: perks.riposteDamage,
+      flaskPower: perks.flaskPower,
       flaskRng: createRng(rng.nextSeed()),
-      ...(ghost ? { enemyHp: GHOST_HP, stanceMax: GHOST_STANCE_MAX } : {}),
+      ...(ghost ? { enemyHp: GHOST_HP, stanceMax: GHOST_STANCE_MAX } : seal ? { enemyHp: WARDEN_HP } : {}),
     });
-    const label = ghost ? 'Ghost' : enemyLabel(this.zone.room(g.room).contents.enemy?.id ?? 'enemy');
+    const enemyName = enemyLabel(this.zone.room(g.room).contents.enemy?.id ?? 'enemy');
+    const label = ghost ? 'Ghost' : seal ? `${enemyName} (warden)` : enemyName;
     const fight = new Fight(enc, this.deps.riposte, this.deps.setTextMode, {
       label,
       ghost: ghost !== null,
-      flasks: { count: () => g.flasks, spend: () => (g.flasks = Math.max(0, g.flasks - 1)) },
+      flasks: { count: () => g.flasks, spend: () => (g.flasks = Math.max(0, g.flasks - 1)), power: perks.flaskPower },
       ...(echo ? { note: `ECHO ${echo.xp} XP` } : {}),
     });
     fight.start(this.now);
@@ -332,7 +370,7 @@ export class GameScene {
     m.fight.update(nowMs);
     for (const rec of m.fight.drainLog()) {
       const parried = rec.result === 'parry';
-      g.learner = recordAnswer(g.learner, rec.components, parried, 'combat', this.day, { assisted: rec.assisted });
+      this.record(rec.components, parried, 'combat', rec.assisted);
       if (!parried) {
         const c = rec.components.find((x) => cardRepresentable(x)) ?? null;
         if (c) m.missed.push(c);
@@ -346,9 +384,10 @@ export class GameScene {
     m.fight.dispose();
     const ghost = ghostComponent(m.foe);
     if (m.fight.won) {
-      const { recovered } = winFight(g, m.room, m.foe);
+      const { recovered, seal } = winFight(g, this.zone, m.room, m.foe);
       addGhosts(g, m.room, m.missed.filter((c) => c !== ghost));
       const lines = [ghost ? 'The ghost fades.' : 'The foe falls.'];
+      if (seal) lines.push(`You take the ${this.zone.seals[seal]?.name_en ?? seal}. ${socketLine(this.seals())}`);
       if (recovered > 0) lines.push(`Echo recovered: +${recovered} XP.`);
       const ghosts = g.ghosts[m.room]?.length ?? 0;
       if (ghosts > 0) lines.push(`${ghosts} ghost${ghosts > 1 ? 's' : ''} of missed words linger here.`);
@@ -356,7 +395,7 @@ export class GameScene {
     } else {
       addGhosts(g, m.room, m.missed);
       const xp = g.xp;
-      die(g, m.foe, m.lastMiss);
+      die(g, m.foe, m.lastMiss, this.perks());
       this.say('YOU DIED. You wake by the bonfire.', xp > 0 ? `Your echo (${xp} XP) waits where you fell.` : 'You carried no XP.');
     }
     this.save();
@@ -367,20 +406,17 @@ export class GameScene {
   // --- bonfire ---------------------------------------------------------------
 
   private restAt(g: GameState): void {
-    rest(g, g.room);
+    rest(g, g.room, this.perks());
     const rng = createRng(nextFightSeed(g));
     const day = this.day;
-    const targets = reviewTargets(g.learner, this.universe, day, REVIEW_ROUND_SIZE, rng);
+    const targets = reviewTargets(this.profile.learner, this.universe, day, REVIEW_ROUND_SIZE, rng);
     const questions = targets.flatMap((t) => reviewQuestion(rng, t) ?? []);
     this.save();
     const review = new Review(
       questions,
       this.deps.riposte,
       this.deps.setTextMode,
-      (q, correct) => {
-        g.learner = recordAnswer(g.learner, q.components, correct, 'review', day);
-        this.save();
-      },
+      (q, correct) => this.record(q.components, correct, 'review'),
       g.zone <= 1,
     );
     this.mode = { kind: 'review', review };
@@ -400,7 +436,8 @@ export class GameScene {
           : saved
             ? ['Enter: continue', 'N: new game   I: import save']
             : ['Enter: new game', 'I: import save'];
-      drawTitle(r, lines, this.titleError);
+      const perks = perkLines(this.profile.bestLearned);
+      drawTitle(r, lines, [this.learnedLine(), perks.length > 0 ? `Perks: ${perks.join(', ')}` : 'Perks: none yet. Learn words at the bonfire.'], this.titleError);
       return;
     }
     if (m.kind === 'fight') {
@@ -412,9 +449,10 @@ export class GameScene {
       }
       return;
     }
-    const gate = this.gate();
+    const seals = this.seals();
+    const perks = this.perks();
     if (m.kind === 'review') {
-      m.review.render(r, `Learned ${gate.learned}/${gate.total}. The boss gate opens at ${gate.needed}.`);
+      m.review.render(r, this.learnedLine());
       return;
     }
     if (m.kind === 'map') {
@@ -426,8 +464,12 @@ export class GameScene {
         current: g.room,
         ghosts: g.ghosts,
         echoRoom: g.echo?.room ?? null,
+        wardens: Object.fromEntries(
+          this.zone.rooms.flatMap((room) => (this.zone.wardenSeal(room.id) ? [[room.id, g.wardensBeaten.includes(room.id)]] : [])),
+        ),
         lines: [
-          `${this.deps.dev ? `Day ${this.day}   ` : ''}XP ${g.xp}   Flasks ${g.flasks}   Learned ${gate.learned}/${gate.total} (gate opens at ${gate.needed})`,
+          `${this.deps.dev ? `Day ${this.day}   ` : ''}XP ${g.xp}   Flasks ${g.flasks}   Seals: ${socketLine(seals)}`,
+          this.learnedLine(),
           'M / Esc: back    E: export save    I: import save',
         ],
       });
@@ -440,21 +482,23 @@ export class GameScene {
       if (exit === undefined) continue;
       if (exit === BACK && !g.cameFrom) continue;
       if (typeof exit === 'object' && exit.locked && !g.openDoors.includes(exit.locked)) exits[dir] = 'locked';
-      else if (typeof exit === 'object' && exit.gate) exits[dir] = gate.open ? 'gateOpen' : 'sealed';
+      else if (typeof exit === 'object' && exit.gate) exits[dir] = seals.open ? 'gateOpen' : 'sealed';
       else exits[dir] = 'open';
     }
     if (Object.keys(room.exits).length === 0 && g.cameFrom) exits.south = 'open';
     const alive = enemyAlive(g, this.zone, g.room);
     const fade = nowMs - this.enteredAt < ROOM_TRANSITION_MS ? (nowMs - this.enteredAt) / ROOM_TRANSITION_MS : null;
     const hint = alive ? 'Enter: fight   M: map' : room.contents.bonfire ? 'Enter: rest   M: map' : (g.ghosts[g.room]?.length ?? 0) > 0 ? 'Enter: face a ghost   M: map' : 'Arrows: walk   M: map';
+    const warden = this.zone.wardenSeal(g.room);
+    const name = enemyLabel(room.contents.enemy?.id ?? 'enemy');
     drawRoom(r, {
       room,
       exits,
-      enemyName: alive ? enemyLabel(room.contents.enemy?.id ?? 'enemy') : null,
+      enemyName: alive ? (warden ? `${name}: warden of the ${this.zone.seals[warden]?.name_en ?? warden}` : name) : null,
       ghosts: g.ghosts[g.room]?.length ?? 0,
       echo: g.echo && g.echo.room === g.room ? g.echo : null,
       readingGoal: room.contents.reading && !g.readingsDone.includes(g.room) ? room.contents.reading.goal_en : null,
-      hud: { vitality: g.vitality, vitalityMax: PLAYER_VITALITY, flasks: g.flasks, xp: g.xp, gate, day: this.deps.dev ? this.day : null },
+      hud: { vitality: g.vitality, vitalityMax: perks.vitalityMax, flasks: g.flasks, xp: g.xp, seals, day: this.deps.dev ? this.day : null },
       hint,
       message: this.message,
       fade,

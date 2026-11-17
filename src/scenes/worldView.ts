@@ -2,7 +2,7 @@
 // and the title. Flat shapes on the 320x180 buffer, text on the display layer. Exits never
 // name the room behind them, so a sign's reading choice cannot be read off the screen.
 import type { Direction } from '../content/types';
-import type { GateProgress } from '../learning/gate';
+import type { SealProgress } from '../world/seals';
 import type { Renderer } from '../platform/renderer';
 import type { Echo } from '../world/state';
 import { edgeKey, exitTarget, type Room } from '../world/zone';
@@ -28,7 +28,7 @@ export interface RoomScene {
   echo: Echo | null;
   /** Pending reading goal (English), shown under the sign until the choice is made. */
   readingGoal: string | null;
-  hud: { vitality: number; vitalityMax: number; flasks: number; xp: number; gate: GateProgress; /** Shown in dev builds only. */ day: number | null };
+  hud: { vitality: number; vitalityMax: number; flasks: number; xp: number; seals: SealProgress; /** Shown in dev builds only. */ day: number | null };
   hint: string;
   message: string[];
   /** 0 to 1 through the room-entry fade, or null. */
@@ -155,7 +155,7 @@ export function drawRoom(r: Renderer, s: RoomScene): void {
   arrow('west', 47, 64);
   arrow('east', 273, 64);
   arrow('south', 160, 164);
-  if (s.enemyName) r.text(s.enemyName, 160, 48, { size: 6, align: 'center', color: C.hurt });
+  if (s.enemyName) r.text(s.enemyName, 160, 48, { size: 6, align: 'center', color: C.hurt, maxWidth: 220 });
   if (s.ghosts > 0) r.text(`ghost ×${s.ghosts}`, 80 + s.ghosts * 9, 74, { size: 5, align: 'center', color: C.dim });
   if (s.echo) r.text(`echo ${s.echo.xp} XP`, 114, 142, { size: 5, align: 'center', color: C.signal });
   if (c.bonfire) r.text('bonfire', 200, 138, { size: 5, align: 'center', color: C.ember });
@@ -166,8 +166,8 @@ export function drawRoom(r: Renderer, s: RoomScene): void {
   const h = s.hud;
   r.text(`VITALITY ${Math.ceil(h.vitality)}`, 8, 150, { size: 6, color: C.dim });
   r.text(`FLASKS ${h.flasks}   XP ${h.xp}`, 8, 166, { size: 6, color: C.dim });
-  r.text(`LEARNED ${h.gate.learned}/${h.gate.total}`, 312, 150, { size: 6, color: C.dim, align: 'right' });
-  if (h.day !== null) r.text(`DEV DAY ${h.day}  F8 +1 day  F9 learn all`, 312, 158, { size: 5, color: C.enemyDark, align: 'right' });
+  r.text(`SEALS ${h.seals.sockets.map((x) => (x.held ? '◆' : '◇')).join('')} ${h.seals.held}/${h.seals.total}`, 312, 150, { size: 6, color: C.dim, align: 'right' });
+  if (h.day !== null) r.text(`DEV DAY ${h.day}  F8 +1 day  F9 learn all  F10 seals`, 312, 158, { size: 5, color: C.enemyDark, align: 'right' });
   r.text(s.hint, 312, 174, { size: 5, color: C.dim, align: 'right', maxWidth: 200 });
 }
 
@@ -179,6 +179,8 @@ export interface MapScene {
   current: string;
   ghosts: Record<string, string[]>;
   echoRoom: string | null;
+  /** Warden rooms: true once beaten (its seal is held). */
+  wardens: Record<string, boolean>;
   lines: string[];
 }
 
@@ -234,19 +236,21 @@ export function drawMap(r: Renderer, s: MapScene): void {
       room.id === s.current ? '@' : '',
       room.id === s.echoRoom ? 'E' : '',
       (s.ghosts[room.id]?.length ?? 0) > 0 ? `g${s.ghosts[room.id]?.length}` : '',
+      room.id in s.wardens ? (s.wardens[room.id] ? '◆' : '◇') : '',
     ].join('');
     r.text(shortName(room.id), p.x, p.y - 2, { size: 4, align: 'center', maxWidth: 28 });
     if (marks) r.text(marks, p.x, p.y + 4, { size: 4, align: 'center', color: C.signal });
   }
-  r.text('@ you   E echo   g ghosts   ▲ bonfire', 160, 150, { size: 5, align: 'center', color: C.dim });
-  s.lines.forEach((line, i) => r.text(line, 160, 160 + i * 8, { size: 5, align: 'center', color: C.dim, maxWidth: 300 }));
+  r.text('@ you   E echo   g ghosts   ▲ bonfire   ◇ warden / ◆ seal won', 160, 142, { size: 5, align: 'center', color: C.dim });
+  s.lines.forEach((line, i) => r.text(line, 160, 152 + i * 8, { size: 5, align: 'center', color: C.dim, maxWidth: 300 }));
 }
 
-export function drawTitle(r: Renderer, lines: string[], error: string | null): void {
+export function drawTitle(r: Renderer, lines: string[], profile: string[], error: string | null): void {
   r.begin(C.sky);
   r.present();
   r.text('LINGUA DARK', 160, 34, { size: 14, align: 'center', bold: true });
   r.text('The Hollow Village', 160, 50, { size: 7, align: 'center', color: C.dim });
   lines.forEach((line, i) => r.text(line, 160, 76 + i * 11, { size: 7, align: 'center', color: i === 0 ? C.signal : C.text }));
+  profile.forEach((line, i) => r.text(line, 160, 120 + i * 9, { size: 6, align: 'center', color: C.dim, maxWidth: 300 }));
   if (error) r.text(error, 160, 150, { size: 5, align: 'center', color: C.hurt, maxWidth: 300 });
 }
