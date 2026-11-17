@@ -1,0 +1,285 @@
+{
+  "version": 1,
+  "dialect": "es-ES",
+  "note": "Seed templates for Zone 1. Slot rule: verb.takes must intersect noun.tags.",
+  "persons": [
+    "yo",
+    "tu",
+    "el",
+    "nosotros",
+    "vosotros",
+    "ellos"
+  ],
+  "pronouns": [
+    {
+      "id": "yo",
+      "surface": "yo",
+      "person": "yo"
+    },
+    {
+      "id": "tu",
+      "surface": "tú",
+      "person": "tu"
+    },
+    {
+      "id": "el",
+      "surface": "él",
+      "person": "el"
+    },
+    {
+      "id": "ella",
+      "surface": "ella",
+      "person": "el"
+    },
+    {
+      "id": "nosotros",
+      "surface": "nosotros",
+      "person": "nosotros"
+    },
+    {
+      "id": "vosotros",
+      "surface": "vosotros",
+      "person": "vosotros"
+    },
+    {
+      "id": "ellos",
+      "surface": "ellos",
+      "person": "ellos"
+    },
+    {
+      "id": "ellas",
+      "surface": "ellas",
+      "person": "ellos"
+    }
+  ],
+  "articles": {
+    "definite": {
+      "m": {
+        "sg": "el",
+        "pl": "los"
+      },
+      "f": {
+        "sg": "la",
+        "pl": "las"
+      }
+    },
+    "indefinite": {
+      "m": {
+        "sg": "un",
+        "pl": "unos"
+      },
+      "f": {
+        "sg": "una",
+        "pl": "unas"
+      }
+    }
+  },
+  "templates": [
+    {
+      "id": "t_present_object",
+      "zone": 1,
+      "kind": "grammar",
+      "pattern": "{subj} {verb:present} {art:definite}{noun}.",
+      "slots": {
+        "subj": {
+          "type": "subject"
+        },
+        "verb": {
+          "type": "verb"
+        },
+        "noun": {
+          "type": "noun",
+          "number": "sg",
+          "requires": "verb.takes"
+        },
+        "art": {
+          "type": "article",
+          "agreesWith": "noun"
+        }
+      },
+      "blanks": [
+        "verb"
+      ],
+      "distractors": {
+        "verb": {
+          "vary": [
+            "person"
+          ]
+        }
+      },
+      "tests": [
+        "verb:{verb}:present:{person}"
+      ]
+    },
+    {
+      "id": "t_definite_article",
+      "zone": 1,
+      "kind": "grammar",
+      "pattern": "{subj} {verb:present} {art:definite}{noun}.",
+      "slots": {
+        "subj": {
+          "type": "subject"
+        },
+        "verb": {
+          "type": "verb"
+        },
+        "noun": {
+          "type": "noun",
+          "number": "sg",
+          "requires": "verb.takes"
+        },
+        "art": {
+          "type": "article"
+        }
+      },
+      "blanks": [
+        "art"
+      ],
+      "distractors": {
+        "art": {
+          "vary": [
+            "gender",
+            "number"
+          ]
+        }
+      },
+      "tests": [
+        "art:definite:{gender}:sg"
+      ]
+    },
+    {
+      "id": "t_indefinite_article",
+      "zone": 1,
+      "kind": "grammar",
+      "pattern": "{subj} {verb:present} {art:indefinite}{noun}.",
+      "slots": {
+        "subj": {
+          "type": "subject"
+        },
+        "verb": {
+          "type": "verb"
+        },
+        "noun": {
+          "type": "noun",
+          "number": "sg",
+          "requires": "verb.takes"
+        },
+        "art": {
+          "type": "article"
+        }
+      },
+      "blanks": [
+        "art"
+      ],
+      "distractors": {
+        "art": {
+          "vary": [
+            "gender",
+            "number"
+          ]
+        }
+      },
+      "tests": [
+        "art:indefinite:{gender}:sg"
+      ]
+    },
+    {
+      "id": "t_plural_object",
+      "zone": 1,
+      "kind": "grammar",
+      "pattern": "{subj} {verb:present} {art:definite}{noun:plural}.",
+      "slots": {
+        "subj": {
+          "type": "subject"
+        },
+        "verb": {
+          "type": "verb"
+        },
+        "noun": {
+          "type": "noun",
+          "number": "pl",
+          "requires": "verb.takes"
+        },
+        "art": {
+          "type": "article",
+          "agreesWith": "noun"
+        }
+      },
+      "blanks": [
+        "art"
+      ],
+      "distractors": {
+        "art": {
+          "vary": [
+            "gender",
+            "number"
+          ]
+        }
+      },
+      "tests": [
+        "art:definite:{gender}:pl",
+        "noun:{noun}:plural"
+      ]
+    },
+    {
+      "id": "t_combo_two",
+      "zone": 1,
+      "kind": "combo",
+      "pattern": "{subj1} {verb1:present} {art1:definite}{noun1} y {subj2} {verb2:present} {art2:definite}{noun2}.",
+      "slots": {
+        "subj1": {
+          "type": "subject"
+        },
+        "verb1": {
+          "type": "verb"
+        },
+        "noun1": {
+          "type": "noun",
+          "number": "sg",
+          "requires": "verb1.takes"
+        },
+        "art1": {
+          "type": "article",
+          "agreesWith": "noun1"
+        },
+        "subj2": {
+          "type": "subject",
+          "distinctPersonFrom": "subj1"
+        },
+        "verb2": {
+          "type": "verb"
+        },
+        "noun2": {
+          "type": "noun",
+          "number": "sg",
+          "requires": "verb2.takes",
+          "distinctFrom": "noun1"
+        },
+        "art2": {
+          "type": "article",
+          "agreesWith": "noun2"
+        }
+      },
+      "blanks": [
+        "verb1",
+        "verb2"
+      ],
+      "distractors": {
+        "verb1": {
+          "vary": [
+            "person"
+          ]
+        },
+        "verb2": {
+          "vary": [
+            "person"
+          ]
+        }
+      },
+      "tests": [
+        "verb:{verb1}:present:{person1}",
+        "verb:{verb2}:present:{person2}"
+      ]
+    }
+  ]
+}

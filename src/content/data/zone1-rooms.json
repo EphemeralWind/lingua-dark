@@ -1,0 +1,152 @@
+{
+  "version": 1,
+  "zone": 1,
+  "name": "The Hollow Village",
+  "start": "r1_bonfire",
+  "note": "Seed map. Exits are keyed by direction. '$back' returns to the room the player came from. An exit object can carry locked (door id), unlocks (door id it opens), or gate ('boss'). All Spanish text needs native-speaker review.",
+  "rooms": [
+    {
+      "id": "r1_bonfire",
+      "backdrop": "bonfire_room",
+      "exits": {
+        "north": "r1_lane",
+        "west": "r1_well",
+        "east": "r1_forge",
+        "south": {
+          "to": "r1_cellar",
+          "locked": "shortcut_cellar"
+        }
+      },
+      "contents": {
+        "bonfire": true,
+        "sign": "A la izquierda hay un pozo. A la derecha hay una fragua."
+      }
+    },
+    {
+      "id": "r1_lane",
+      "backdrop": "corridor",
+      "exits": {
+        "south": "$back",
+        "north": "r1_chapel"
+      },
+      "contents": {
+        "enemy": {
+          "id": "hollow_villager",
+          "attack": "jab"
+        }
+      }
+    },
+    {
+      "id": "r1_chapel",
+      "backdrop": "hall",
+      "exits": {
+        "south": "$back",
+        "north": "r1_gate"
+      },
+      "contents": {
+        "enemy": {
+          "id": "hollow_monk",
+          "attack": "overhead"
+        },
+        "sign": "La puerta del norte está cerrada."
+      }
+    },
+    {
+      "id": "r1_gate",
+      "backdrop": "boss_gate",
+      "exits": {
+        "south": "$back",
+        "north": {
+          "to": "r1_boss_arena",
+          "gate": "boss"
+        }
+      },
+      "contents": {
+        "sign": "Solo pasan los que saben las palabras."
+      }
+    },
+    {
+      "id": "r1_boss_arena",
+      "backdrop": "boss_arena",
+      "exits": {},
+      "contents": {
+        "boss": {
+          "id": "boss_zone1",
+          "phases": [
+            "articles_gender",
+            "present_regular",
+            "blind"
+          ]
+        }
+      }
+    },
+    {
+      "id": "r1_well",
+      "backdrop": "corridor",
+      "exits": {
+        "south": "$back",
+        "north": "r1_cellar"
+      },
+      "contents": {
+        "enemy": {
+          "id": "hollow_villager",
+          "attack": "delayed"
+        },
+        "sign": "El agua del pozo no es buena."
+      }
+    },
+    {
+      "id": "r1_cellar",
+      "backdrop": "corridor",
+      "exits": {
+        "south": "$back",
+        "north": {
+          "to": "r1_bonfire",
+          "unlocks": "shortcut_cellar"
+        }
+      },
+      "contents": {
+        "enemy": {
+          "id": "whisperer",
+          "attack": "grab"
+        },
+        "sign": "Esta puerta lleva al fuego."
+      }
+    },
+    {
+      "id": "r1_forge",
+      "backdrop": "hall",
+      "exits": {
+        "south": "$back",
+        "east": "r1_orchard"
+      },
+      "contents": {
+        "enemy": {
+          "id": "hollow_smith",
+          "attack": "combo"
+        },
+        "sign": "El herrero no está hoy.",
+        "item": "n_martillo"
+      }
+    },
+    {
+      "id": "r1_orchard",
+      "backdrop": "crossroads",
+      "exits": {
+        "south": "$back"
+      },
+      "contents": {
+        "enemy": {
+          "id": "crow",
+          "attack": "jab"
+        },
+        "sign": "Las manzanas son para todos.",
+        "item": "n_manzana",
+        "npc": {
+          "id": "anciana",
+          "dialogue": "TODO: write 4-way reply dialogue (native-checked)"
+        }
+      }
+    }
+  ]
+}

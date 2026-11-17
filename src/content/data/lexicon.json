@@ -1,0 +1,562 @@
+{
+  "version": 1,
+  "dialect": "es-ES",
+  "note": "Seed lexicon. Regular verbs only. Needs native-speaker review before release.",
+  "entries": [
+    {
+      "id": "n_espada",
+      "lemma": "espada",
+      "pos": "noun",
+      "gender": "f",
+      "plural": "espadas",
+      "tags": [
+        "weapon",
+        "object",
+        "liftable",
+        "carriable"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_escudo",
+      "lemma": "escudo",
+      "pos": "noun",
+      "gender": "m",
+      "plural": "escudos",
+      "tags": [
+        "armor",
+        "object",
+        "liftable",
+        "carriable",
+        "touchable"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_martillo",
+      "lemma": "martillo",
+      "pos": "noun",
+      "gender": "m",
+      "plural": "martillos",
+      "tags": [
+        "tool",
+        "object",
+        "liftable",
+        "carriable"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_antorcha",
+      "lemma": "antorcha",
+      "pos": "noun",
+      "gender": "f",
+      "plural": "antorchas",
+      "tags": [
+        "tool",
+        "object",
+        "liftable",
+        "carriable",
+        "lookable"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_llave",
+      "lemma": "llave",
+      "pos": "noun",
+      "gender": "f",
+      "plural": "llaves",
+      "tags": [
+        "tool",
+        "object",
+        "carriable",
+        "searchable"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_libro",
+      "lemma": "libro",
+      "pos": "noun",
+      "gender": "m",
+      "plural": "libros",
+      "tags": [
+        "readable",
+        "object",
+        "carriable",
+        "openable",
+        "searchable",
+        "writable"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_carta",
+      "lemma": "carta",
+      "pos": "noun",
+      "gender": "f",
+      "plural": "cartas",
+      "tags": [
+        "readable",
+        "object",
+        "carriable",
+        "openable",
+        "searchable",
+        "writable"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_puerta",
+      "lemma": "puerta",
+      "pos": "noun",
+      "gender": "f",
+      "plural": "puertas",
+      "tags": [
+        "structure",
+        "openable",
+        "lookable",
+        "touchable"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_campana",
+      "lemma": "campana",
+      "pos": "noun",
+      "gender": "f",
+      "plural": "campanas",
+      "tags": [
+        "structure",
+        "touchable"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_cuerda",
+      "lemma": "cuerda",
+      "pos": "noun",
+      "gender": "f",
+      "plural": "cuerdas",
+      "tags": [
+        "cuttable",
+        "object",
+        "carriable",
+        "liftable",
+        "searchable"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_capa",
+      "lemma": "capa",
+      "pos": "noun",
+      "gender": "f",
+      "plural": "capas",
+      "tags": [
+        "clothing",
+        "object",
+        "carriable"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_pan",
+      "lemma": "pan",
+      "pos": "noun",
+      "gender": "m",
+      "plural": "panes",
+      "tags": [
+        "food",
+        "cuttable",
+        "carriable",
+        "edible"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_queso",
+      "lemma": "queso",
+      "pos": "noun",
+      "gender": "m",
+      "plural": "quesos",
+      "tags": [
+        "food",
+        "cuttable",
+        "carriable",
+        "edible"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_manzana",
+      "lemma": "manzana",
+      "pos": "noun",
+      "gender": "f",
+      "plural": "manzanas",
+      "tags": [
+        "food",
+        "cuttable",
+        "carriable",
+        "edible"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_sopa",
+      "lemma": "sopa",
+      "pos": "noun",
+      "gender": "f",
+      "plural": "sopas",
+      "tags": [
+        "food",
+        "edible"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_vino",
+      "lemma": "vino",
+      "pos": "noun",
+      "gender": "m",
+      "plural": "vinos",
+      "tags": [
+        "drink",
+        "drinkable"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_leche",
+      "lemma": "leche",
+      "pos": "noun",
+      "gender": "f",
+      "plural": "leches",
+      "tags": [
+        "drink",
+        "drinkable"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_puente",
+      "lemma": "puente",
+      "pos": "noun",
+      "gender": "m",
+      "plural": "puentes",
+      "tags": [
+        "structure",
+        "lookable"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_torre",
+      "lemma": "torre",
+      "pos": "noun",
+      "gender": "f",
+      "plural": "torres",
+      "tags": [
+        "structure",
+        "lookable",
+        "touchable"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_bosque",
+      "lemma": "bosque",
+      "pos": "noun",
+      "gender": "m",
+      "plural": "bosques",
+      "tags": [
+        "place",
+        "lookable"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_lobo",
+      "lemma": "lobo",
+      "pos": "noun",
+      "gender": "m",
+      "plural": "lobos",
+      "tags": [
+        "animal",
+        "lookable"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_cuervo",
+      "lemma": "cuervo",
+      "pos": "noun",
+      "gender": "m",
+      "plural": "cuervos",
+      "tags": [
+        "animal",
+        "lookable"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_caballero",
+      "lemma": "caballero",
+      "pos": "noun",
+      "gender": "m",
+      "plural": "caballeros",
+      "tags": [
+        "person",
+        "animate"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_herrero",
+      "lemma": "herrero",
+      "pos": "noun",
+      "gender": "m",
+      "plural": "herreros",
+      "tags": [
+        "person",
+        "animate"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_mujer",
+      "lemma": "mujer",
+      "pos": "noun",
+      "gender": "f",
+      "plural": "mujeres",
+      "tags": [
+        "person",
+        "animate"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_niño",
+      "lemma": "niño",
+      "pos": "noun",
+      "gender": "m",
+      "plural": "niños",
+      "tags": [
+        "person",
+        "animate"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "n_niña",
+      "lemma": "niña",
+      "pos": "noun",
+      "gender": "f",
+      "plural": "niñas",
+      "tags": [
+        "person",
+        "animate"
+      ],
+      "cefr": "A1"
+    },
+    {
+      "id": "v_levantar",
+      "lemma": "levantar",
+      "pos": "verb",
+      "class": "ar",
+      "cefr": "A1",
+      "takes": [
+        "liftable"
+      ],
+      "present": {
+        "yo": "levanto",
+        "tu": "levantas",
+        "el": "levanta",
+        "nosotros": "levantamos",
+        "vosotros": "levantáis",
+        "ellos": "levantan"
+      }
+    },
+    {
+      "id": "v_llevar",
+      "lemma": "llevar",
+      "pos": "verb",
+      "class": "ar",
+      "cefr": "A1",
+      "takes": [
+        "carriable"
+      ],
+      "present": {
+        "yo": "llevo",
+        "tu": "llevas",
+        "el": "lleva",
+        "nosotros": "llevamos",
+        "vosotros": "lleváis",
+        "ellos": "llevan"
+      }
+    },
+    {
+      "id": "v_mirar",
+      "lemma": "mirar",
+      "pos": "verb",
+      "class": "ar",
+      "cefr": "A1",
+      "takes": [
+        "lookable"
+      ],
+      "present": {
+        "yo": "miro",
+        "tu": "miras",
+        "el": "mira",
+        "nosotros": "miramos",
+        "vosotros": "miráis",
+        "ellos": "miran"
+      }
+    },
+    {
+      "id": "v_cortar",
+      "lemma": "cortar",
+      "pos": "verb",
+      "class": "ar",
+      "cefr": "A1",
+      "takes": [
+        "cuttable"
+      ],
+      "present": {
+        "yo": "corto",
+        "tu": "cortas",
+        "el": "corta",
+        "nosotros": "cortamos",
+        "vosotros": "cortáis",
+        "ellos": "cortan"
+      }
+    },
+    {
+      "id": "v_buscar",
+      "lemma": "buscar",
+      "pos": "verb",
+      "class": "ar",
+      "cefr": "A1",
+      "takes": [
+        "searchable"
+      ],
+      "present": {
+        "yo": "busco",
+        "tu": "buscas",
+        "el": "busca",
+        "nosotros": "buscamos",
+        "vosotros": "buscáis",
+        "ellos": "buscan"
+      }
+    },
+    {
+      "id": "v_tocar",
+      "lemma": "tocar",
+      "pos": "verb",
+      "class": "ar",
+      "cefr": "A1",
+      "takes": [
+        "touchable"
+      ],
+      "present": {
+        "yo": "toco",
+        "tu": "tocas",
+        "el": "toca",
+        "nosotros": "tocamos",
+        "vosotros": "tocáis",
+        "ellos": "tocan"
+      }
+    },
+    {
+      "id": "v_comer",
+      "lemma": "comer",
+      "pos": "verb",
+      "class": "er",
+      "cefr": "A1",
+      "takes": [
+        "edible"
+      ],
+      "present": {
+        "yo": "como",
+        "tu": "comes",
+        "el": "come",
+        "nosotros": "comemos",
+        "vosotros": "coméis",
+        "ellos": "comen"
+      }
+    },
+    {
+      "id": "v_beber",
+      "lemma": "beber",
+      "pos": "verb",
+      "class": "er",
+      "cefr": "A1",
+      "takes": [
+        "drinkable"
+      ],
+      "present": {
+        "yo": "bebo",
+        "tu": "bebes",
+        "el": "bebe",
+        "nosotros": "bebemos",
+        "vosotros": "bebéis",
+        "ellos": "beben"
+      }
+    },
+    {
+      "id": "v_vender",
+      "lemma": "vender",
+      "pos": "verb",
+      "class": "er",
+      "cefr": "A1",
+      "takes": [
+        "carriable"
+      ],
+      "present": {
+        "yo": "vendo",
+        "tu": "vendes",
+        "el": "vende",
+        "nosotros": "vendemos",
+        "vosotros": "vendéis",
+        "ellos": "venden"
+      }
+    },
+    {
+      "id": "v_abrir",
+      "lemma": "abrir",
+      "pos": "verb",
+      "class": "ir",
+      "cefr": "A1",
+      "takes": [
+        "openable"
+      ],
+      "present": {
+        "yo": "abro",
+        "tu": "abres",
+        "el": "abre",
+        "nosotros": "abrimos",
+        "vosotros": "abrís",
+        "ellos": "abren"
+      }
+    },
+    {
+      "id": "v_escribir",
+      "lemma": "escribir",
+      "pos": "verb",
+      "class": "ir",
+      "cefr": "A1",
+      "takes": [
+        "writable"
+      ],
+      "present": {
+        "yo": "escribo",
+        "tu": "escribes",
+        "el": "escribe",
+        "nosotros": "escribimos",
+        "vosotros": "escribís",
+        "ellos": "escriben"
+      }
+    }
+  ]
+}
