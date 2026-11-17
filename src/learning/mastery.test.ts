@@ -20,10 +20,9 @@ describe('mastery', () => {
     expect(l.components['c']?.days).toEqual([7]);
   });
 
-  it('every untelegraphed context counts: review, blind round, reading choice', () => {
+  it('every untelegraphed context counts: review and reading choice', () => {
     for (const [a, b] of [
-      ['review', 'blind'],
-      ['blind', 'reading'],
+      ['review', 'reading'],
       ['reading', 'review'],
     ] as const) {
       expect(isLearned(answer(answer(newLearner(), true, a, 0), true, b, 3), 'c')).toBe(true);

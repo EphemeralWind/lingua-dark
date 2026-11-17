@@ -5,7 +5,7 @@
 import { MASTERY_CORRECT_DAYS } from '../tuning';
 
 /** Where an answer was given. Only `combat` is telegraphed. */
-export type AnswerContext = 'combat' | 'review' | 'blind' | 'reading';
+export type AnswerContext = 'combat' | 'review' | 'reading';
 
 export function isUntelegraphed(ctx: AnswerContext): boolean {
   return ctx !== 'combat';

@@ -227,9 +227,17 @@ Decisions #77–#90.
 
   The flat shapes remain as the fallback.
 
+### After M4: two-phase boss (#95)
+
+- The Hollow Bell has two phases that mix all three seals:
+  - an easier pool: definite articles, one verb, naming nouns;
+  - then a harder pool: indefinite articles, two-verb combos, sentence translations, and 3-question flurries.
+- Between them it shouts «¡Escucha! ¡La campana dobla por ti!», shown, spoken and translated.
+- Blind mode is removed. The blind-bot test runs both phases at chance with no wins. It caught a card-length bias in the first pool split, which is now fixed.
+
 ## Open items and known risks
 
-- **Native review pending** (M2 gate) for `docs/review/zone1-sentences.md`. M4 adds no Spanish:
+- **Native review pending** (M2 gate) for `docs/review/zone1-sentences.md`, plus the boss's battle cry «¡Escucha! ¡La campana dobla por ti!» (#95). Otherwise M4 adds no Spanish:
   the boss name, phase names, captions and settings are English UI.
 - **Real art:** all eight characters, the rooms, doors and arenas are hand-drawn (#91, #93, #94). An artist's Aseprite
   export with tags `<character>/<animation>` (see `requiredTags` and `CHARACTERS`) can replace

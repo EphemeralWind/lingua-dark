@@ -17,7 +17,7 @@ import type { InputEvent } from '../platform/input';
 import { C } from '../platform/palette';
 import type { Renderer } from '../platform/renderer';
 import type { SaveStore } from '../save/store';
-import { GHOST_HP, GHOST_STANCE_MAX, PHASE_TRANSITION_MS, REVIEW_ROUND_SIZE, ROOM_TRANSITION_MS, WARDEN_HP } from '../tuning';
+import { BATTLE_CRY_MS, CRY_SHAKE_MS, GHOST_HP, HIT_SHAKE_PX, GHOST_STANCE_MAX, PHASE_TRANSITION_MS, REVIEW_ROUND_SIZE, ROOM_TRANSITION_MS, WARDEN_HP } from '../tuning';
 import { bossIn, type BossDef } from '../world/boss';
 import { sealProgress, sealTemplates, socketLine, type SealProgress } from '../world/seals';
 import {
@@ -54,7 +54,7 @@ interface FightMode {
   /** Component of the last missed strike: the echo's target if the player dies. */
   lastMiss: string | null;
   /** Boss fights: the phases, the one in play, and the title card between phases. */
-  boss: { def: BossDef; index: number; cardUntil: number | null } | null;
+  boss: { def: BossDef; index: number; cardUntil: number | null; cardFrom: number } | null;
 }
 
 type Mode = { kind: 'title'; confirmNew: boolean } | { kind: 'explore' } | FightMode | { kind: 'review'; review: Review } | { kind: 'map' };
@@ -339,7 +339,7 @@ export class GameScene {
     if (ghosts > 0 && !enemyAlive(g, this.zone, g.room)) out.push(`${ghosts} ghost${ghosts > 1 ? 's' : ''} of missed words linger. Enter to face one.`);
     if (room.contents.reading && !g.readingsDone.includes(g.room)) out.push(`Goal: ${room.contents.reading.goal_en}`);
     const boss = bossIn(this.zone, g.room);
-    if (boss && bossAlive(g, this.zone, g.room)) out.push(`${boss.name} waits. Three phases, the last one blind.`, 'Enter: fight.  ↓: leave.');
+    if (boss && bossAlive(g, this.zone, g.room)) out.push(`${boss.name} waits. ${boss.phases.length} phases.`, 'Enter: fight.  ↓: leave.');
     return out;
   }
 
@@ -348,7 +348,7 @@ export class GameScene {
   private startFight(g: GameState, foe: FoeKey): void {
     if (foe === 'boss') {
       const def = bossIn(this.zone, g.room);
-      if (def) this.startBossPhase(g, { def, index: 0, cardUntil: null }, [], null);
+      if (def) this.startBossPhase(g, { def, index: 0, cardUntil: null, cardFrom: 0 }, [], null);
       return;
     }
     const ghost = ghostComponent(foe);
@@ -374,7 +374,7 @@ export class GameScene {
     g: GameState,
     foe: FoeKey,
     templates: Template[] | undefined,
-    o: { label: string; character: string; enemyHp?: number; stanceMax?: number; chain?: number; note?: string; blind?: boolean; arena?: 'boss' },
+    o: { label: string; character: string; enemyHp?: number; stanceMax?: number; chain?: number; note?: string; arena?: 'boss' },
   ): Fight {
     const rng = createRng(nextFightSeed(g));
     const ghost = ghostComponent(foe);
@@ -407,7 +407,6 @@ export class GameScene {
       character: o.character,
       flasks: { count: () => g.flasks, spend: () => (g.flasks = Math.max(0, g.flasks - 1)), power: perks.flaskPower },
       ...(o.note ? { note: o.note } : {}),
-      ...(o.blind ? { blind: true } : {}),
       ...(o.arena ? { arena: o.arena } : {}),
     });
   }
@@ -423,13 +422,15 @@ export class GameScene {
       enemyHp: phase.hp,
       stanceMax: phase.stanceMax,
       chain: phase.chain,
-      blind: phase.blind,
       arena: 'boss',
       ...(echo ? { note: `ECHO ${echo.xp} XP` } : {}),
     });
-    // Each phase opens on a title card; the fight starts when it ends.
-    this.mode = { kind: 'fight', fight, foe: 'boss', room: g.room, missed, lastMiss, boss: { ...boss, cardUntil: this.now + PHASE_TRANSITION_MS } };
+    // Each phase opens on a title card; the fight starts when it ends. A phase with a battle cry
+    // keeps its card up longer and the bell shouts it (spoken in Spanish; the card shows the text).
+    const cardMs = phase.cry ? BATTLE_CRY_MS : PHASE_TRANSITION_MS;
+    this.mode = { kind: 'fight', fight, foe: 'boss', room: g.room, missed, lastMiss, boss: { ...boss, cardFrom: this.now, cardUntil: this.now + cardMs } };
     this.svc.cues.play('phase', this.now);
+    if (phase.cry) this.svc.speech.speak(phase.cry.es);
     this.message = [];
   }
 
@@ -460,10 +461,8 @@ export class GameScene {
     m.fight.update(nowMs);
     for (const rec of m.fight.drainLog()) {
       const parried = rec.result === 'parry';
-      // A blind round is untelegraphed, so it counts toward mastery (DECISIONS #29), unless a
-      // flask helped; ordinary combat only moves the schedule.
-      const ctx = m.fight.blind && !rec.assisted ? 'blind' : 'combat';
-      this.record(rec.components, parried, ctx, rec.assisted);
+      // Combat answers move the review schedule but never count toward mastery (CLAUDE.md rule 6).
+      this.record(rec.components, parried, 'combat', rec.assisted);
       if (!parried) {
         const c = rec.components.find((x) => cardRepresentable(x)) ?? null;
         if (c) m.missed.push(c);
@@ -613,19 +612,40 @@ export class GameScene {
     this.svc.cues.draw(r, nowMs, 312, 40);
   }
 
-  /** Title card before each boss phase (with its sound, the visual twin of the bell). */
+  /**
+   * Title card before each boss phase (with its sound, the visual twin of the bell). A phase
+   * with a battle cry shows the boss raising its maul, shaking as it shouts (still with reduced
+   * motion), and the cry in Spanish with its English line under it.
+   */
   private drawPhaseCard(r: Renderer, nowMs: number, boss: NonNullable<FightMode['boss']>): void {
     const phase = boss.def.phases[boss.index];
+    const calm = this.svc.settings.reducedMotion;
     r.begin(C.bossDeep);
-    drawArena(r, nowMs, 'boss', this.svc.settings.reducedMotion, this.svc.sprites);
+    drawArena(r, nowMs, 'boss', calm, this.svc.sprites);
+    const head = `PHASE ${boss.index + 1} OF ${boss.def.phases.length}`;
+    if (phase?.cry) {
+      const shaking = !calm && nowMs - boss.cardFrom < CRY_SHAKE_MS;
+      const dx = shaking ? Math.round(Math.sin(nowMs / 25) * HIT_SHAKE_PX) : 0;
+      this.svc.sprites.draw(r.low, boss.def.id, { tag: 'windup', frame: 5, flip: false }, 160 + dx, 108);
+      r.low.fillStyle = 'rgba(11,13,18,0.8)';
+      r.low.fillRect(0, 112, 320, 62);
+      r.present();
+      r.text(`${head} · ${phase.name}`, 160, 118, { size: 6, align: 'center', color: C.dim, outline: C.void });
+      // One exclamation per line: «¡Escucha!» / «¡La campana dobla por ti!»
+      phase.cry.es.split(/(?<=!)\s+(?=¡)/).forEach((line, i) => r.text(line, 160 + dx, 132 + i * 14, { size: 12, align: 'center', color: C.signal, outline: C.void, maxWidth: 312 }));
+      r.text(phase.cry.en, 160, 162, { size: 6, align: 'center', color: C.text, outline: C.void });
+      r.text('Enter to begin', 160, 172, { size: 6, align: 'center', color: C.dim });
+      this.svc.cues.draw(r, nowMs, 312, 104);
+      return;
+    }
     r.low.fillStyle = 'rgba(11,13,18,0.75)';
     r.low.fillRect(0, 40, 320, 80);
     r.present();
     r.text(boss.def.name.toUpperCase(), 160, 54, { size: 8, align: 'center', color: C.dim, outline: C.void });
-    r.text(`PHASE ${boss.index + 1} OF ${boss.def.phases.length}`, 160, 72, { size: 14, align: 'center', color: C.signal, outline: C.void });
+    r.text(head, 160, 72, { size: 14, align: 'center', color: C.signal, outline: C.void });
     r.text(phase?.name ?? '', 160, 90, { size: 8, align: 'center', outline: C.void, maxWidth: 300 });
-    if (phase?.blind) r.text('The bell hides. No cues: read the Spanish, or listen (R repeats).', 160, 104, { size: 6, align: 'center', color: C.dim, maxWidth: 300 });
     r.text('Enter to begin', 160, 114, { size: 6, align: 'center', color: C.dim });
     this.svc.cues.draw(r, nowMs, 312, 132);
   }
+
 }

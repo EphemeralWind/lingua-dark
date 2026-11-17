@@ -240,3 +240,17 @@ Each entry: what was ambiguous, the reading picked, and why. Revisit any of them
       - `rest_player`: the player from behind, seated with his shield at his side, built from his own parts. His sword is planted beyond the fire.
 
       He breathes and the fire flickers, both held still with reduced motion. The review panel keeps its place and gains a thin frame. Nothing in the scene changes with the question.
+
+### 2026-11-17: The first boss has two mixed phases; blind mode is gone
+
+95. **The Hollow Bell has two phases, each mixing every seal: an easier pool, a battle cry, then a harder pool.** The designer dropped blind mode. It hid the enemy, the attack icon and the strike, but by design none of those ever told anyone the answer. So the blind phase played exactly like the others, and only changed how its answers counted for mastery.
+    - **Data.** Boss phases in the zone data are now objects `{ id, name_en, templates, cry_es?, cry_en? }`, replacing `phaseDecks`. Validation checks that every template exists in the zone, that each phase has a template from every seal, and that a cry comes with its English line.
+    - **The pools.**
+      - Phase 1, "The first toll": definite articles (`t_definite_article`, `t_plural_object`), one present-tense verb, naming a noun.
+      - Phase 2, "The death knell": indefinite articles (`t_indefinite_article`, `t_indefinite_plural`), two-verb combos and whole-sentence translations. It has a 3-question flurry instead of 2, and 80 HP instead of 60 (`BOSS_CHAIN`, `BOSS_PHASE_HP`, both placeholders).
+    - **The split is by article kind, not by number.** A first split put every singular article in phase 1 and every plural in phase 2. The blind-bot test caught "pick the shortest card" at 37% in phase 1 and "pick the longest" at 35% in phase 2, because number shows in a card's length. Each phase now balances singular and plural articles, and a boss test checks that.
+    - **The battle cry**, «¡Escucha! ¡La campana dobla por ti!» ("Listen! The bell tolls for you!"), is static text and a draft for native review.
+      - It opens phase 2 on a longer card (`BATTLE_CRY_MS`): the bell raises its maul and shakes as it shouts, with no shake under reduced motion.
+      - The Spanish is shown large with its English below, and spoken by the es-ES voice. The text is the visual twin.
+    - **Blind mode is removed everywhere:** the fight's fog, banner and wind-up speech, and the `blind` answer context. The untelegraphed contexts are now bonfire reviews and exploration reading choices. This supersedes #29 and #86.
+

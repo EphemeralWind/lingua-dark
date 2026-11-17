@@ -198,7 +198,8 @@ const ARENAS: Arena[] = [
     enemyHp: p.hp,
     stanceMax: p.stanceMax,
     chain: p.chain,
-    fights: p.id === 'articles_gender' ? FIGHTS * 1.5 : FIGHTS,
+    // Guessers die fast against the boss, so each phase runs more fights for a steady rate.
+    fights: FIGHTS * 1.5,
   })),
   { name: 'whole Zone 1 deck in Hollow mode', templates: zoneTemplates(1), untimed: true, fights: FIGHTS },
 ];

@@ -109,15 +109,19 @@
           "id": "boss_zone1",
           "name_en": "The Hollow Bell",
           "phases": [
-            "articles_gender",
-            "present_regular",
-            "blind"
-          ],
-          "phaseDecks": {
-            "articles_gender": ["articles"],
-            "present_regular": ["present"],
-            "blind": ["articles", "present", "words"]
-          }
+            {
+              "id": "toll",
+              "name_en": "The first toll",
+              "templates": ["t_definite_article", "t_plural_object", "t_present_object", "t_vocab_noun"]
+            },
+            {
+              "id": "knell",
+              "name_en": "The death knell",
+              "templates": ["t_indefinite_article", "t_indefinite_plural", "t_combo_two", "t_translate_object"],
+              "cry_es": "¡Escucha! ¡La campana dobla por ti!",
+              "cry_en": "Listen! The bell tolls for you!"
+            }
+          ]
         }
       }
     },

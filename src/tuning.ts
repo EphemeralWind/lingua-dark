@@ -98,14 +98,18 @@ export const PERKS: readonly PerkRow[] = [
 ];
 
 // --- default (not in design doc), added in Milestone 4 ---
-/** Zone boss (SPEC 3.7): HP and stance meter of each phase. */
-export const BOSS_PHASE_HP = 60;
+/** Zone boss (SPEC 3.7): HP of each phase in order (the harder second phase lasts longer), and the stance meter. */
+export const BOSS_PHASE_HP: readonly number[] = [60, 80];
 export const BOSS_STANCE_MAX = 100;
-/** Questions chained into one flurry per phase: the boss's longer combos (DECISIONS #77). */
-export const BOSS_CHAIN: readonly number[] = [2, 2, 3];
+/** Questions chained into one flurry per phase: the boss's longer combos (DECISIONS #77, #95). */
+export const BOSS_CHAIN: readonly number[] = [2, 3];
 export const BOSS_XP = 500;
 /** Title card between boss phases. */
 export const PHASE_TRANSITION_MS = 2200;
+/** A phase card that carries a battle cry stays up longer, so the line can be heard. */
+export const BATTLE_CRY_MS = 3600;
+/** The boss shakes as it shouts, for this long at the start of the cry card (none with reduced motion). */
+export const CRY_SHAKE_MS = 700;
 /** How long a sound caption stays on screen. */
 export const CAPTION_MS = 900;
 /** Larger-text setting: text scale factor. */

@@ -83,8 +83,6 @@ export interface FightOptions {
   flasks?: { count(): number; spend(): void; /** Wrong cards one flask greys out. */ power: number };
   /** Extra HUD line, e.g. that an echo waits on this foe. */
   note?: string;
-  /** Blind round: no enemy, no attack icon, no strike animation (SPEC 3.7). */
-  blind?: boolean;
   /** Arena look: the boss arena has its own palette and silhouettes. */
   arena?: 'village' | 'boss';
 }
@@ -110,10 +108,6 @@ export class Fight {
 
   get won(): boolean {
     return this.enc.state.kind === 'won';
-  }
-
-  get blind(): boolean {
-    return this.opts.blind ?? false;
   }
 
   start(nowMs: number): void {
@@ -158,25 +152,21 @@ export class Fight {
     const view = viewOf(this.enc, nowMs);
     for (const cue of cuesBetween(this.prevView, view)) this.svc.cues.play(cue, nowMs);
     if ((view.phase === 'won' || view.phase === 'lost') && this.endedAt === null) this.endedAt = nowMs;
-    this.speakFor(view);
+    this.speakFor();
     this.prevView = view;
   }
 
   /**
    * Speech. A sentence is spoken whole only once every blank is revealed: after the last strike
    * of a question that did not break stance (a break leads to the riposte, which asks for those
-   * words), or after the riposte verdict. In a blind round the sentence is also read out, with
-   * pauses for its blanks, when its wind-up opens: the same words that are on screen.
+   * words), or after the riposte verdict.
    */
-  private speakFor(view: EncounterView): void {
+  private speakFor(): void {
     const s = this.enc.state;
     const key = (q: Question, strike: number, what: string): string => `${q.id}#${q.seed}:${strike}:${what}`;
     let line: string | null = null;
     let k: string | null = null;
-    if (s.kind === 'windup' && this.blind && s.strike === 0 && view.prompt) {
-      k = key(s.question, s.strike, `ask${this.enc.log.length}`);
-      line = s.question.sentence;
-    } else if (s.kind === 'resolving' && !s.stanceBroken && s.strike === s.question.strikes.length - 1) {
+    if (s.kind === 'resolving' && !s.stanceBroken && s.strike === s.question.strikes.length - 1) {
       k = key(s.question, s.strike, `done${this.enc.log.length}`);
       line = completed(s.question);
     } else if (s.kind === 'riposteResult') {
@@ -237,8 +227,7 @@ export class Fight {
     const calm = this.svc.settings.reducedMotion;
     r.begin(C.sky);
     drawArena(r, nowMs, this.opts.arena ?? 'village', calm, this.svc.sprites);
-    if (!this.blind) this.drawEnemy(r, a, nowMs);
-    else drawFog(r);
+    this.drawEnemy(r, a, nowMs);
     this.drawPlayer(r, a, nowMs, calm);
     if (active) {
       this.drawEffects(r, a, calm);
@@ -400,7 +389,7 @@ export class Fight {
     bar(130, 108, 60, 3, h.stance / h.stanceMax, C.signal); // stance, under the enemy
     bar(236, 167, 76, 4, h.enemyHp / h.enemyHpMax, C.hurt);
     bar(8, 167, 76, 4, h.vitality / h.vitalityMax, C.ember);
-    if (!this.blind) this.drawAttackIcon(r, h.attack);
+    this.drawAttackIcon(r, h.attack);
   }
 
   /** Attack-type icon: a distinct shape per type, nothing about the answer. */
@@ -446,8 +435,7 @@ export class Fight {
   private drawHudText(r: Renderer, view: EncounterView): void {
     const h = view.hud;
     const o = { outline: C.void };
-    if (this.blind) r.text('BLIND: read or listen  (R: repeat)', 8, 36, { size: 6, color: C.signal, ...o });
-    else if (h.attack) r.text(ATTACK_LABEL[h.attack], 22, 36, { size: 6, color: C.dim, ...o });
+    if (h.attack) r.text(ATTACK_LABEL[h.attack], 22, 36, { size: 6, color: C.dim, ...o });
     const chain = view.prompt && view.prompt.chainLength > 1 ? `FLURRY ${view.prompt.chainIndex + 1}/${view.prompt.chainLength}` : null;
     if (chain) r.text(chain, 8, 48, { size: 6, color: C.dim, ...o });
     if (this.svc.settings.hollow && view.phase === 'windup') r.text('HOLLOW: no timer', 8, chain ? 58 : 48, { size: 5, color: C.dim, ...o });
@@ -552,11 +540,3 @@ export function drawArena(r: Renderer, nowMs: number, kind: 'village' | 'boss', 
   }
 }
 
-/** Blind round: the enemy is hidden in fog. */
-function drawFog(r: Renderer): void {
-  const g = r.low;
-  g.fillStyle = C.void;
-  g.fillRect(40, 28, 240, 84);
-  g.fillStyle = C.night;
-  for (let y = 28; y < 112; y += 3) g.fillRect(40, y, 240, 1);
-}

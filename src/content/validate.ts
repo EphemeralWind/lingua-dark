@@ -115,12 +115,17 @@ function checkRooms(file: string, rooms: RoomsFile, c: Content, errors: string[]
     const boss = r.contents.boss;
     if (!boss) continue;
     for (const phase of boss.phases) {
-      const deck = boss.phaseDecks[phase];
-      if (!deck) errors.push(`${file}: ${r.id} boss phase ${phase} has no deck`);
-      for (const seal of deck ?? []) if (!seals[seal]) errors.push(`${file}: ${r.id} boss phase ${phase} uses unknown seal ${seal}`);
-    }
-    for (const phase of Object.keys(boss.phaseDecks)) {
-      if (!boss.phases.includes(phase)) errors.push(`${file}: ${r.id} boss deck ${phase} is not a phase`);
+      const where = `${file}: ${r.id} boss phase ${phase.id}`;
+      for (const t of phase.templates) {
+        const tmpl = c.templates.find((x) => x.id === t);
+        if (!tmpl) errors.push(`${where} uses missing template ${t}`);
+        else if (tmpl.zone !== rooms.zone) errors.push(`${where} uses template ${t} from zone ${tmpl.zone}`);
+      }
+      // Every phase mixes the zone's topics: at least one template from each seal.
+      for (const [id, seal] of Object.entries(seals)) {
+        if (!seal.templates.some((t) => phase.templates.includes(t))) errors.push(`${where} has no template from seal ${id}`);
+      }
+      if ((phase.cry_es === undefined) !== (phase.cry_en === undefined)) errors.push(`${where} needs both cry_es and cry_en, or neither`);
     }
   }
   const hasGate = rooms.rooms.some((r) => Object.values(r.exits).some((e) => typeof e === 'object' && e?.gate === 'boss'));

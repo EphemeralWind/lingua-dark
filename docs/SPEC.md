@@ -68,7 +68,7 @@ A delayed swing may show a fake flicker in its wind-up. The flicker is random no
 
 ### 3.7 Bosses
 
-Three phases per boss, each with its own stance meter and longer combos. Each phase tests one concept from the zone. The last phase hides all cues so the player must read or listen without visual help. Zone 1 boss phases: articles and gender, regular present tense, blind phase.
+Each phase has its own stance meter, HP and longer combos, and its deck mixes every seal of the zone. Later phases draw from a harder pool of templates and may open with a hand-written battle cry in Spanish, shown and spoken. Zone 1's boss, the first, has two phases: an easier pool (definite articles, one present-tense verb, naming a noun), then, after its battle cry, a harder one (indefinite articles, two-verb combos, whole-sentence translations) with longer flurries. *(Replaces the three phases ending in a blind phase, 2026-11-17: hiding the enemy and icons removed nothing a reader relied on, since no cue ever carried the answer.)*
 
 ### 3.8 Tuning constants (`src/tuning.ts`)
 
@@ -105,7 +105,7 @@ Three phases per boss, each with its own stance meter and longer combos. Each ph
 5. Distractors are near-misses: other forms of the same verb, wrong gender, false friends.
 6. Feints test reading, not reflexes.
 7. Guessing is costly: a wrong answer takes the hit, a random guess succeeds one time in four, hits refill the enemy's stance, and the riposte requires typing.
-8. Winning is not mastery. A word counts as mastered only when answered correctly in untelegraphed contexts: bonfire reviews, blind rounds where the enemy is hidden, and exploration reading choices.
+8. Winning is not mastery. A word counts as mastered only when answered correctly in untelegraphed contexts: bonfire reviews and exploration reading choices.
 9. Litmus test for every build: a skilled gamer who speaks no Spanish must not be able to clear the first boss.
 
 ## 5. Content system
@@ -144,10 +144,10 @@ Quality control: automated agreement tests per template over many seeds (start a
 
 - Track **knowledge components**: a word form or grammar feature, for example `v_levantar:present:3sg` and `art:definite:f`.
 - **Leitner boxes:** five boxes, review intervals of 1, 3, 7, 14, and 30 days. A correct answer moves a component up one box. A wrong answer sends it to box 1.
-- **Learned** requires two correct answers in untelegraphed contexts (bonfire review, blind round, exploration reading choice) on different days. Learned is **meta-progression**: it lives in a profile that survives New Game, and Learned thresholds grant small perks (more vitality, more riposte damage, a stronger flask, one extra flask per rest). Perks follow the best Learned count ever reached. A player who cannot read Spanish never earns them.
+- **Learned** requires two correct answers in untelegraphed contexts (bonfire review, exploration reading choice) on different days. Learned is **meta-progression**: it lives in a profile that survives New Game, and Learned thresholds grant small perks (more vitality, more riposte damage, a stronger flask, one extra flask per rest). Perks follow the best Learned count ever reached. A player who cannot read Spanish never earns them.
 - **Bonfires:** save progress, refill flasks, run a short review of due components, and respawn normal enemies.
 - **Ghosts:** missed components return as ghost enemies, up to three per room. Beating a ghost with a correct answer moves its component up a box.
-- **Boss gate:** the locked door in front of each boss's arena. It opens when the player holds every **seal** of the zone, so a zone can be cleared in one sitting. Each seal stands for one grammar aspect and is won by beating its **warden**, a tougher enemy whose questions come only from that aspect's templates. Wardens never respawn; seals last for the run. Zone 1: Seal of Articles (cellar warden), Seal of Verbs (chapel warden), Seal of Words (orchard warden). The boss then tests the seals combined: articles phase, present-tense phase, and a blind phase mixing all three. *(Replaces the earlier "80% of components Learned" gate, 2026-11-17.)*
+- **Boss gate:** the locked door in front of each boss's arena. It opens when the player holds every **seal** of the zone, so a zone can be cleared in one sitting. Each seal stands for one grammar aspect and is won by beating its **warden**, a tougher enemy whose questions come only from that aspect's templates. Wardens never respawn; seals last for the run. Zone 1: Seal of Articles (cellar warden), Seal of Verbs (chapel warden), Seal of Words (orchard warden). The boss then tests the seals combined: every phase mixes all three (3.7). *(Replaces the earlier "80% of components Learned" gate, 2026-11-17.)*
 - **Saving:** localStorage first (IndexedDB if saves grow), with JSON export and import. Local only for now.
 
 | Zone | Focus |
@@ -233,7 +233,7 @@ type EncounterState =
 
 ## 11. MVP slice and milestones
 
-Slice contents: five attack types (jab, overhead, delayed swing, grab, combo), one boss with three phases, one bonfire with review, flasks, echoes, and ghosts inside the Zone 1 map, a starting lexicon of roughly 60 nouns and 20 regular verbs (the seed has 27 nouns and 11 verbs), Hollow mode and reduced motion.
+Slice contents: five attack types (jab, overhead, delayed swing, grab, combo), one boss with two phases, one bonfire with review, flasks, echoes, and ghosts inside the Zone 1 map, a starting lexicon of roughly 60 nouns and 20 regular verbs (the seed has 27 nouns and 11 verbs), Hollow mode and reduced motion.
 
 | Phase | Weeks | Gate to pass |
 | --- | --- | --- |

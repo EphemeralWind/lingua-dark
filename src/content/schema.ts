@@ -142,9 +142,22 @@ export const roomsFileSchema = z.strictObject({
               id: z.string(),
               /** English UI name. */
               name_en: z.string().min(1).optional(),
-              phases: z.array(z.string()).min(1),
-              /** Seals whose templates make each phase's deck; the phase named "blind" hides all cues. */
-              phaseDecks: z.record(z.string(), z.array(z.string()).min(1)),
+              /**
+               * Phases in order. Each deck is a list of templates that must mix every seal of the
+               * zone (DECISIONS #95). `cry_es` is a static battle cry shouted on the card that opens
+               * the phase, with its English line under it.
+               */
+              phases: z
+                .array(
+                  z.strictObject({
+                    id: z.string(),
+                    name_en: z.string().min(1),
+                    templates: z.array(z.string()).min(1),
+                    cry_es: z.string().min(1).optional(),
+                    cry_en: z.string().min(1).optional(),
+                  }),
+                )
+                .min(1),
             })
             .optional(),
           npc: z.strictObject({ id: z.string(), dialogue: z.string() }).optional(),
