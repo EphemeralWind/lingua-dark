@@ -6,7 +6,12 @@ import type { Renderer } from './renderer';
 export type InputEvent =
   | { type: 'direction'; dir: Direction; atMs: number }
   | { type: 'point'; x: number; y: number; atMs: number }
-  | { type: 'confirm'; atMs: number };
+  | { type: 'confirm'; atMs: number }
+  /** Any other key, by KeyboardEvent.code (KeyF flask, KeyM map, Escape, ...). */
+  | { type: 'key'; code: string; atMs: number };
+
+/** Other keys the game uses; their browser default is suppressed. */
+const GAME_KEYS = new Set(['KeyF', 'KeyM', 'KeyE', 'KeyI', 'KeyN', 'Escape', 'F8', 'F9']);
 
 const KEY_DIRECTIONS: Record<string, Direction> = {
   ArrowUp: 'north',
@@ -35,6 +40,9 @@ export class Input {
       } else if (e.code === 'Enter' || e.code === 'Space') {
         e.preventDefault();
         this.queue.push({ type: 'confirm', atMs });
+      } else if (!e.ctrlKey && !e.metaKey && !e.altKey) {
+        if (GAME_KEYS.has(e.code)) e.preventDefault();
+        this.queue.push({ type: 'key', code: e.code, atMs });
       }
     });
     target.addEventListener('pointerdown', (e) => {
