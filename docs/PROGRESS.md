@@ -11,11 +11,19 @@ behind each choice, see `docs/DECISIONS.md`. Numbers like #4 refer to entries th
 | 1. Engine: one playable fight | Done | `bd260db` |
 | 2. Content: procedural Spanish | Done, waiting for native review | `c332f2e`, `d1d64d2` |
 | 3. Learning and world | Done | `d944d25`–`f5af689`; `$back` fix `09b7257`; seals and meta-progression `c00868f`–`058d3eb` |
-| 4. Art, audio, settings | Done (placeholder art; real sprites pending) | `dc82e6f`–`e71e126` (branch `m4-art-audio-settings`) |
+| 4. Art, audio, settings | Done (hand-drawn art in-house; an artist's sheet can replace it) | `dc82e6f`–`e71e126`; after M4: art `e1960d8`–`bd6afbf`, boss `8bc815a`, lesson hub `fd54af8`–`b813061` |
 | 5. Playtest and tuning | Not started | |
 
-All checks pass at the end of M4: `npm run typecheck`, `npm run lint`, `npm test` (372 tests),
-`npm run build`, `npm run test:e2e`.
+All checks pass as of the lesson hub: `npm run typecheck`, `npm run lint`, `npm test` (397 tests),
+`npm run build`, `npm run test:e2e`. Work is merged to `main`.
+
+**Deploy:** `.github/workflows/deploy.yml` builds and publishes `dist/` to GitHub Pages
+(https://ephemeralwind.github.io/lingua-dark/) on every push to `main`. The repo's Pages source is
+"GitHub Actions". Builds use `base: '/lingua-dark/'` (dev stays at `/`), and runtime asset URLs go
+through `import.meta.env.BASE_URL`; keep it that way for any new fetch.
+
+**Silent e2e:** the smoke test stubs `speechSynthesis.speak` and Chromium runs with `--mute-audio`,
+so `npm run test:e2e` makes no sound.
 
 ## Milestone 1: Engine (done)
 
@@ -291,4 +299,9 @@ Decisions #77–#90.
 
 Follow Prompt 5 in `docs/PROMPTS.md`. Notes:
 - Log `settings.hollow` per exchange (the setting is live in `Services.settings`).
+- **Learned is paused (#96),** so the playtest cannot use it to measure learning. Decide how M5 measures
+  it instead: for example, the reading choice, a short paper quiz, or bringing the typed review back as an
+  optional trial at the stele.
+- Watch whether players read the stele, and whether the riddle-plus-examples format teaches. Revise the
+  verse with the designer.
 - The litmus test now has a real boss: `r1_boss_arena`, two phases. The first draws from the easy pool; then comes the battle cry and the hard pool with 3-question flurries (#95).

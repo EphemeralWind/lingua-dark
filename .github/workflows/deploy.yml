@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [m4-art-audio-settings]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
