@@ -12,7 +12,9 @@ function validateContentPlugin(): Plugin {
   };
 }
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  // GitHub Pages serves the build from /lingua-dark/; the dev server stays at the root.
+  base: command === 'build' ? '/lingua-dark/' : '/',
   plugins: [validateContentPlugin()],
   server: { port: 5173, strictPort: true },
   // Second page: the font test (Prompt 4), at /font-test.html.
@@ -21,4 +23,4 @@ export default defineConfig({
     include: ['src/**/*.test.ts', 'art/**/*.test.ts'],
     environment: 'node',
   },
-});
+}));

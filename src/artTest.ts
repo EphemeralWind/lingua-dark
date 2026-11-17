@@ -10,7 +10,7 @@ if (!(canvas instanceof HTMLCanvasElement)) throw new Error('art-test.html is mi
 const scale = Number(new URLSearchParams(window.location.search).get('scale') ?? 3) || 3;
 
 void (async () => {
-  const real = await loadAtlas('/art/atlas.json');
+  const real = await loadAtlas(`${import.meta.env.BASE_URL}art/atlas.json`);
   const placeholder = new SpriteBank([buildPlaceholderSheet()]);
   const drawn = real ? new SpriteBank([real]) : null;
   const ids = CHARACTERS.filter((c) => real?.data.tags.has(`${c.id}/idle`));

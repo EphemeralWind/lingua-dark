@@ -38,7 +38,7 @@ async function boot(): Promise<void> {
 
   // Real art if /art/atlas.json exists; the generated placeholder sheet covers anything missing.
   // Hand-drawn scenery (rooms, doors, arenas) comes from its own sheet; without it, flat shapes.
-  const [real, scenery] = await Promise.all([loadAtlas('/art/atlas.json'), loadAtlas('/art/scenery.json')]);
+  const [real, scenery] = await Promise.all([loadAtlas(`${import.meta.env.BASE_URL}art/atlas.json`), loadAtlas(`${import.meta.env.BASE_URL}art/scenery.json`)]);
   const sheets: Sheet[] = [real, scenery, buildPlaceholderSheet()].filter((x): x is Sheet => x !== null);
 
   const svc: Services = {
