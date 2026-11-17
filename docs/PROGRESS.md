@@ -217,13 +217,20 @@ Decisions #77–#90.
   - Ghost: a see-through villager with a spear.
   - The Hollow Bell (boss, 128×112): a living bronze bell with a maul. It cracks and sinks when it dies.
 
-  Every character now has hand-drawn art. The room backdrops are still drawn in code.
+  Every character now has hand-drawn art.
+- Scenery (#94): a second sheet, `public/art/scenery.{json,png}`, built from `art/scenery`, holds:
+  - the six room backdrops, in perspective, with their own textures and props;
+  - doors in four states that differ by shape;
+  - the bonfire;
+  - both fight arenas, as back, drifting far and near layers.
+
+  The flat shapes remain as the fallback.
 
 ## Open items and known risks
 
 - **Native review pending** (M2 gate) for `docs/review/zone1-sentences.md`. M4 adds no Spanish:
   the boss name, phase names, captions and settings are English UI.
-- **Real art:** all eight characters are hand-drawn (#91, #93). Room backdrops are still drawn in code. An artist's Aseprite
+- **Real art:** all eight characters, the rooms, doors and arenas are hand-drawn (#91, #93, #94). An artist's Aseprite
   export with tags `<character>/<animation>` (see `requiredTags` and `CHARACTERS`) can replace
   `public/art/atlas.{json,png}`; missing tags fall back to placeholders.
 - **Design questions:**

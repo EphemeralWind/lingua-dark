@@ -12,10 +12,12 @@ import { enemyFrame, playerFrame } from '../combat/sprites';
 import type { AttackType, ExchangeRecord } from '../combat/types';
 import { viewOf, type Animation, type CardText, type EncounterView } from '../combat/view';
 import type { Direction, Question } from '../content/types';
+import type { SpriteBank } from '../platform/atlas';
 import type { InputEvent } from '../platform/input';
 import { C } from '../platform/palette';
 import type { Renderer } from '../platform/renderer';
 import { HIT_SHAKE_PX, RESOLVE_MS } from '../tuning';
+import { PROP_AT, STILL } from './sceneryLayout';
 import type { Services } from './services';
 
 export { C };
@@ -234,7 +236,7 @@ export class Fight {
     const a = view.animation;
     const calm = this.svc.settings.reducedMotion;
     r.begin(C.sky);
-    drawArena(r, nowMs, this.opts.arena ?? 'village', calm);
+    drawArena(r, nowMs, this.opts.arena ?? 'village', calm, this.svc.sprites);
     if (!this.blind) this.drawEnemy(r, a, nowMs);
     else drawFog(r);
     this.drawPlayer(r, a, nowMs, calm);
@@ -498,11 +500,19 @@ export class Fight {
 }
 
 /**
- * Arena backdrop (SPEC 8): a depth gradient with three layers. The far layer drifts slowly;
- * with reduced motion it stands still.
+ * Arena backdrop (SPEC 8): three layers. The far layer drifts slowly; with reduced motion it
+ * stands still. Hand-drawn layers (`arena_<kind>_back`, `_far`, `_near`) are used when the
+ * scenery sheet has them; otherwise flat shapes are drawn.
  */
-export function drawArena(r: Renderer, nowMs: number, kind: 'village' | 'boss', calm: boolean): void {
+export function drawArena(r: Renderer, nowMs: number, kind: 'village' | 'boss', calm: boolean, sprites?: SpriteBank): void {
   const g = r.low;
+  const drift = calm ? 0 : Math.floor(nowMs / 400) % PROP_AT.arenaFar.tile;
+  if (sprites?.draw(g, `arena_${kind}_back`, STILL, PROP_AT.arena.x, PROP_AT.arena.bottom)) {
+    const t = PROP_AT.arenaFar.tile;
+    for (let x = -t; x < 320 + t; x += t) sprites.draw(g, `arena_${kind}_far`, STILL, x + drift + t / 2, PROP_AT.arenaFar.bottom);
+    sprites.draw(g, `arena_${kind}_near`, STILL, PROP_AT.arena.x, PROP_AT.arena.bottom);
+    return;
+  }
   const boss = kind === 'boss';
   const bands = boss ? [C.bossDeep, C.bossDeep, C.bossMid, C.bossMid] : [C.night, C.far, C.sky, C.sky];
   bands.forEach((col, i) => {
@@ -510,7 +520,6 @@ export function drawArena(r: Renderer, nowMs: number, kind: 'village' | 'boss', 
     g.fillRect(0, 28 + i * 10, 320, 10);
   });
   // Far layer: rooftops (village) or a bell tower ridge (boss), drifting.
-  const drift = calm ? 0 : Math.floor(nowMs / 400) % 64;
   g.fillStyle = boss ? C.bossMid : C.wall;
   for (let x = -64; x < 384; x += 64) {
     const bx = x + drift;

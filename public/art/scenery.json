@@ -1,0 +1,344 @@
+{
+ "frames": [
+  {
+   "filename": "room_corridor/still 0",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 180
+   }
+  },
+  {
+   "filename": "room_hall/still 0",
+   "frame": {
+    "x": 0,
+    "y": 180,
+    "w": 320,
+    "h": 180
+   }
+  },
+  {
+   "filename": "room_crossroads/still 0",
+   "frame": {
+    "x": 0,
+    "y": 360,
+    "w": 320,
+    "h": 180
+   }
+  },
+  {
+   "filename": "room_bonfire_room/still 0",
+   "frame": {
+    "x": 0,
+    "y": 540,
+    "w": 320,
+    "h": 180
+   }
+  },
+  {
+   "filename": "room_boss_gate/still 0",
+   "frame": {
+    "x": 0,
+    "y": 720,
+    "w": 320,
+    "h": 180
+   }
+  },
+  {
+   "filename": "room_boss_arena/still 0",
+   "frame": {
+    "x": 0,
+    "y": 900,
+    "w": 320,
+    "h": 180
+   }
+  },
+  {
+   "filename": "door_far/open 0",
+   "frame": {
+    "x": 0,
+    "y": 1080,
+    "w": 40,
+    "h": 50
+   }
+  },
+  {
+   "filename": "door_far/locked 0",
+   "frame": {
+    "x": 40,
+    "y": 1080,
+    "w": 40,
+    "h": 50
+   }
+  },
+  {
+   "filename": "door_far/sealed 0",
+   "frame": {
+    "x": 80,
+    "y": 1080,
+    "w": 40,
+    "h": 50
+   }
+  },
+  {
+   "filename": "door_far/gate_open 0",
+   "frame": {
+    "x": 120,
+    "y": 1080,
+    "w": 40,
+    "h": 50
+   }
+  },
+  {
+   "filename": "door_side/open 0",
+   "frame": {
+    "x": 0,
+    "y": 1130,
+    "w": 28,
+    "h": 62
+   }
+  },
+  {
+   "filename": "door_side/locked 0",
+   "frame": {
+    "x": 28,
+    "y": 1130,
+    "w": 28,
+    "h": 62
+   }
+  },
+  {
+   "filename": "door_side/sealed 0",
+   "frame": {
+    "x": 56,
+    "y": 1130,
+    "w": 28,
+    "h": 62
+   }
+  },
+  {
+   "filename": "door_side/gate_open 0",
+   "frame": {
+    "x": 84,
+    "y": 1130,
+    "w": 28,
+    "h": 62
+   }
+  },
+  {
+   "filename": "door_near/open 0",
+   "frame": {
+    "x": 0,
+    "y": 1192,
+    "w": 128,
+    "h": 14
+   }
+  },
+  {
+   "filename": "door_near/closed 0",
+   "frame": {
+    "x": 128,
+    "y": 1192,
+    "w": 128,
+    "h": 14
+   }
+  },
+  {
+   "filename": "bonfire/burn 0",
+   "frame": {
+    "x": 0,
+    "y": 1206,
+    "w": 44,
+    "h": 34
+   }
+  },
+  {
+   "filename": "bonfire/burn 1",
+   "frame": {
+    "x": 44,
+    "y": 1206,
+    "w": 44,
+    "h": 34
+   }
+  },
+  {
+   "filename": "arena_village_back/still 0",
+   "frame": {
+    "x": 0,
+    "y": 1240,
+    "w": 320,
+    "h": 152
+   }
+  },
+  {
+   "filename": "arena_village_far/still 0",
+   "frame": {
+    "x": 0,
+    "y": 1392,
+    "w": 64,
+    "h": 28
+   }
+  },
+  {
+   "filename": "arena_village_near/still 0",
+   "frame": {
+    "x": 0,
+    "y": 1420,
+    "w": 320,
+    "h": 152
+   }
+  },
+  {
+   "filename": "arena_boss_back/still 0",
+   "frame": {
+    "x": 0,
+    "y": 1572,
+    "w": 320,
+    "h": 152
+   }
+  },
+  {
+   "filename": "arena_boss_far/still 0",
+   "frame": {
+    "x": 0,
+    "y": 1724,
+    "w": 64,
+    "h": 54
+   }
+  },
+  {
+   "filename": "arena_boss_near/still 0",
+   "frame": {
+    "x": 0,
+    "y": 1778,
+    "w": 320,
+    "h": 152
+   }
+  }
+ ],
+ "meta": {
+  "image": "scenery.png",
+  "size": {
+   "w": 320,
+   "h": 1930
+  },
+  "frameTags": [
+   {
+    "name": "room_corridor/still",
+    "from": 0,
+    "to": 0
+   },
+   {
+    "name": "room_hall/still",
+    "from": 1,
+    "to": 1
+   },
+   {
+    "name": "room_crossroads/still",
+    "from": 2,
+    "to": 2
+   },
+   {
+    "name": "room_bonfire_room/still",
+    "from": 3,
+    "to": 3
+   },
+   {
+    "name": "room_boss_gate/still",
+    "from": 4,
+    "to": 4
+   },
+   {
+    "name": "room_boss_arena/still",
+    "from": 5,
+    "to": 5
+   },
+   {
+    "name": "door_far/open",
+    "from": 6,
+    "to": 6
+   },
+   {
+    "name": "door_far/locked",
+    "from": 7,
+    "to": 7
+   },
+   {
+    "name": "door_far/sealed",
+    "from": 8,
+    "to": 8
+   },
+   {
+    "name": "door_far/gate_open",
+    "from": 9,
+    "to": 9
+   },
+   {
+    "name": "door_side/open",
+    "from": 10,
+    "to": 10
+   },
+   {
+    "name": "door_side/locked",
+    "from": 11,
+    "to": 11
+   },
+   {
+    "name": "door_side/sealed",
+    "from": 12,
+    "to": 12
+   },
+   {
+    "name": "door_side/gate_open",
+    "from": 13,
+    "to": 13
+   },
+   {
+    "name": "door_near/open",
+    "from": 14,
+    "to": 14
+   },
+   {
+    "name": "door_near/closed",
+    "from": 15,
+    "to": 15
+   },
+   {
+    "name": "bonfire/burn",
+    "from": 16,
+    "to": 17
+   },
+   {
+    "name": "arena_village_back/still",
+    "from": 18,
+    "to": 18
+   },
+   {
+    "name": "arena_village_far/still",
+    "from": 19,
+    "to": 19
+   },
+   {
+    "name": "arena_village_near/still",
+    "from": 20,
+    "to": 20
+   },
+   {
+    "name": "arena_boss_back/still",
+    "from": 21,
+    "to": 21
+   },
+   {
+    "name": "arena_boss_far/still",
+    "from": 22,
+    "to": 22
+   },
+   {
+    "name": "arena_boss_near/still",
+    "from": 23,
+    "to": 23
+   }
+  ]
+ }
+}

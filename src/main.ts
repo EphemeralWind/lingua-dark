@@ -37,8 +37,9 @@ async function boot(): Promise<void> {
   const speech = new Speech();
 
   // Real art if /art/atlas.json exists; the generated placeholder sheet covers anything missing.
-  const real = await loadAtlas('/art/atlas.json');
-  const sheets: Sheet[] = real ? [real, buildPlaceholderSheet()] : [buildPlaceholderSheet()];
+  // Hand-drawn scenery (rooms, doors, arenas) comes from its own sheet; without it, flat shapes.
+  const [real, scenery] = await Promise.all([loadAtlas('/art/atlas.json'), loadAtlas('/art/scenery.json')]);
+  const sheets: Sheet[] = [real, scenery, buildPlaceholderSheet()].filter((x): x is Sheet => x !== null);
 
   const svc: Services = {
     sprites: new SpriteBank(sheets),

@@ -1,7 +1,7 @@
-// Drawing for the world: rooms (placeholder backdrops with exits and contents), the map,
+// Drawing for the world: rooms (hand-drawn backdrops and doors, or flat placeholders, with their contents), the map,
 // and the title. Flat shapes on the 320x180 buffer, text on the display layer. Exits never
 // name the room behind them, so a sign's reading choice cannot be read off the screen.
-import { enemyFrame, playerFrame } from '../combat/sprites';
+import { ENEMY_FRAMES, enemyFrame, playerFrame, type SpriteFrame } from '../combat/sprites';
 import type { Animation } from '../combat/view';
 import type { Direction } from '../content/types';
 import type { SpriteBank } from '../platform/atlas';
@@ -10,6 +10,7 @@ import type { Renderer } from '../platform/renderer';
 import type { SealProgress } from '../world/seals';
 import type { Echo } from '../world/state';
 import { edgeKey, exitTarget, type Room } from '../world/zone';
+import { DOOR_TAG, PROP_AT, STILL } from './sceneryLayout';
 
 const IDLE: Animation = { enemyPose: 'idle', progress: 0, toward: null, playerPose: 'idle', flash: 'none', timerLeft: null, frozen: false, resolved: null };
 
@@ -45,11 +46,25 @@ export interface RoomScene {
   calm: boolean;
 }
 
-export function drawRoom(r: Renderer, sprites: SpriteBank, nowMs: number, s: RoomScene): void {
-  const pal = BACKDROP[s.room.backdrop] ?? { wall: '#262d3d', floor: '#2f3748', far: '#191e2a' };
-  r.begin(C.sky);
-  const g = r.low;
+type Pal = { wall: string; floor: string; far: string };
 
+/** The hand-drawn room backdrop and its doors. False if the sheet has no art for this room. */
+function drawScenery(g: CanvasRenderingContext2D, sprites: SpriteBank, s: RoomScene): boolean {
+  if (!sprites.draw(g, `room_${s.room.backdrop}`, STILL, PROP_AT.room.x, PROP_AT.room.bottom)) return false;
+  const door = (look: ExitLook): SpriteFrame => ({ tag: DOOR_TAG[look], frame: 0, flip: false });
+  const ex = s.exits;
+  if (ex.north) sprites.draw(g, 'door_far', door(ex.north), PROP_AT.doorFar.x, PROP_AT.doorFar.bottom);
+  if (ex.west) sprites.draw(g, 'door_side', door(ex.west), PROP_AT.doorWest.x, PROP_AT.doorWest.bottom);
+  if (ex.east) sprites.draw(g, 'door_side', { ...door(ex.east), flip: true }, PROP_AT.doorEast.x, PROP_AT.doorEast.bottom);
+  if (ex.south) {
+    const open = ex.south === 'open' || ex.south === 'gateOpen';
+    sprites.draw(g, 'door_near', { tag: open ? 'open' : 'closed', frame: 0, flip: false }, PROP_AT.doorNear.x, PROP_AT.doorNear.bottom);
+  }
+  return true;
+}
+
+/** Placeholder room: flat walls converging to the far wall, doors as plain shapes. */
+function drawFlatRoom(g: CanvasRenderingContext2D, pal: Pal, ex: RoomScene['exits']): void {
   // Far wall, floor, and side walls converging toward the far end.
   g.fillStyle = pal.far;
   g.fillRect(70, 34, 180, 70);
@@ -68,7 +83,6 @@ export function drawRoom(r: Renderer, sprites: SpriteBank, nowMs: number, s: Roo
     for (let i = x + 2; i < x + w - 1; i += step) g.fillRect(i, y, 1, h);
     g.fillRect(x, y + Math.floor(h / 2), w, 1);
   };
-  const ex = s.exits;
   if (ex.north) {
     g.fillStyle = doorFill(ex.north);
     g.fillRect(146, 60, 28, 44);
@@ -92,11 +106,20 @@ export function drawRoom(r: Renderer, sprites: SpriteBank, nowMs: number, s: Roo
     g.fillStyle = ex.south === 'open' ? pal.far : C.weapon;
     g.fillRect(104, 172, 112, 8);
   }
+}
+
+export function drawRoom(r: Renderer, sprites: SpriteBank, nowMs: number, s: RoomScene): void {
+  const pal = BACKDROP[s.room.backdrop] ?? { wall: '#262d3d', floor: '#2f3748', far: '#191e2a' };
+  r.begin(C.sky);
+  const g = r.low;
+  // Hand-drawn room and doors when the scenery sheet has them; flat shapes otherwise.
+  if (!drawScenery(g, sprites, s)) drawFlatRoom(g, pal, s.exits);
 
   const c = s.room.contents;
-  if (c.bonfire) {
+  const flicker = s.calm ? 0 : Math.floor(nowMs / 160) % 2;
+  if (c.bonfire && !sprites.draw(g, 'bonfire', { tag: 'burn', frame: flicker, flip: false }, PROP_AT.bonfire.x, PROP_AT.bonfire.bottom)) {
     // Beside the player, clear of the message box. The flame flickers unless motion is reduced.
-    const lick = s.calm ? 0 : Math.floor(nowMs / 160) % 2;
+    const lick = flicker;
     g.fillStyle = C.emberDark;
     for (let i = 0; i < 12; i++) g.fillRect(232 - (12 - i), 156 - i * 2 - lick, (12 - i) * 2, 2);
     g.fillStyle = C.ember;
@@ -120,11 +143,8 @@ export function drawRoom(r: Renderer, sprites: SpriteBank, nowMs: number, s: Roo
   }
   if (s.enemy) sprites.draw(g, s.enemy.character, enemyFrame(IDLE, clock), 160, 112);
   if (s.bossBeaten) {
-    // The silent bell lies on its side.
-    g.fillStyle = C.bossMid;
-    g.fillRect(132, 98, 56, 12);
-    g.fillStyle = C.bossDeep;
-    g.fillRect(180, 96, 10, 16);
+    // The silent bell, cracked and sunk into the floor where it fell (its last death frame).
+    sprites.draw(g, 'boss_zone1', { tag: 'death', frame: ENEMY_FRAMES.death - 1, flip: false }, 160, 112);
   }
 
   // Player from behind; walks while the room fades in.
@@ -153,7 +173,7 @@ export function drawRoom(r: Renderer, sprites: SpriteBank, nowMs: number, s: Roo
     if (s.readingGoal) r.text(`Goal: ${s.readingGoal}`, 160, 20, { size: 6, align: 'center', color: C.signal });
   }
   const arrow = (dir: Direction, x: number, y: number): void => {
-    const look = ex[dir];
+    const look = s.exits[dir];
     if (!look) return;
     const glyph = { north: '↑', east: '→', south: '↓', west: '←' }[dir];
     const word = look === 'locked' ? ' locked' : look === 'sealed' ? ' sealed' : '';

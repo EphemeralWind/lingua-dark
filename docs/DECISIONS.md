@@ -203,3 +203,35 @@ Each entry: what was ambiguous, the reading picked, and why. Revisit any of them
       - It dies by cracking open and sinking into the floor.
     - Room backdrops stay procedural (`drawArena`, `worldView`) for now.
 
+### 2026-11-17: Hand-drawn scenery
+
+94. **Rooms, doors, the bonfire and the fight arenas come from a second sheet, `public/art/scenery.{json,png}`.** `npm run build-art` builds it from `art/scenery` with the same pipeline as the characters. The game loads it next to the character sheet. Anything it lacks falls back to the old flat shapes, which stay in `worldView.ts` and `fight.ts`.
+    - **Rooms (320×180, one per backdrop type).** Each is a box in one-point perspective. The far wall keeps the old rectangle (x 70..249, y 34..103), so exits stay where they were. Every pixel is traced to the surface it shows and textured there in world units, so bricks, flagstones and planks foreshorten. Mortar is drawn where neighbouring pixels land on different stones.
+      - corridor: grey brick and torches.
+      - hall: dressed stone, chapel windows, columns, tiled floor with a runner.
+      - crossroads: the orchard at night: apple trees, a low wall, hedges and a crossing path.
+      - bonfire_room: grey stone warmed by the fire.
+      - boss_gate: great blocks with the bell carved over the door.
+      - boss_arena: the bell tower in red brick, with planks and ropes.
+
+      Firelight warms and lightens greys with an ordered falloff, not noise.
+    - **Doors are props drawn over the room**, so one backdrop serves any set of exits. The states differ by shape (DECISIONS #6):
+      - open: an arch;
+      - locked: a portcullis;
+      - sealed: a planked door with three empty seal sockets;
+      - gate open: the arch with the three sockets lit.
+
+      Side doors are drawn in the wall's perspective; east mirrors west. The south exit is the top of an arch at the screen's bottom edge.
+    - **Other props.** The bonfire is a stone ring with two flicker frames (one frame with reduced motion). A beaten boss's room shows the boss's last death frame, the bell sunk into the floor.
+    - **Fight arenas** keep their three layers:
+      - a back layer: sky with moon and mountains, or the tower wall with a window and the bell's empty yoke;
+      - a 64-pixel far strip that tiles and drifts: cottages with a lit window, or embers and ash;
+      - a near layer: floor and edge posts, clear above the horizon.
+
+      The drift depends on time only, never on the question.
+    - Prop positions live in `scenes/sceneryLayout.ts`. Tests check:
+      - each prop's opening matches the old exits;
+      - every backdrop the zone data uses has a room;
+      - each door state is a different picture;
+      - the committed scenery files match a fresh build.
+

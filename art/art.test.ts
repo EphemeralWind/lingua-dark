@@ -5,7 +5,12 @@ import { requiredTags } from '../src/combat/sprites';
 import { missingTags, parseAtlas } from '../src/platform/atlas';
 import { CHARACTERS } from '../src/platform/characters';
 import { ART, atlasJsonText, buildSheet, encodePng } from './build';
-import { decodeRow, flipX, ghostly, KEYS, mirrored, part, rasterize, recolor, rotCW } from './kit';
+import zone1 from '../src/content/data/zone1-rooms.json';
+import { DOOR_TAG, PROP_AT } from '../src/scenes/sceneryLayout';
+import { decodeRow, flipX, ghostly, KEYS, mirrored, part, rasterize, recolor, rotCW, type CharacterArt } from './kit';
+import { SCENERY } from './scenery/index';
+import { SIDE } from './scenery/props';
+import { ROOM_BACKDROPS } from './scenery/rooms';
 
 describe('art kit', () => {
   it('mirrors a half with the right side one shade darker', () => {
@@ -130,5 +135,66 @@ describe('built sheet', () => {
   it('the committed public/art files match a fresh build (run `npm run build-art`)', () => {
     expect(readFileSync('public/art/atlas.json', 'utf8')).toBe(atlasJsonText(sheet));
     expect(Buffer.from(readFileSync('public/art/atlas.png')).equals(Buffer.from(encodePng(sheet.width, sheet.height, sheet.rgba)))).toBe(true);
+  });
+});
+
+describe('scenery', () => {
+  const sheet = buildSheet(SCENERY, 'scenery.png');
+  const piece = (id: string): CharacterArt => {
+    const p = SCENERY.find((c) => c.id === id);
+    if (!p) throw new Error(`no scenery ${id}`);
+    return p;
+  };
+
+  it('has a hand-drawn room for every backdrop the zone uses', () => {
+    const used = new Set(zone1.rooms.map((r) => r.backdrop));
+    for (const b of used) expect(ROOM_BACKDROPS, b).toContain(b);
+    for (const b of ROOM_BACKDROPS) expect([piece(`room_${b}`).w, piece(`room_${b}`).h]).toEqual([320, 180]);
+  });
+
+  it('draws every door state, each a different picture', () => {
+    for (const id of ['door_far', 'door_side']) {
+      const tags = piece(id).tags;
+      expect(Object.keys(tags).sort()).toEqual(Object.values(DOOR_TAG).sort());
+      const pics = Object.values(tags).map((f) => [...rasterize(f[0] ?? [], piece(id).w, piece(id).h)].join());
+      expect(new Set(pics).size, id).toBe(pics.length);
+    }
+    expect(Object.keys(piece('door_near').tags).sort()).toEqual(['closed', 'open']);
+  });
+
+  it("puts the far door's opening where the room's exits are (x 146..173, y 60..103)", () => {
+    const door = piece('door_far');
+    const left = PROP_AT.doorFar.x - door.w / 2;
+    const top = PROP_AT.doorFar.bottom - door.h;
+    const px = rasterize(door.tags['open']?.[0] ?? [], door.w, door.h);
+    // The opening is dark; just outside it is the stone frame.
+    expect(KEYS[px[(80 - top) * door.w + (160 - left)] ?? -1]).toBe('A');
+    expect(KEYS[px[(80 - top) * door.w + (143 - left)] ?? -1]).not.toBe('A');
+  });
+
+  it('places the side doors where the props expect them', () => {
+    expect(PROP_AT.doorWest).toEqual({ x: SIDE.x + SIDE.w / 2, bottom: SIDE.y + SIDE.h });
+    expect(PROP_AT.doorEast).toEqual({ x: 320 - (SIDE.x + SIDE.w / 2), bottom: SIDE.y + SIDE.h });
+  });
+
+  it('has three arena layers for each fight arena, the far strip tiling', () => {
+    for (const k of ['village', 'boss']) {
+      expect([piece(`arena_${k}_back`).w, piece(`arena_${k}_back`).h]).toEqual([320, 180 - 28]);
+      expect([piece(`arena_${k}_near`).w, piece(`arena_${k}_near`).h]).toEqual([320, 180 - 28]);
+      expect(piece(`arena_${k}_far`).w).toBe(PROP_AT.arenaFar.tile);
+    }
+  });
+
+  it('the near arena layer is clear above the horizon, so the far strip shows', () => {
+    for (const k of ['village', 'boss']) {
+      const near = piece(`arena_${k}_near`);
+      const px = rasterize(near.tags['still']?.[0] ?? [], near.w, near.h);
+      expect(px[10 * near.w + 160]).toBe(-1);
+    }
+  });
+
+  it('the committed public/art/scenery files match a fresh build (run `npm run build-art`)', () => {
+    expect(readFileSync('public/art/scenery.json', 'utf8')).toBe(atlasJsonText(sheet));
+    expect(Buffer.from(readFileSync('public/art/scenery.png')).equals(Buffer.from(encodePng(sheet.width, sheet.height, sheet.rgba)))).toBe(true);
   });
 });

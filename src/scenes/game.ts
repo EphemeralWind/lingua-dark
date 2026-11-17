@@ -617,7 +617,7 @@ export class GameScene {
   private drawPhaseCard(r: Renderer, nowMs: number, boss: NonNullable<FightMode['boss']>): void {
     const phase = boss.def.phases[boss.index];
     r.begin(C.bossDeep);
-    drawArena(r, nowMs, 'boss', this.svc.settings.reducedMotion);
+    drawArena(r, nowMs, 'boss', this.svc.settings.reducedMotion, this.svc.sprites);
     r.low.fillStyle = 'rgba(11,13,18,0.75)';
     r.low.fillRect(0, 40, 320, 80);
     r.present();
