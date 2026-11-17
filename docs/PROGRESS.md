@@ -190,6 +190,8 @@ Decisions #77–#90.
   - `game.ts` chains three encounters with title cards, carrying vitality between them.
   - The blind phase hides the enemy, the icon and the strike animation, and records its answers as `blind`.
   - `bossesBeaten` is saved, and the boss can hold an echo.
+  - *Since replaced (#95): two phases built from template lists, a battle cry between them, and
+    no blind phase. See "After M4: two-phase boss" below.*
 - **Blind bots:** 14 bots × 9 arenas: the whole deck, three wardens, three boss phases, and the whole deck in Hollow mode.
   - Boss phases and Hollow mode measure 23.8%–25.9%, with no wins.
   - The wind-up identity test now also compares sprite frames and sound cues, with and without chain or Hollow.
@@ -197,6 +199,7 @@ Decisions #77–#90.
   - The font page shows every glyph with nothing missing.
   - A save at the gate with all seals → walk into the arena → all three phases cleared by answering
     from the question tags → the arena is silent afterwards. Blind-phase answers created mastery days.
+    (Re-verified for the two-phase boss after #95: phase 1 card → win → battle-cry card → phase 2.)
   - The settings menu toggles and saves. In Hollow mode a wind-up was still open after 9 s. Larger text works.
   - Reduced motion removes the full-screen flash and keeps the steady parry ring and star.
 
@@ -233,7 +236,15 @@ Decisions #77–#90.
   - an easier pool: definite articles, one verb, naming nouns;
   - then a harder pool: indefinite articles, two-verb combos, sentence translations, and 3-question flurries.
 - Between them it shouts «¡Escucha! ¡La campana dobla por ti!», shown, spoken and translated.
-- Blind mode is removed. The blind-bot test runs both phases at chance with no wins. It caught a card-length bias in the first pool split, which is now fixed.
+- Blind mode is removed: fog, banner, wind-up speech and the `blind` answer context. Words now become
+  Learned only from bonfire reviews and reading choices.
+- The blind-bot suite covers 8 arenas: the whole deck, three wardens, two boss phases, and Hollow mode.
+  Both boss phases sit at chance with no wins. A first split put singular articles in phase 1 and plural in
+  phase 2, and "pick the shortest/longest card" bots hit 37% and 35%. The fix splits by article kind
+  (definite, then indefinite), and `boss.test.ts` keeps singular and plural balanced in each phase.
+- Verified in the browser end to end: phase 1 card → win → cry card (text, voice, shake) → phase 2
+  (combo template, flurry 1/3, 80 HP).
+- Tests: 395 passing (the blind-phase arena's bots are gone; new boss and validation tests added).
 
 ## Open items and known risks
 
@@ -246,7 +257,7 @@ Decisions #77–#90.
   - Hollow mode and mastery: provisionally no effect (#82). Designer to confirm.
   - Grab (listening) attacks: matching sound to written cards may be possible without Spanish (#89).
     Needs a design before it is built. Feints, sweep, NPC dialogue and items are also not built.
-  - Tune `BOSS_CHAIN`, `BOSS_PHASE_HP`, the perk table and `WARDEN_HP` at playtest.
+  - Tune `BOSS_CHAIN`, `BOSS_PHASE_HP`, `BATTLE_CRY_MS`, the perk table and `WARDEN_HP` at playtest. Also check that the phase-2 pool feels harder, not just longer.
   - Only one sign has a reading choice (#62). More need hand-written, native-checked Spanish.
   - Reading components (`w_*`) count toward the profile but are outside the 120 shown as Learned.
 - Accepted risks, to watch at the playtest:
@@ -260,4 +271,4 @@ Decisions #77–#90.
 
 Follow Prompt 5 in `docs/PROMPTS.md`. Notes:
 - Log `settings.hollow` per exchange (the setting is live in `Services.settings`).
-- The litmus test now has a real boss: `r1_boss_arena`, three phases, the last one blind.
+- The litmus test now has a real boss: `r1_boss_arena`, two phases. The first draws from the easy pool; then comes the battle cry and the hard pool with 3-question flurries (#95).
