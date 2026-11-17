@@ -26,7 +26,13 @@ export interface GameState {
   fights: number;
   bonfire: string;
   room: string;
+  /** Where the current room's `$back` exit leads (its entry in `backOf`). */
   cameFrom: string | null;
+  /**
+   * Room -> the room it was last entered from going forward. `$back` follows this, so walking
+   * back into a room does not turn its way back around (DECISIONS #28).
+   */
+  backOf: Record<string, string>;
   visited: string[];
   walked: string[];
   openDoors: string[];
@@ -52,6 +58,7 @@ export function newGame(zone: Zone, seed: number): GameState {
     bonfire: zone.start,
     room: zone.start,
     cameFrom: null,
+    backOf: {},
     visited: [zone.start],
     walked: [],
     openDoors: [],
@@ -66,11 +73,17 @@ export function newGame(zone: Zone, seed: number): GameState {
   };
 }
 
-export function walk(s: GameState, to: string, opens: string | null): void {
+/** Walks to `to`. `viaBack` is true when the player took a `$back` exit. */
+export function walk(s: GameState, to: string, opens: string | null, viaBack = false): void {
   if (opens && !s.openDoors.includes(opens)) s.openDoors.push(opens);
   const key = edgeKey(s.room, to);
   if (!s.walked.includes(key)) s.walked.push(key);
-  s.cameFrom = s.room;
+  if (viaBack) {
+    s.cameFrom = s.backOf[to] ?? null;
+  } else {
+    s.backOf = { ...s.backOf, [to]: s.room };
+    s.cameFrom = s.room;
+  }
   s.room = to;
   if (!s.visited.includes(to)) s.visited.push(to);
 }

@@ -39,6 +39,10 @@ export function gameStateProblems(g: unknown): string[] {
   for (const k of ['zone', 'seed', 'fights', 'xp', 'flasks', 'vitality']) if (!isNum(g[k])) errs.push(`game.${k} must be a number`);
   for (const k of ['bonfire', 'room']) if (typeof g[k] !== 'string') errs.push(`game.${k} must be a string`);
   if (g['cameFrom'] !== null && typeof g['cameFrom'] !== 'string') errs.push('game.cameFrom must be a string or null');
+  const backOf = g['backOf'];
+  if (backOf !== undefined && (!isObj(backOf) || !Object.values(backOf).every((v) => typeof v === 'string'))) {
+    errs.push('game.backOf must map rooms to rooms');
+  }
   for (const k of ['visited', 'walked', 'openDoors', 'defeated', 'readingsDone']) if (!isStrArr(g[k])) errs.push(`game.${k} must be a list of strings`);
   const ghosts = g['ghosts'];
   if (!isObj(ghosts) || !Object.values(ghosts).every(isStrArr)) errs.push('game.ghosts must map rooms to lists of strings');
@@ -91,7 +95,10 @@ export function parseSave(text: string): ParseResult {
   if (data['version'] !== 1) return { ok: false, error: `unsupported save version ${String(data['version'])}` };
   const problems = gameStateProblems(data['game']);
   if (problems.length > 0) return { ok: false, error: problems.join('; ') };
-  return { ok: true, game: data['game'] as GameState, savedAtMs: isNum(data['savedAtMs']) ? data['savedAtMs'] : 0 };
+  // Saves from before `backOf` existed get an empty one.
+  const game = data['game'] as GameState;
+  game.backOf ??= {};
+  return { ok: true, game, savedAtMs: isNum(data['savedAtMs']) ? data['savedAtMs'] : 0 };
 }
 
 export class SaveStore {

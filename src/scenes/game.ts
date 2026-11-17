@@ -249,7 +249,7 @@ export class GameScene {
     let res = resolveExit(this.zone, g.room, dir, { cameFrom: g.cameFrom, openDoors: g.openDoors, gateOpen: this.gate().open });
     // The boss arena has no exits yet; ↓ walks back out (DECISIONS #66).
     if (res.kind === 'none' && Object.keys(room.exits).length === 0 && dir === 'south' && g.cameFrom) {
-      res = { kind: 'move', to: g.cameFrom, opens: null };
+      res = { kind: 'move', to: g.cameFrom, opens: null, back: true };
     }
     switch (res.kind) {
       case 'none':
@@ -267,7 +267,7 @@ export class GameScene {
         const lines: string[] = [];
         const reading = chooseReading(g, this.zone, dir, this.day);
         if (reading) lines.push(reading.correct ? 'You read the sign right.' : reading.damage > 0 ? `A wrong turn. An ambush! −${reading.damage}` : 'A wrong turn: a detour.');
-        walk(g, res.to, res.opens);
+        walk(g, res.to, res.opens, res.back);
         if (res.opens) lines.push('You lift the bar. A shortcut back to the bonfire.');
         lines.push(...this.arrivalLines(g));
         this.enteredAt = this.now;

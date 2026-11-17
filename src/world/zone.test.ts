@@ -10,7 +10,7 @@ describe('Zone 1 graph', () => {
   });
 
   it('plain exits move to their room', () => {
-    expect(resolveExit(ZONE1, 'r1_bonfire', 'north', ctx())).toEqual({ kind: 'move', to: 'r1_lane', opens: null });
+    expect(resolveExit(ZONE1, 'r1_bonfire', 'north', ctx())).toEqual({ kind: 'move', to: 'r1_lane', opens: null, back: false });
   });
 
   it('a missing exit does nothing', () => {
@@ -18,7 +18,7 @@ describe('Zone 1 graph', () => {
   });
 
   it('$back returns to the room the player came from', () => {
-    expect(resolveExit(ZONE1, 'r1_lane', 'south', ctx({ cameFrom: 'r1_bonfire' }))).toEqual({ kind: 'move', to: 'r1_bonfire', opens: null });
+    expect(resolveExit(ZONE1, 'r1_lane', 'south', ctx({ cameFrom: 'r1_bonfire' }))).toEqual({ kind: 'move', to: 'r1_bonfire', opens: null, back: true });
     expect(resolveExit(ZONE1, 'r1_cellar', 'south', ctx({ cameFrom: 'r1_bonfire' }))).toMatchObject({ to: 'r1_bonfire' });
     expect(resolveExit(ZONE1, 'r1_cellar', 'south', ctx({ cameFrom: 'r1_well' }))).toMatchObject({ to: 'r1_well' });
   });
@@ -29,11 +29,12 @@ describe('Zone 1 graph', () => {
 
   it('the shortcut is locked from the bonfire side until opened from the far side', () => {
     expect(resolveExit(ZONE1, 'r1_bonfire', 'south', ctx())).toEqual({ kind: 'locked', door: 'shortcut_cellar' });
-    expect(resolveExit(ZONE1, 'r1_cellar', 'north', ctx())).toEqual({ kind: 'move', to: 'r1_bonfire', opens: 'shortcut_cellar' });
+    expect(resolveExit(ZONE1, 'r1_cellar', 'north', ctx())).toEqual({ kind: 'move', to: 'r1_bonfire', opens: 'shortcut_cellar', back: false });
     expect(resolveExit(ZONE1, 'r1_bonfire', 'south', ctx({ openDoors: ['shortcut_cellar'] }))).toEqual({
       kind: 'move',
       to: 'r1_cellar',
       opens: null,
+      back: false,
     });
   });
 

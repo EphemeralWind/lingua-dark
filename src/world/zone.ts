@@ -37,7 +37,7 @@ export class Zone {
 export const ZONE1 = new Zone(zone1Json as unknown as RoomsFile);
 
 export interface WalkContext {
-  /** Room the player walked in from; null at the bonfire after a rest, death, or load. */
+  /** Where the current room's `$back` leads; null at the bonfire after a rest, death, or load. */
   cameFrom: string | null;
   openDoors: readonly string[];
   gateOpen: boolean;
@@ -45,7 +45,14 @@ export interface WalkContext {
 
 export type ExitResult =
   | { kind: 'none' }
-  | { kind: 'move'; to: string; /** Door this walk opens (shortcut from its far side). */ opens: string | null }
+  | {
+      kind: 'move';
+      to: string;
+      /** Door this walk opens (shortcut from its far side). */
+      opens: string | null;
+      /** True when walking a `$back` exit: the destination keeps its own way back. */
+      back: boolean;
+    }
   | { kind: 'locked'; door: string }
   | { kind: 'gate'; to: string };
 
@@ -54,12 +61,12 @@ export function resolveExit(zone: Zone, roomId: string, dir: Direction, ctx: Wal
   const exit = zone.room(roomId).exits[dir];
   if (exit === undefined) return { kind: 'none' };
   if (typeof exit === 'string') {
-    if (exit !== BACK) return { kind: 'move', to: exit, opens: null };
-    return ctx.cameFrom ? { kind: 'move', to: ctx.cameFrom, opens: null } : { kind: 'none' };
+    if (exit !== BACK) return { kind: 'move', to: exit, opens: null, back: false };
+    return ctx.cameFrom ? { kind: 'move', to: ctx.cameFrom, opens: null, back: true } : { kind: 'none' };
   }
   if (exit.locked && !ctx.openDoors.includes(exit.locked)) return { kind: 'locked', door: exit.locked };
   if (exit.gate === 'boss' && !ctx.gateOpen) return { kind: 'gate', to: exit.to };
-  return { kind: 'move', to: exit.to, opens: exit.unlocks ?? null };
+  return { kind: 'move', to: exit.to, opens: exit.unlocks ?? null, back: false };
 }
 
 /** The room an exit leads to, for the map (null for $back). */

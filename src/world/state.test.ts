@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ENEMY_XP, FLASKS_PER_REST, GHOST_XP, MAX_GHOSTS_PER_ROOM, PLAYER_VITALITY } from '../tuning';
+import { resolveExit } from './zone';
 import { addGhosts, chooseReading, die, echoAt, foesIn, newGame, nextFightSeed, rest, walk, winFight } from './state';
 import { ZONE1 } from './zone';
 
@@ -8,6 +9,53 @@ describe('game state', () => {
     const s = newGame(ZONE1, 1);
     walk(s, 'r1_lane', null);
     expect(s).toMatchObject({ room: 'r1_lane', cameFrom: 'r1_bonfire', visited: ['r1_bonfire', 'r1_lane'], walked: ['r1_bonfire|r1_lane'] });
+  });
+
+  /** Presses a direction the way the world scene does. */
+  const press = (s: ReturnType<typeof newGame>, dir: 'north' | 'east' | 'south' | 'west'): void => {
+    const r = resolveExit(ZONE1, s.room, dir, { cameFrom: s.cameFrom, openDoors: s.openDoors, gateOpen: false });
+    if (r.kind !== 'move') throw new Error(`${s.room} ${dir}: ${r.kind}`);
+    walk(s, r.to, r.opens, r.back);
+  };
+
+  it('walking back into a room keeps its own way back (chapel bug)', () => {
+    const s = newGame(ZONE1, 1);
+    press(s, 'north'); // lane
+    press(s, 'north'); // chapel
+    press(s, 'north'); // gate
+    press(s, 'south'); // back to the chapel
+    expect(s.room).toBe('r1_chapel');
+    press(s, 'south'); // must go on toward the bonfire, not back up to the gate
+    expect(s.room).toBe('r1_lane');
+    press(s, 'south');
+    expect(s.room).toBe('r1_bonfire');
+  });
+
+  it('going back and forth repeatedly never reverses a way back', () => {
+    const s = newGame(ZONE1, 1);
+    press(s, 'north');
+    press(s, 'north');
+    for (let i = 0; i < 3; i++) {
+      press(s, 'north');
+      press(s, 'south');
+    }
+    press(s, 'south');
+    press(s, 'south');
+    expect(s.room).toBe('r1_bonfire');
+  });
+
+  it("the cellar's way back is whichever side it was entered from", () => {
+    const s = newGame(ZONE1, 1);
+    press(s, 'west');
+    press(s, 'north'); // cellar, from the well
+    press(s, 'south');
+    expect(s.room).toBe('r1_well');
+    s.openDoors.push('shortcut_cellar');
+    walk(s, 'r1_bonfire', null, true);
+    s.cameFrom = null;
+    press(s, 'south'); // cellar, through the open shortcut
+    press(s, 'south');
+    expect(s.room).toBe('r1_bonfire');
   });
 
   it('walking through a shortcut from its far side opens the door for good', () => {

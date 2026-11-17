@@ -72,6 +72,13 @@ describe('save store', () => {
     expect(new SaveStore(kv).load()).toEqual({ game: null, error: 'not valid JSON' });
   });
 
+  it('loads a save from before backOf existed', () => {
+    const g = sampleGame() as unknown as Record<string, unknown>;
+    delete g['backOf'];
+    const r = parseSave(JSON.stringify({ format: 'lingua-dark-save', version: 1, savedAtMs: 0, game: g }));
+    expect(r.ok && r.game.backOf).toEqual({});
+  });
+
   it('serialize is plain JSON', () => {
     expect(() => JSON.parse(serialize(sampleGame(), 0))).not.toThrow();
   });
