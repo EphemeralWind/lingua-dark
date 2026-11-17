@@ -96,3 +96,19 @@ export const PERKS: readonly PerkRow[] = [
   { at: 100, vitality: 10 },
   { at: 115, riposte: 3 },
 ];
+
+// --- default (not in design doc), added in Milestone 4 ---
+/** Zone boss (SPEC 3.7): HP and stance meter of each phase. */
+export const BOSS_PHASE_HP = 60;
+export const BOSS_STANCE_MAX = 100;
+/** Questions chained into one flurry per phase: the boss's longer combos (DECISIONS #77). */
+export const BOSS_CHAIN: readonly number[] = [2, 2, 3];
+export const BOSS_XP = 500;
+/** Title card between boss phases. */
+export const PHASE_TRANSITION_MS = 2200;
+/** How long a sound caption stays on screen. */
+export const CAPTION_MS = 900;
+/** Larger-text setting: text scale factor. */
+export const LARGE_TEXT_SCALE = 1.5;
+/** Screen shake on a hit, in internal pixels (off with reduced motion). */
+export const HIT_SHAKE_PX = 2;

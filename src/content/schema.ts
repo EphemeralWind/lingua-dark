@@ -137,7 +137,16 @@ export const roomsFileSchema = z.strictObject({
               seal: z.string().optional(),
             })
             .optional(),
-          boss: z.strictObject({ id: z.string(), phases: z.array(z.string()).min(1) }).optional(),
+          boss: z
+            .strictObject({
+              id: z.string(),
+              /** English UI name. */
+              name_en: z.string().min(1).optional(),
+              phases: z.array(z.string()).min(1),
+              /** Seals whose templates make each phase's deck; the phase named "blind" hides all cues. */
+              phaseDecks: z.record(z.string(), z.array(z.string()).min(1)),
+            })
+            .optional(),
           npc: z.strictObject({ id: z.string(), dialogue: z.string() }).optional(),
         }),
       }),

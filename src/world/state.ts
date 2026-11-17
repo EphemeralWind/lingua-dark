@@ -5,11 +5,11 @@ import { createRng } from '../content/rng';
 import type { Direction } from '../content/types';
 import { perksFor, type Perks } from '../learning/perks';
 import { recordInProfile, type Profile } from '../learning/profile';
-import { AMBUSH_DAMAGE, ENEMY_XP, GHOST_XP, MAX_GHOSTS_PER_ROOM, WARDEN_XP } from '../tuning';
+import { AMBUSH_DAMAGE, BOSS_XP, ENEMY_XP, GHOST_XP, MAX_GHOSTS_PER_ROOM, WARDEN_XP } from '../tuning';
 import { edgeKey, type Zone } from './zone';
 
-/** Who a fight is against: the room's regular enemy, or a ghost of one component. */
-export type FoeKey = 'enemy' | `ghost:${string}`;
+/** Who a fight is against: the room's regular enemy, its boss, or a ghost of one component. */
+export type FoeKey = 'enemy' | 'boss' | `ghost:${string}`;
 
 export interface Echo {
   room: string;
@@ -43,6 +43,8 @@ export interface GameState {
   wardensBeaten: string[];
   /** Seals held this run; the boss gate needs all of the zone's. */
   seals: string[];
+  /** Rooms whose boss is beaten. Bosses never respawn. */
+  bossesBeaten: string[];
   /** Room -> components of the ghosts waiting there. */
   ghosts: Record<string, string[]>;
   echo: Echo | null;
@@ -72,6 +74,7 @@ export function newGame(zone: Zone, seed: number, perks: RunPerks = perksFor(0))
     defeated: [],
     wardensBeaten: [],
     seals: [],
+    bossesBeaten: [],
     ghosts: {},
     echo: null,
     xp: 0,
@@ -128,9 +131,14 @@ export function enemyAlive(s: GameState, zone: Zone, room: string): boolean {
   return zone.wardenSeal(room) ? !s.wardensBeaten.includes(room) : !s.defeated.includes(room);
 }
 
-/** Foes in a room, the regular enemy first, then ghosts. Ghosts never block (DECISIONS #63). */
+/** The room's boss, if it has one and it is not beaten. */
+export function bossAlive(s: GameState, zone: Zone, room: string): boolean {
+  return zone.room(room).contents.boss !== undefined && !s.bossesBeaten.includes(room);
+}
+
+/** Foes in a room: the boss, the regular enemy, then ghosts. Ghosts never block (DECISIONS #63). */
 export function foesIn(s: GameState, zone: Zone, room: string): FoeKey[] {
-  const out: FoeKey[] = enemyAlive(s, zone, room) ? ['enemy'] : [];
+  const out: FoeKey[] = bossAlive(s, zone, room) ? ['boss'] : enemyAlive(s, zone, room) ? ['enemy'] : [];
   for (const c of s.ghosts[room] ?? []) out.push(`ghost:${c}`);
   return out;
 }
@@ -158,7 +166,10 @@ export function echoAt(s: GameState, room: string, foe: FoeKey): Echo | null {
 export function winFight(s: GameState, zone: Zone, room: string, foe: FoeKey): { recovered: number; seal: string | null } {
   let seal: string | null = null;
   const ghost = ghostComponent(foe);
-  if (ghost) {
+  if (foe === 'boss') {
+    if (!s.bossesBeaten.includes(room)) s.bossesBeaten.push(room);
+    s.xp += BOSS_XP;
+  } else if (ghost) {
     const left = (s.ghosts[room] ?? []).filter((c) => c !== ghost);
     s.ghosts = Object.fromEntries(Object.entries({ ...s.ghosts, [room]: left }).filter(([, list]) => list.length > 0));
     s.xp += GHOST_XP;

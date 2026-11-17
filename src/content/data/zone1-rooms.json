@@ -107,11 +107,17 @@
       "contents": {
         "boss": {
           "id": "boss_zone1",
+          "name_en": "The Hollow Bell",
           "phases": [
             "articles_gender",
             "present_regular",
             "blind"
-          ]
+          ],
+          "phaseDecks": {
+            "articles_gender": ["articles"],
+            "present_regular": ["present"],
+            "blind": ["articles", "present", "words"]
+          }
         }
       }
     },

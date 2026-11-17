@@ -20,6 +20,7 @@ function errorsFor(mutate: (c: { lexicon: any; templates: any; rooms: any }) => 
 }
 
 const tpl = (c: { templates: any }, id: string): any => c.templates.templates.find((t: any) => t.id === id);
+const roomOf = (c: { rooms: any }, id: string): any => c.rooms.rooms.find((r: any) => r.id === id);
 const entry = (c: { lexicon: any }, id: string): any => c.lexicon.entries.find((e: any) => e.id === id);
 
 describe('content validation', () => {
@@ -37,6 +38,8 @@ describe('content validation', () => {
     ['an article blank varying only gender', (c) => (tpl(c, 't_definite_article').distractors.art.vary = ['gender']), /must vary \["gender", "number"\]/],
     ['a test placeholder with no slot', (c) => tpl(c, 't_present_object').tests.push('{adjective}:x'), /placeholder \{adjective\}/],
     ['a noun slot no noun can fill', (c) => (tpl(c, 't_present_object').slots.noun.tags = ['weapon', 'food']), /can never be filled/],
+    ['a boss phase with no deck', (c) => delete roomOf(c, 'r1_boss_arena').contents.boss.phaseDecks.blind, /boss phase blind has no deck/],
+    ['a boss phase using an unknown seal', (c) => roomOf(c, 'r1_boss_arena').contents.boss.phaseDecks.blind.push('nouns'), /unknown seal nouns/],
     ['a pattern form that disagrees with number', (c) => (tpl(c, 't_plural_object').slots.noun.number = 'sg'), /disagree/],
     ['a combo with one blank', (c) => (tpl(c, 't_combo_two').blanks = ['verb1']), /kind "combo" has 1 blanks/],
     ['a noun with no gender', (c) => delete entry(c, 'n_espada').gender, /lexicon\.json: entries\.0\.gender/],

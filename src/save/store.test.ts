@@ -147,6 +147,18 @@ describe('save store', () => {
     expect(r.ok && r.game.backOf).toEqual({});
   });
 
+  it('loads a save from before the boss existed', () => {
+    const g = sampleGame() as unknown as Record<string, unknown>;
+    delete g['bossesBeaten'];
+    const r = parseSave(JSON.stringify({ format: 'lingua-dark-save', version: 2, savedAtMs: 0, game: g }));
+    expect(r.ok && r.game.bossesBeaten).toEqual([]);
+  });
+
+  it('accepts an echo held by the boss', () => {
+    const g = { ...sampleGame(), echo: { room: 'r1_boss_arena', xp: 10, killer: 'boss', target: null } };
+    expect(parseSave(serialize(g as never, 0)).ok).toBe(true);
+  });
+
   it('serialize is plain JSON', () => {
     expect(() => JSON.parse(serialize(sampleGame(), 0))).not.toThrow();
   });

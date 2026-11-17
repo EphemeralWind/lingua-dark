@@ -111,6 +111,18 @@ function checkRooms(file: string, rooms: RoomsFile, c: Content, errors: string[]
     const n = wardens.get(id)?.length ?? 0;
     if (n !== 1) errors.push(`${file}: seal ${id} needs exactly one warden, has ${n}`);
   }
+  for (const r of rooms.rooms) {
+    const boss = r.contents.boss;
+    if (!boss) continue;
+    for (const phase of boss.phases) {
+      const deck = boss.phaseDecks[phase];
+      if (!deck) errors.push(`${file}: ${r.id} boss phase ${phase} has no deck`);
+      for (const seal of deck ?? []) if (!seals[seal]) errors.push(`${file}: ${r.id} boss phase ${phase} uses unknown seal ${seal}`);
+    }
+    for (const phase of Object.keys(boss.phaseDecks)) {
+      if (!boss.phases.includes(phase)) errors.push(`${file}: ${r.id} boss deck ${phase} is not a phase`);
+    }
+  }
   const hasGate = rooms.rooms.some((r) => Object.values(r.exits).some((e) => typeof e === 'object' && e?.gate === 'boss'));
   if (Object.keys(seals).length > 0 && !hasGate) errors.push(`${file}: declares seals but has no boss gate`);
   for (const lock of locks) if (!keys.has(lock)) errors.push(`${file}: door ${lock} is locked but nothing unlocks it`);

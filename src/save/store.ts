@@ -92,6 +92,7 @@ export function gameStateProblems(g: unknown, fileVersion = VERSION): string[] {
   if (g['cameFrom'] !== null && typeof g['cameFrom'] !== 'string') errs.push('game.cameFrom must be a string or null');
   const lists = ['visited', 'walked', 'openDoors', 'defeated', 'readingsDone', ...(fileVersion >= 2 ? ['seals', 'wardensBeaten'] : [])];
   for (const k of lists) if (!isStrArr(g[k])) errs.push(`game.${k} must be a list of strings`);
+  if (g['bossesBeaten'] !== undefined && !isStrArr(g['bossesBeaten'])) errs.push('game.bossesBeaten must be a list of strings');
   const backOf = g['backOf'];
   if (backOf !== undefined && (!isObj(backOf) || !Object.values(backOf).every((v) => typeof v === 'string'))) {
     errs.push('game.backOf must map rooms to rooms');
@@ -105,7 +106,7 @@ export function gameStateProblems(g: unknown, fileVersion = VERSION): string[] {
       typeof echo['room'] === 'string' &&
       isNum(echo['xp']) &&
       typeof echo['killer'] === 'string' &&
-      (echo['killer'] === 'enemy' || echo['killer'].startsWith('ghost:')) &&
+      (echo['killer'] === 'enemy' || echo['killer'] === 'boss' || echo['killer'].startsWith('ghost:')) &&
       (echo['target'] === null || typeof echo['target'] === 'string');
     if (!ok) errs.push('game.echo is malformed');
   }
@@ -138,6 +139,8 @@ export function parseSave(text: string): ParseResult {
   }
   // Saves from before `backOf` existed get an empty one.
   raw['backOf'] ??= {};
+  // Saves from before the boss fight existed have beaten none.
+  raw['bossesBeaten'] ??= [];
   return { ok: true, game: raw as unknown as GameState, savedAtMs: isNum(data['savedAtMs']) ? data['savedAtMs'] : 0, profile };
 }
 

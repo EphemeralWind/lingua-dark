@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ENEMY_XP, FLASKS_PER_REST, GHOST_XP, MAX_GHOSTS_PER_ROOM, PLAYER_VITALITY } from '../tuning';
+import { BOSS_XP, ENEMY_XP, FLASKS_PER_REST, GHOST_XP, MAX_GHOSTS_PER_ROOM, PLAYER_VITALITY } from '../tuning';
 import { resolveExit } from './zone';
 import { newProfile } from '../learning/profile';
 import { addGhosts, chooseReading, die, echoAt, foesIn, newGame, nextFightSeed, rest, walk, winFight } from './state';
@@ -168,5 +168,25 @@ describe('game state', () => {
     const p = newProfile();
     expect(chooseReading(s, p, ZONE1, 'north', 0)).toBeNull();
     expect(p.learner.components).toEqual({});
+  });
+
+  it('the boss is the arena foe until beaten, and never respawns', () => {
+    const s = newGame(ZONE1, 1);
+    expect(foesIn(s, ZONE1, 'r1_boss_arena')).toEqual(['boss']);
+    expect(winFight(s, ZONE1, 'r1_boss_arena', 'boss')).toEqual({ recovered: 0, seal: null });
+    expect(s.xp).toBe(BOSS_XP);
+    expect(s.bossesBeaten).toEqual(['r1_boss_arena']);
+    rest(s, 'r1_bonfire');
+    expect(foesIn(s, ZONE1, 'r1_boss_arena')).toEqual([]);
+  });
+
+  it('the boss holds the echo of a player it killed', () => {
+    const s = newGame(ZONE1, 1);
+    s.xp = 300;
+    walk(s, 'r1_gate', null);
+    walk(s, 'r1_boss_arena', null);
+    die(s, 'boss', null);
+    expect(echoAt(s, 'r1_boss_arena', 'boss')).not.toBeNull();
+    expect(winFight(s, ZONE1, 'r1_boss_arena', 'boss').recovered).toBe(300);
   });
 });
