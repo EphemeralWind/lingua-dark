@@ -1,7 +1,7 @@
-// The bonfire rest scene (scenes/review.ts): a close view of the fire against a stone wall,
+// The bonfire rest scene (scenes/hub.ts): a close view of the fire against a stone wall,
 // and the player sitting before it, seen from behind, shield leaning at his side and sword
-// planted in the ground. The review text sits in a panel over the middle (x 16..303,
-// y 26..109), so the wall is darkest at the top behind the title and the picture lives below.
+// planted in the ground. The wall is darkest at the top behind the title and the lines under
+// it; the lesson objects stand at REST_SPOTS (scenes/sceneryLayout.ts).
 import { mirrored, type CharacterArt, type Part } from '../kit';
 import { cloak, head, shield, sword } from '../sprites/player';
 import { PixelCanvas, still, states } from './canvas';

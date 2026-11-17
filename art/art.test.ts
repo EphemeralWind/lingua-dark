@@ -6,11 +6,13 @@ import { missingTags, parseAtlas } from '../src/platform/atlas';
 import { CHARACTERS } from '../src/platform/characters';
 import { ART, atlasJsonText, buildSheet, encodePng } from './build';
 import zone1 from '../src/content/data/zone1-rooms.json';
-import { DOOR_TAG, PROP_AT } from '../src/scenes/sceneryLayout';
+import lessons from '../src/content/data/lessons.json';
+import { DOOR_TAG, PAGE_SLAB, PAGE_TEXT, PROP_AT } from '../src/scenes/sceneryLayout';
 import { decodeRow, flipX, ghostly, KEYS, mirrored, part, rasterize, recolor, rotCW, type CharacterArt } from './kit';
 import { SCENERY } from './scenery/index';
 import { SIDE } from './scenery/props';
 import { ROOM_BACKDROPS } from './scenery/rooms';
+import { STELE_SLAB, STELE_TEXT } from './scenery/stele';
 
 describe('art kit', () => {
   it('mirrors a half with the right side one shade darker', () => {
@@ -191,6 +193,40 @@ describe('scenery', () => {
       const px = rasterize(near.tags['still']?.[0] ?? [], near.w, near.h);
       expect(px[10 * near.w + 160]).toBe(-1);
     }
+  });
+
+  it('draws every lesson object, with one page frame per page (DECISIONS #96)', () => {
+    for (const o of lessons.objects) {
+      expect(piece(o.sprite).tags['still'], o.sprite).toHaveLength(1);
+      const page = piece(o.pageSprite);
+      expect([page.w, page.h]).toEqual([320, 180]);
+      expect(page.tags['face'], o.pageSprite).toHaveLength(o.pages.length);
+    }
+  });
+
+  it('gives each stele face its own wear, and keeps the text area the game writes in clean', () => {
+    expect(STELE_TEXT).toEqual(PAGE_TEXT);
+    expect(STELE_SLAB).toEqual(PAGE_SLAB);
+    const face = piece('stele_face');
+    const frames = (face.tags['face'] ?? []).map((f) => rasterize(f, 320, 180));
+    const outside = (px: ArrayLike<number>): string => {
+      const out: number[] = [];
+      for (let y = 0; y < 180; y++) {
+        for (let x = 0; x < 320; x++) {
+          const inText = x >= PAGE_TEXT.x && x < PAGE_TEXT.x + PAGE_TEXT.w && y >= PAGE_TEXT.y && y < PAGE_TEXT.y + PAGE_TEXT.h;
+          if (!inText) out.push(px[y * 320 + x] ?? -1);
+        }
+      }
+      return out.join();
+    };
+    const inside = (px: ArrayLike<number>): string => {
+      const out: number[] = [];
+      for (let y = PAGE_TEXT.y; y < PAGE_TEXT.y + PAGE_TEXT.h; y++) for (let x = PAGE_TEXT.x; x < PAGE_TEXT.x + PAGE_TEXT.w; x++) out.push(px[y * 320 + x] ?? -1);
+      return out.join();
+    };
+    // Four different rims; one identical text area.
+    expect(new Set(frames.map(outside)).size).toBe(4);
+    expect(new Set(frames.map(inside)).size).toBe(1);
   });
 
   it('has the bonfire rest scene: a backdrop and the seated player breathing', () => {

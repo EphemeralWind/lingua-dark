@@ -132,8 +132,13 @@ export class SpriteBank {
 
   /** Size of a character's first idle frame, or null if no sheet has it. */
   size(character: string): { w: number; h: number } | null {
+    return this.frameSize(character, 'idle');
+  }
+
+  /** Size of the first frame of one of a character's tags, or null if no sheet has it. */
+  frameSize(character: string, tag: string): { w: number; h: number } | null {
     for (const s of this.sheets) {
-      const i = s.data.tags.get(`${character}/idle`)?.[0];
+      const i = s.data.tags.get(`${character}/${tag}`)?.[0];
       const f = i === undefined ? undefined : s.data.frames[i];
       if (f) return { w: f.w, h: f.h };
     }

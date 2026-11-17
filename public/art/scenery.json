@@ -242,13 +242,58 @@
     "w": 48,
     "h": 44
    }
+  },
+  {
+   "filename": "stele/still 0",
+   "frame": {
+    "x": 0,
+    "y": 2154,
+    "w": 24,
+    "h": 56
+   }
+  },
+  {
+   "filename": "stele_face/face 0",
+   "frame": {
+    "x": 0,
+    "y": 2210,
+    "w": 320,
+    "h": 180
+   }
+  },
+  {
+   "filename": "stele_face/face 1",
+   "frame": {
+    "x": 320,
+    "y": 2210,
+    "w": 320,
+    "h": 180
+   }
+  },
+  {
+   "filename": "stele_face/face 2",
+   "frame": {
+    "x": 640,
+    "y": 2210,
+    "w": 320,
+    "h": 180
+   }
+  },
+  {
+   "filename": "stele_face/face 3",
+   "frame": {
+    "x": 960,
+    "y": 2210,
+    "w": 320,
+    "h": 180
+   }
   }
  ],
  "meta": {
   "image": "scenery.png",
   "size": {
-   "w": 320,
-   "h": 2154
+   "w": 1280,
+   "h": 2390
   },
   "frameTags": [
    {
@@ -375,6 +420,16 @@
     "name": "rest_player/sit",
     "from": 25,
     "to": 26
+   },
+   {
+    "name": "stele/still",
+    "from": 27,
+    "to": 27
+   },
+   {
+    "name": "stele_face/face",
+    "from": 28,
+    "to": 31
    }
   ]
  }

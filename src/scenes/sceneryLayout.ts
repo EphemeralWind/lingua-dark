@@ -18,6 +18,24 @@ export const PROP_AT = {
   restPlayer: { x: 112, bottom: 176 },
 } as const;
 
+/**
+ * Where lesson objects stand in the bonfire rest scene, in the order lessons.json lists a
+ * zone's objects (DECISIONS #96). The first is the stele, right of the fire beyond the sword.
+ */
+export const REST_SPOTS: readonly { x: number; bottom: number }[] = [
+  { x: 258, bottom: 152 },
+  { x: 52, bottom: 160 },
+  { x: 290, bottom: 172 },
+];
+
+/**
+ * A lesson page seen up close: every page sprite is 320x180 and keeps this box clean for the
+ * text the game writes over it. art/art.test.ts checks the stele faces agree.
+ */
+export const PAGE_TEXT = { x: 46, y: 16, w: 228, h: 134 } as const;
+/** The page's stone (or parchment) behind the text, for the flat-shape fallback. */
+export const PAGE_SLAB = { x: 24, y: 4, w: 272, h: 158 } as const;
+
 export const STILL: SpriteFrame = { tag: 'still', frame: 0, flip: false };
 
 /** The door sprite tag for an exit's look. */

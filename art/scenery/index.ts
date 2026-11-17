@@ -4,5 +4,6 @@ import { ARENAS } from './arenas';
 import { PROPS } from './props';
 import { REST } from './rest';
 import { ROOMS } from './rooms';
+import { STELE } from './stele';
 
-export const SCENERY: readonly CharacterArt[] = [...ROOMS, ...PROPS, ...ARENAS, ...REST];
+export const SCENERY: readonly CharacterArt[] = [...ROOMS, ...PROPS, ...ARENAS, ...REST, ...STELE];
