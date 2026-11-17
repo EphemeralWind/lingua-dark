@@ -11,10 +11,10 @@ behind each choice, see `docs/DECISIONS.md`. Numbers like #4 refer to entries th
 | 1. Engine: one playable fight | Done | `bd260db` |
 | 2. Content: procedural Spanish | Done, waiting for native review | `c332f2e`, `d1d64d2` |
 | 3. Learning and world | Done | `d944d25`–`f5af689`; `$back` fix `09b7257`; seals and meta-progression `c00868f`–`058d3eb` |
-| 4. Art, audio, settings | Not started | |
+| 4. Art, audio, settings | Done (placeholder art; real sprites pending) | `dc82e6f`–`e71e126` (branch `m4-art-audio-settings`) |
 | 5. Playtest and tuning | Not started | |
 
-All checks pass at `058d3eb`: `npm run typecheck`, `npm run lint`, `npm test` (274 tests),
+All checks pass at the end of M4: `npm run typecheck`, `npm run lint`, `npm test` (372 tests),
 `npm run build`, `npm run test:e2e`.
 
 ## Milestone 1: Engine (done)
@@ -153,33 +153,75 @@ The notes below describe the current state.
     - F9 → title lists all perks; a new run has 130 vitality and 4 flasks, and a flask greys 2
       cards
 
+## Milestone 4: Art, audio, settings, boss (done)
+
+`npm run dev`, then `/` (world), `/?seed=N` (practice fight), `/font-test.html` (font proof).
+Decisions #77–#90.
+
+- **Sprites:**
+  - `platform/atlas.ts`: Aseprite JSON parser (hash or array), atlas layout, a loader for
+    `/art/atlas.json` and `SpriteBank`, which draws real art first and falls back to the
+    placeholder sheet per character and tag.
+  - `platform/placeholderArt.ts` paints every frame from `platform/characters.ts` (player 48×64,
+    enemies 64×64, boss 128×112) with flat shapes.
+  - `combat/sprites.ts` picks frames from the Animation alone. Frame counts follow SPEC 8. West
+    mirrors east. The wind-up is one shared 6-frame animation stretched over the window.
+  - Wardens wear a crown and a seal diamond. Ghosts are hollow outlines.
+- **Font:** `platform/font.ts` is an original bitmap font (#78). The renderer draws it in whole
+  screen pixels: body text at 1x, the prompt at 2x (#79). `font.test.ts` checks coverage, including
+  every string literal in `src` and the content JSON.
+- **Fight UI** (`scenes/fight.ts`):
+  - the 2x prompt on a dark band, and the cards at N/E/S/W with arrow tabs and glyphs;
+  - the deadline bar, the stance bar under the enemy, the attack icon (all six types), and FLURRY n/m for boss chains;
+  - a 3-frame parry flash, the hit-stop, a four-point star for clean parries, and a hit cross;
+  - an arena with depth bands and three layers.
+- **Audio:**
+  - `platform/audio.ts`: synthesised effects and an ambient loop with a mood per scene.
+  - `combat/cues.ts`: cues derived from the view, and `CUE_VISUAL`.
+  - `CuePlayer` in `scenes/services.ts` shows a ♪ caption for every sound.
+  - `platform/speech.ts`: es-ES only, else text-only. What is spoken and when: #80.
+- **Settings** (`save/settings.ts`, `scenes/settingsMenu.ts`, key O): reduced motion, larger text,
+  Hollow mode, sound effects, music, speech. `platform/gameTime.ts` pauses the game clock for a
+  hidden tab and the open menu (#83).
+- **Encounter:** `chain` (boss flurries, #77) and `untimed` (Hollow, #82). The Animation gains
+  `resolved`.
+- **Boss:**
+  - `world/boss.ts` builds the three phases from `phaseDecks` in the rooms JSON.
+  - `game.ts` chains three encounters with title cards, carrying vitality between them.
+  - The blind phase hides the enemy, the icon and the strike animation, and records its answers as `blind`.
+  - `bossesBeaten` is saved, and the boss can hold an echo.
+- **Blind bots:** 14 bots × 9 arenas: the whole deck, three wardens, three boss phases, and the whole deck in Hollow mode.
+  - Boss phases and Hollow mode measure 23.8%–25.9%, with no wins.
+  - The wind-up identity test now also compares sprite frames and sound cues, with and without chain or Hollow.
+- **Verified by hand with throwaway browser scripts** (not kept as tests):
+  - The font page shows every glyph with nothing missing.
+  - A save at the gate with all seals → walk into the arena → all three phases cleared by answering
+    from the question tags → the arena is silent afterwards. Blind-phase answers created mastery days.
+  - The settings menu toggles and saves. In Hollow mode a wind-up was still open after 9 s. Larger text works.
+  - Reduced motion removes the full-screen flash and keeps the steady parry ring and star.
+
 ## Open items and known risks
 
-- **Native review pending** (M2 gate) for `docs/review/zone1-sentences.md`. M3 adds no Spanish.
-  The seal names and perk text are English UI.
-- **Design questions raised by M3:**
-  - Perk table and warden toughness (`WARDEN_HP`) need tuning at playtest. The articles warden
-    asks only high-damage overheads, so it is the hardest of the three.
-  - The boss fight should reuse the seal decks per phase (#73).
+- **Native review pending** (M2 gate) for `docs/review/zone1-sentences.md`. M4 adds no Spanish:
+  the boss name, phase names, captions and settings are English UI.
+- **Real art:** drop an Aseprite export at `public/art/atlas.json` (+ PNG) with tags
+  `<character>/<animation>` (see `requiredTags` and `CHARACTERS`). Missing tags fall back to placeholders.
+- **Design questions:**
+  - Hollow mode and mastery: provisionally no effect (#82). Designer to confirm.
+  - Grab (listening) attacks: matching sound to written cards may be possible without Spanish (#89).
+    Needs a design before it is built. Feints, sweep, NPC dialogue and items are also not built.
+  - Tune `BOSS_CHAIN`, `BOSS_PHASE_HP`, the perk table and `WARDEN_HP` at playtest.
   - Only one sign has a reading choice (#62). More need hand-written, native-checked Spanish.
-  - Reading components (`w_*`) count toward the profile, but no template teaches them, so they
-    are outside the 120 shown as "Learned N/120".
-  - Should Hollow mode count toward mastery? Still open.
+  - Reading components (`w_*`) count toward the profile but are outside the 120 shown as Learned.
 - Accepted risks, to watch at the playtest:
   - Riposte words can be copied from the card that just won (#10).
   - A reader can pick up shallow sentence cues and cognates (#49).
-  - The tab hidden during a wind-up times out as a hit (#38).
 - A content change changes what each seed produces (#50).
-- Not built yet: grab (listening/audio), sweep (word order), feints, boss fight and blind
-  rounds (the `blind` mastery context exists but nothing records it), items, NPC dialogue,
-  settings (Hollow mode, reduced motion, larger text), pixel font, real art and audio.
+- Translation questions show `___` as the whole sentence, even after the answer is revealed. The
+  answer is on the ✓ card and is spoken.
 
-## Next: Milestone 4
+## Next: Milestone 5
 
-Follow Prompt 4 in `docs/PROMPTS.md`. Notes:
-- The room-entry fade in `worldView.ts` and the hit shake in `fight.ts` must respect reduced motion.
-- Hollow mode (no timers) should pause wind-ups. Fixing #38 (visibility pause) fits there.
-- Sprites replace the flat shapes in `fight.ts` (combat) and `worldView.ts` (rooms, map).
-  Wardens need a look that sets them apart from regular enemies (today only the label does).
-- The Zone 1 boss is part of Prompt 4. It should take its phase decks from
-  `sealTemplates` (#73).
+Follow Prompt 5 in `docs/PROMPTS.md`. Notes:
+- Log `settings.hollow` per exchange (the setting is live in `Services.settings`).
+- The litmus test now has a real boss: `r1_boss_arena`, three phases, the last one blind.
