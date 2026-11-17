@@ -1,4 +1,4 @@
-// Content schemas for lexicon.json, templates.json and zone1-rooms.json (SPEC 5.3, 7).
+// Content schemas for lexicon.json, templates.json, zone1-rooms.json and lessons.json (SPEC 5.3, 7).
 // Structural shape is checked with zod; cross-references (slots, tags, rooms) are checked
 // in validate.ts. Both run at build time (vite plugin) and in tests, not in the game bundle:
 // runtime code imports only the types from this file.
@@ -167,6 +167,47 @@ export const roomsFileSchema = z.strictObject({
     .min(1),
 });
 
+/**
+ * A page's example rows. They name lexicon entries instead of spelling Spanish out, so a lesson
+ * always shows the same forms the fights ask for, and adds no Spanish of its own.
+ */
+const lessonRowsSchema = z.discriminatedUnion('kind', [
+  /** Each noun with its article, singular then plural: "el escudo · los escudos". */
+  z.strictObject({ kind: z.literal('articles'), art: z.enum(['definite', 'indefinite']), nouns: z.array(z.string()).min(1) }),
+  /** One row per person: the pronoun, then each verb's form side by side. */
+  z.strictObject({ kind: z.literal('conjugation'), tense: z.literal('present'), verbs: z.array(z.string()).min(1).max(2) }),
+]);
+
+/**
+ * Lesson objects at a bonfire (DECISIONS #96): things the player examines up close, each a
+ * series of pages. `sprite` is drawn in the rest scene; `pageSprite` frame i is page i's view.
+ */
+export const lessonsFileSchema = z.strictObject({
+  version: z.literal(1),
+  note: z.string().optional(),
+  objects: z
+    .array(
+      z.strictObject({
+        id: z.string().regex(/^[a-z_]+$/),
+        zone: z.number().int().min(1).max(3),
+        name_en: z.string().min(1),
+        sprite: z.string().min(1),
+        pageSprite: z.string().min(1),
+        pages: z
+          .array(
+            z.strictObject({
+              title_en: z.string().min(1),
+              /** Draft English verse: the rule as a riddle. */
+              verse_en: z.array(z.string().min(1)).min(1).max(4),
+              rows: lessonRowsSchema,
+            }),
+          )
+          .min(1),
+      }),
+    )
+    .min(1),
+});
+
 export type NounEntry = z.infer<typeof nounSchema>;
 export type VerbEntry = z.infer<typeof verbSchema>;
 export type LexiconFile = z.infer<typeof lexiconSchema>;
@@ -175,3 +216,7 @@ export type Template = z.infer<typeof templateSchema>;
 export type TemplatesFile = z.infer<typeof templatesFileSchema>;
 export type RoomsFile = z.infer<typeof roomsFileSchema>;
 export type VaryFeature = (typeof VARY_FEATURES)[number];
+export type LessonsFile = z.infer<typeof lessonsFileSchema>;
+export type LessonObjectDef = LessonsFile['objects'][number];
+export type LessonPageDef = LessonObjectDef['pages'][number];
+export type LessonRows = LessonPageDef['rows'];

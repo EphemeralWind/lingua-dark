@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "note": "Lesson objects at bonfires (DECISIONS #96). Rows name lexicon entries, so the Spanish comes from lexicon.json and templates.json. The English titles and verse are drafts.",
+  "objects": [
+    {
+      "id": "stele",
+      "zone": 1,
+      "name_en": "Weathered stele",
+      "sprite": "stele",
+      "pageSprite": "stele_face",
+      "pages": [
+        {
+          "title_en": "The keepers",
+          "verse_en": [
+            "Four keepers guard the names of things.",
+            "Two stand alone; two stand with kin.",
+            "Ask the name whose keeper it is. Its ending may lie."
+          ],
+          "rows": { "kind": "articles", "art": "definite", "nouns": ["n_escudo", "n_espada", "n_puente", "n_llave", "n_pan"] }
+        },
+        {
+          "title_en": "The strangers",
+          "verse_en": [
+            "Not every name is known. The unknown walk as strangers.",
+            "A stranger alone speaks short; in company the word grows.",
+            "Even a stranger keeps the kind of the name it guards."
+          ],
+          "rows": { "kind": "articles", "art": "indefinite", "nouns": ["n_lobo", "n_antorcha", "n_cuervo", "n_campana"] }
+        },
+        {
+          "title_en": "The first oath",
+          "verse_en": [
+            "The oath of -AR is broken at its end,",
+            "and each who swears it leaves a mark upon the stem.",
+            "Read the mark, and know who speaks."
+          ],
+          "rows": { "kind": "conjugation", "tense": "present", "verbs": ["v_levantar"] }
+        },
+        {
+          "title_en": "The second oath",
+          "verse_en": [
+            "The oaths of -ER and -IR walk as one,",
+            "and part only where we and you all speak:",
+            "there each keeps the letter of its own oath."
+          ],
+          "rows": { "kind": "conjugation", "tense": "present", "verbs": ["v_comer", "v_escribir"] }
+        }
+      ]
+    }
+  ]
+}

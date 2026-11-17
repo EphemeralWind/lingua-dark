@@ -2,18 +2,21 @@
 // through the vite plugin in vite.config.ts and in tests. A template that references a
 // missing slot or tag, or that can never be filled, fails the build rather than the game.
 import type { ZodType } from 'zod';
+import lessonsJson from './data/lessons.json' with { type: 'json' };
 import lexiconJson from './data/lexicon.json' with { type: 'json' };
 import templatesJson from './data/templates.json' with { type: 'json' };
 import zone1RoomsJson from './data/zone1-rooms.json' with { type: 'json' };
 import { nounMatches } from './generator';
 import { GENDERS, PERSONS, buildContent, verbTakes, type Content } from './lexicon';
-import { PERSON_KEYS, lexiconSchema, roomsFileSchema, templatesFileSchema, type RoomsFile, type Template } from './schema';
+import { PERSON_KEYS, lessonsFileSchema, lexiconSchema, roomsFileSchema, templatesFileSchema, type LessonsFile, type RoomsFile, type Template } from './schema';
 import { analyzeTemplate } from './template';
 
 export interface RawContent {
   lexicon: unknown;
   templates: unknown;
   rooms: Record<string, unknown>;
+  /** lessons.json; optional so older test fixtures stay valid. */
+  lessons?: unknown;
 }
 
 function parse<T>(schema: ZodType<T>, data: unknown, file: string, errors: string[]): T | null {
@@ -134,6 +137,26 @@ function checkRooms(file: string, rooms: RoomsFile, c: Content, errors: string[]
   for (const key of keys) if (!locks.has(key)) errors.push(`${file}: exit unlocks ${key} but no door uses it`);
 }
 
+/** Lesson rows must name real lexicon entries; indefinite and plural rows need countable nouns. */
+function checkLessons(lessons: LessonsFile, c: Content, errors: string[]): void {
+  for (const id of duplicates(lessons.objects.map((o) => o.id))) errors.push(`lessons.json: duplicate object ${id}`);
+  for (const o of lessons.objects) {
+    o.pages.forEach((page, i) => {
+      const where = `lessons.json: ${o.id} page ${i + 1}`;
+      const rows = page.rows;
+      if (rows.kind === 'articles') {
+        for (const id of rows.nouns) {
+          const n = c.nouns.find((x) => x.id === id);
+          if (!n) errors.push(`${where} names missing noun ${id}`);
+          else if (n.tags.includes('mass')) errors.push(`${where} uses mass noun ${id}, which has no plural with an article`);
+        }
+      } else {
+        for (const id of rows.verbs) if (!c.verbs.some((v) => v.id === id)) errors.push(`${where} names missing verb ${id}`);
+      }
+    });
+  }
+}
+
 /** Returns every problem found; an empty list means the content is valid. */
 export function validateContent(raw: RawContent): string[] {
   const errors: string[] = [];
@@ -151,10 +174,14 @@ export function validateContent(raw: RawContent): string[] {
     if (shape.errors.length === 0) checkFillable(t, content, errors);
   }
   for (const [file, r] of rooms) if (r) checkRooms(file, r, content, errors);
+  if (raw.lessons !== undefined) {
+    const lessons = parse(lessonsFileSchema, raw.lessons, 'lessons.json', errors);
+    if (lessons) checkLessons(lessons, content, errors);
+  }
   return errors;
 }
 
 /** Validates the JSON files shipped in src/content/data. */
 export function validateBundled(): string[] {
-  return validateContent({ lexicon: lexiconJson, templates: templatesJson, rooms: { 'zone1-rooms.json': zone1RoomsJson } });
+  return validateContent({ lexicon: lexiconJson, templates: templatesJson, rooms: { 'zone1-rooms.json': zone1RoomsJson }, lessons: lessonsJson });
 }
