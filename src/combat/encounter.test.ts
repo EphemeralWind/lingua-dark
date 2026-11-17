@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DIRECTIONS, type Direction, type Question, type QuestionKind } from '../content/types';
+import { createRng } from '../content/rng';
 import { RESOLVE_MS, RIPOSTE_RESULT_MS } from '../tuning';
 import { Encounter, type EncounterConfig } from './encounter';
 import type { EncounterState } from './types';
@@ -269,5 +270,60 @@ describe('Encounter: riposte, win, lose', () => {
     }
     expect(t.enc.state.kind).toBe('won');
     expect(t.enc.vitality).toBe(100);
+  });
+});
+
+describe('Encounter: flasks and the exchange log', () => {
+  it('a flask greys out exactly two wrong cards, never the answer', () => {
+    for (let seed = 0; seed < 50; seed++) {
+      const t = setup(question('grammar', [E]), { flaskRng: createRng(seed) });
+      expect(t.enc.useFlask()).toBe(true);
+      const s = expectKind(t.enc.state, 'windup');
+      expect(s.greyed).toHaveLength(2);
+      expect(new Set(s.greyed).size).toBe(2);
+      expect(s.greyed).not.toContain(E);
+    }
+  });
+
+  it('one flask per strike; none outside a wind-up or without a flask RNG', () => {
+    const t = setup(question('grammar', [E]), { flaskRng: createRng(1) });
+    expect(t.enc.useFlask()).toBe(true);
+    expect(t.enc.useFlask()).toBe(false);
+    t.lock(E);
+    expect(t.enc.useFlask()).toBe(false);
+    expect(setup(question('grammar', [E])).enc.useFlask()).toBe(false);
+  });
+
+  it('greyed cards cannot be picked; the answer still can', () => {
+    const t = setup(question('grammar', [E]), { flaskRng: createRng(3) });
+    t.enc.useFlask();
+    const grey = expectKind(t.enc.state, 'windup').greyed[0]!;
+    expect(t.lock(grey)).toBe(false);
+    expect(t.enc.state.kind).toBe('windup');
+    expect(t.lock(E)).toBe(true);
+    expect(expectKind(t.enc.state, 'resolving')).toMatchObject({ result: 'parry', assisted: true });
+  });
+
+  it('the next strike starts with no greyed cards', () => {
+    const t = setup(question('combo', [E, N]), { flaskRng: createRng(3) });
+    t.enc.useFlask();
+    t.lock(E);
+    t.advance(RESOLVE_MS);
+    expect(expectKind(t.enc.state, 'windup').greyed).toEqual([]);
+  });
+
+  it('logs each strike with its components and whether a flask helped', () => {
+    const q = question('combo', [E, N]);
+    q.components = ['first', 'second'];
+    const t = setup(q, { flaskRng: createRng(3) });
+    t.lock(E);
+    t.advance(RESOLVE_MS);
+    t.enc.useFlask();
+    const greyed = expectKind(t.enc.state, 'windup').greyed;
+    t.lock(DIRECTIONS.find((d) => d !== N && !greyed.includes(d))!);
+    expect(t.enc.log.map((r) => [r.components, r.assisted, r.result])).toEqual([
+      [['first'], false, 'parry'],
+      [['second'], true, 'hit'],
+    ]);
   });
 });

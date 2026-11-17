@@ -1,9 +1,12 @@
 // Encounter state machine (SPEC 3.1, 3.2, 3.4, 9). Pure logic: time comes in as arguments,
 // questions come from an injected source. No DOM, no clock reads, no Math.random.
-import type { Direction, Question } from '../content/types';
+import { strikeComponents } from '../content/components';
+import type { Rng } from '../content/rng';
+import { DIRECTIONS, type Direction, type Question } from '../content/types';
 import {
   COMBO_CLEAR_BONUS,
   ENEMY_HP,
+  FLASK_GREYS_OUT,
   HIT_STANCE_REFILL,
   PLAYER_VITALITY,
   RESOLVE_MS,
@@ -20,7 +23,11 @@ export interface EncounterConfig {
   zone: number;
   enemyHp?: number;
   stanceMax?: number;
+  /** Starting vitality, if the player enters hurt. Defaults to vitalityMax. */
   vitality?: number;
+  vitalityMax?: number;
+  /** Picks which wrong cards a flask greys out. Needed only if flasks are used. */
+  flaskRng?: Rng;
 }
 
 export class Encounter {
@@ -33,6 +40,7 @@ export class Encounter {
   private cleanSoFar = true;
   private readonly zone: number;
   private readonly nextQuestion: () => Question;
+  private readonly flaskRng: Rng | null;
 
   constructor(nextQuestion: () => Question, config: EncounterConfig) {
     this.nextQuestion = nextQuestion;
@@ -40,8 +48,9 @@ export class Encounter {
     const hp = config.enemyHp ?? ENEMY_HP;
     const stanceMax = config.stanceMax ?? STANCE_MAX;
     this.enemy = { hp, hpMax: hp, stance: stanceMax, stanceMax };
-    this.vitalityMax = config.vitality ?? PLAYER_VITALITY;
-    this.vitality = this.vitalityMax;
+    this.vitalityMax = config.vitalityMax ?? PLAYER_VITALITY;
+    this.vitality = config.vitality ?? this.vitalityMax;
+    this.flaskRng = config.flaskRng ?? null;
   }
 
   get state(): EncounterState {
@@ -106,11 +115,27 @@ export class Encounter {
   lockIn(dir: Direction, atMs: number): boolean {
     const s = this.current;
     if (s.kind !== 'windup') return false;
+    if (s.greyed.includes(dir) && atMs < s.deadlineMs) return false;
     if (atMs >= s.deadlineMs) {
       this.resolve(null, s.deadlineMs);
       return false;
     }
     this.resolve(dir, Math.max(atMs, s.startMs));
+    return true;
+  }
+
+  /**
+   * Drink a flask: greys out FLASK_GREYS_OUT wrong cards of the current strike, picked by the
+   * flask RNG. Returns false if there is no open wind-up or it was already used on this strike.
+   * The caller owns the flask count.
+   */
+  useFlask(): boolean {
+    const s = this.current;
+    if (s.kind !== 'windup' || s.greyed.length > 0 || !this.flaskRng) return false;
+    const strike = s.question.strikes[s.strike];
+    if (!strike) return false;
+    const wrong = DIRECTIONS.filter((d) => d !== strike.correct);
+    s.greyed = this.flaskRng.shuffle(wrong).slice(0, FLASK_GREYS_OUT);
     return true;
   }
 
@@ -139,7 +164,7 @@ export class Encounter {
   private beginStrike(question: Question, strike: number, nowMs: number): void {
     if (strike === 0) this.cleanSoFar = true;
     const attack = attackFor(question.kind);
-    this.current = { kind: 'windup', question, strike, startMs: nowMs, deadlineMs: nowMs + windowMs(attack, this.zone) };
+    this.current = { kind: 'windup', question, strike, startMs: nowMs, deadlineMs: nowMs + windowMs(attack, this.zone), greyed: [] };
   }
 
   private resolve(chosen: Direction | null, atMs: number): void {
@@ -151,6 +176,7 @@ export class Encounter {
     const attack = attackFor(s.question.kind);
     const quality = chosen === null ? 0 : parryQuality(s.startMs, s.deadlineMs, atMs);
     const parried = chosen === strike.correct;
+    const assisted = s.greyed.length > 0;
     const e = this.enemy;
 
     if (parried) {
@@ -174,6 +200,8 @@ export class Encounter {
       correct: strike.correct,
       result: parried ? 'parry' : 'hit',
       quality,
+      components: strikeComponents(s.question, s.strike),
+      assisted,
     });
 
     this.current = {
@@ -189,6 +217,7 @@ export class Encounter {
       // A break skips the rest of a combo (DECISIONS #9).
       stanceBroken: e.stance <= 0,
       comboCleared,
+      assisted,
     };
   }
 }

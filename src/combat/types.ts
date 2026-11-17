@@ -12,7 +12,15 @@ export interface Enemy {
 
 export type EncounterState =
   | { kind: 'idle' }
-  | { kind: 'windup'; question: Question; strike: number; startMs: number; deadlineMs: number }
+  | {
+      kind: 'windup';
+      question: Question;
+      strike: number;
+      startMs: number;
+      deadlineMs: number;
+      /** Wrong cards a flask greyed out; empty until the player drinks one (SPEC 3.6). */
+      greyed: Direction[];
+    }
   | {
       kind: 'resolving';
       question: Question;
@@ -28,6 +36,8 @@ export type EncounterState =
       untilMs: number;
       stanceBroken: boolean;
       comboCleared: boolean;
+      /** A flask was used on this strike. */
+      assisted: boolean;
     }
   | { kind: 'riposte'; question: Question; typed: string[] }
   | {
@@ -51,4 +61,8 @@ export interface ExchangeRecord {
   correct: Direction;
   result: 'parry' | 'hit';
   quality: number;
+  /** Knowledge components this strike tested. */
+  components: string[];
+  /** A flask greyed out two cards on this strike. */
+  assisted: boolean;
 }

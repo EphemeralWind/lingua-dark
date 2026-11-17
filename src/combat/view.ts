@@ -40,6 +40,8 @@ export interface CardText {
   text: string;
   /** Marks appear only after resolution. Shapes, not colour (accessibility). */
   mark: 'none' | 'correct' | 'wrongPick';
+  /** Greyed out by a flask the player drank. Only ever a wrong card. */
+  greyed: boolean;
 }
 
 export interface Prompt {
@@ -141,7 +143,8 @@ export function viewOf(enc: Encounter, nowMs: number): EncounterView {
           if (dir === s.correct) mark = 'correct';
           else if (dir === s.chosen) mark = 'wrongPick';
         }
-        return { dir, text: strike.options[dir], mark };
+        const greyed = s.kind === 'windup' && s.greyed.includes(dir);
+        return { dir, text: strike.options[dir], mark, greyed };
       });
     }
     view.prompt = {
