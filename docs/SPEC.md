@@ -62,7 +62,7 @@ A delayed swing may show a fake flicker in its wind-up. The flicker is random no
 ### 3.6 Resources
 
 - **Vitality:** the player's health.
-- **Flasks:** three per bonfire rest. A flask greys out two wrong answers for the current question.
+- **Flasks:** three per bonfire rest. A flask greys out one wrong answer for the current question, two once the player has earned the flask perk (see 6). It never greys out all three. *(Changed from the design doc's "two wrong answers" by the designer, 2026-11-17.)*
 - **Echoes:** on death the player drops unspent XP at the spot. Recovering it means beating the enemy that killed them, which asks the same target word again.
 - There is no Focus resource.
 
@@ -84,7 +84,9 @@ Three phases per boss, each with its own stance meter and longer combos. Each ph
 | `STANCE_FLOOR` | 0.25 | design doc |
 | `COMBO_CLEAR_BONUS` | 0.25 of stance meter | design doc |
 | `FLASKS_PER_REST` | 3 | design doc |
-| `FLASK_GREYS_OUT` | 2 wrong answers | design doc |
+| `FLASK_POWER_BASE` / `FLASK_POWER_MAX` | 1 / 2 wrong answers | designer change (was `FLASK_GREYS_OUT` = 2) |
+| `WARDEN_HP` / `WARDEN_XP` | 90 / 150 | default (not in design doc) |
+| `PERKS` | Learned thresholds, see 6 | default (not in design doc) |
 | `HIT_STOP_MS` | 80 | design doc |
 | `STANCE_MAX` | 100 | default (not in design doc) |
 | `STANCE_DRAIN` | 25 (four perfect parries break stance) | default (not in design doc) |
@@ -142,10 +144,10 @@ Quality control: automated agreement tests per template over many seeds (start a
 
 - Track **knowledge components**: a word form or grammar feature, for example `v_levantar:present:3sg` and `art:definite:f`.
 - **Leitner boxes:** five boxes, review intervals of 1, 3, 7, 14, and 30 days. A correct answer moves a component up one box. A wrong answer sends it to box 1.
-- **Learned** requires two correct answers in untelegraphed contexts (bonfire review, blind round, exploration reading choice) on different days.
+- **Learned** requires two correct answers in untelegraphed contexts (bonfire review, blind round, exploration reading choice) on different days. Learned is **meta-progression**: it lives in a profile that survives New Game, and Learned thresholds grant small perks (more vitality, more riposte damage, a stronger flask, one extra flask per rest). Perks follow the best Learned count ever reached. A player who cannot read Spanish never earns them.
 - **Bonfires:** save progress, refill flasks, run a short review of due components, and respawn normal enemies.
 - **Ghosts:** missed components return as ghost enemies, up to three per room. Beating a ghost with a correct answer moves its component up a box.
-- **Boss gate:** the locked door in front of each boss's arena. It opens when at least 80% of the zone's components are Learned (`GATE_THRESHOLD`, to tune).
+- **Boss gate:** the locked door in front of each boss's arena. It opens when the player holds every **seal** of the zone, so a zone can be cleared in one sitting. Each seal stands for one grammar aspect and is won by beating its **warden**, a tougher enemy whose questions come only from that aspect's templates. Wardens never respawn; seals last for the run. Zone 1: Seal of Articles (cellar warden), Seal of Verbs (chapel warden), Seal of Words (orchard warden). The boss then tests the seals combined: articles phase, present-tense phase, and a blind phase mixing all three. *(Replaces the earlier "80% of components Learned" gate, 2026-11-17.)*
 - **Saving:** localStorage first (IndexedDB if saves grow), with JSON export and import. Local only for now.
 
 | Zone | Focus |
@@ -246,5 +248,5 @@ Estimates assume one developer and are starting guesses.
 ## 12. Open questions
 
 - Should Hollow mode (no timers) count toward mastery, or only toward progress?
-- Is 80% Learned the right threshold for opening a boss gate?
+- Is the perk table right (thresholds and sizes)? Are three wardens the right length for Zone 1?
 - Which pixel font covers all Spanish accents and punctuation (á é í ó ú ñ ü ¿ ¡)?

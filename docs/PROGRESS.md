@@ -112,7 +112,16 @@ One fight, playable start to finish in the browser (`npm run dev`, then press En
   - `review.ts`, `worldView.ts`.
 - **Controls:** arrows/WASD walk and answer. Enter fights a foe or rests at the bonfire. F
   drinks a flask. M opens the map, where E exports and I imports a save. Dev only: F8 skips a
-  day, F9 marks everything Learned.
+  day, F9 marks everything Learned, F10 grants every seal.
+- **Seals and meta-progression (after M3, DECISIONS #73–#76):**
+  - The boss gate needs three seals, won from wardens: cellar (Articles), chapel (Verbs),
+    orchard (Words). Each warden asks only its aspect, and the whole zone can be cleared in one
+    sitting.
+  - Learned now lives in a profile that survives New Game and grants perks (`PERKS` in
+    `tuning.ts`).
+  - A flask greys out 1 wrong card, 2 with the flask perk.
+  - Save format v2, which migrates v1 saves.
+  - Code: `src/world/seals.ts`, `src/learning/perks.ts`, `src/learning/profile.ts`.
 - **Content edit:** the bonfire room has a `reading` (goal "Find the well.", answer west). No new
   Spanish was written.
 - **Verified by hand in a browser script, not kept as a test** (CLAUDE.md allows one Playwright
@@ -128,8 +137,8 @@ One fight, playable start to finish in the browser (`npm run dev`, then press En
 
 - **Native review pending** (M2 gate) for `docs/review/zone1-sentences.md`. M3 adds no Spanish.
 - **Design questions raised by M3:**
-  - 96 Learned components, each needing two separate days, is a long road to the first boss.
-    Tune `GATE_THRESHOLD`, `REVIEW_ROUND_SIZE`, or the universe at playtest.
+  - Perk table and warden toughness (`WARDEN_HP`) need tuning at playtest.
+  - The boss fight should reuse the seal decks per phase (#73).
   - Only one sign has a reading choice (#62). More need hand-written, native-checked Spanish.
   - Reading components (`w_*`) sit outside the gate universe.
   - Should Hollow mode count toward mastery? Still open.

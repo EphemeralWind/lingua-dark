@@ -8,12 +8,12 @@ Settled in the design discussion:
 - **Fleeing:** a started fight cannot be fled.
 - **Focus:** removed. Guessing is discouraged by taking the hit, a one-in-four random-guess success rate, stance refill on hits, and the typed riposte.
 - **Reading choices:** signposts and notes in exploration count as untelegraphed contexts for mastery.
-- **Boss gate:** the locked door in front of a boss's arena. It opens when at least 80% of the zone's components are Learned.
+- **Boss gate:** the locked door in front of a boss's arena. It opens when at least 80% of the zone's components are Learned. *(Superseded 2026-11-17 by #73: the gate needs the zone's seals.)*
 
 Still open:
 
 - Whether Hollow mode (no timers) counts toward mastery or only progress.
-- Whether 80% is the right gate threshold.
+- ~~Whether 80% is the right gate threshold.~~ Moot since #73.
 - Which pixel font covers á é í ó ú ñ ü ¿ ¡.
 
 Add new entries below as you make them. Format: date, what you chose, why.
@@ -122,3 +122,19 @@ Each entry: what was ambiguous, the reading picked, and why. Revisit any of them
 70. **What combat records.** Each resolved strike updates the schedule for its components (`strikeComponents`: all of them on a single-blank question, the blank's own on a combo). Riposte typing does not update the schedule.
 71. **World fights publish the same test tags as the practice fight** (`data-phase`, `data-question`, `data-strike`, `data-deadline`, plus `data-scene` and `data-room`), under #35's rule: never the answer. The practice fight stays at `/?seed=N` for the smoke test, and `/` is now the world.
 72. **`$back` follows each room's own way back (fixes #28 as first built).** M3 first made `$back` mean "the room you just left". Going lane → chapel → gate and then back to the chapel made the chapel's `$back` point at the gate, so ↑ and ↓ both led north and there was no way home. Now each room remembers the room it was last entered from going forward (`GameState.backOf`). Walking a `$back` exit leaves the destination's entry alone. #28 still holds: the cellar's way back is whichever side you entered it from. Older saves without `backOf` load with an empty one.
+
+### 2026-11-17: Seals and meta-progression (designer change)
+
+73. **The boss gate needs seals, not 80% Learned.** The designer wants a zone clearable in one sitting; Learned needs answers on two different days, so a Learned gate could not be. Each zone declares seals in its rooms JSON, one per grammar aspect. Each seal is won from one warden, an enemy whose deck is only that seal's templates: Zone 1's are Articles (cellar), Verbs (chapel) and Words (orchard). Every Zone 1 template belongs to exactly one seal. Wardens have `WARDEN_HP` 90 and give `WARDEN_XP` 150 (defaults). They never respawn, and seals last through rests and deaths until New Game. The gate opens with every seal. This is safe under rule zero because wardens are fights. The blind-bot suite now runs every bot on every seal deck as well as the whole deck. Rates are 23.8%–25.9%, and no guesser wins a fight. The articles warden runs 1,500 fights: its questions are all high-damage overheads, so a guesser dies in about four strikes. It is a partial exception to #67: wardens use a restricted deck because each seal group is balanced on its own (articles keeps singular and plural templates per definiteness, as #40 needs). Regular enemies keep the whole deck. A due, ghost or echo target the seal deck cannot show is not targeted in a warden fight. **Boss plan:** phase 1 uses the articles deck, phase 2 the present deck, and phase 3 (blind) mixes all three seal decks.
+74. **Flask power starts at 1, maxes at 2.** This is the designer's change to the design doc's "greys out two". A flask greys one wrong card, and the flask perk raises it to two. It never greys all three: two cards always stay, so the player still has to read. Encounter clamps any configured power to `FLASK_POWER_MAX`.
+75. **Learned is meta-progression.** Knowledge moved out of the run into a profile (`lingua-dark/profile`) that New Game keeps. The run save keeps seals, wardens beaten and the rest. Save format v2: version 1 saves migrate on load, their learner becoming the profile (only if no profile exists yet). An export file bundles run and profile; importing a file without a profile keeps the current one. Perks come from `PERKS` in `tuning.ts`:
+    - 10 Learned: +10 vitality
+    - 25: flask power 2
+    - 40: +3 riposte damage
+    - 60: +10 vitality
+    - 80: +1 flask per rest (the only flask-count perk; flask rewards stay sparse)
+    - 100: +10 vitality
+    - 115: +3 riposte damage
+
+    Perks read `bestLearned`, the highest Learned count ever reached, so un-learning a word (#59) does not shrink max vitality mid-run. Learned still needs untelegraphed typed answers on two days, so a player who cannot read Spanish never earns a perk.
+76. **Dev keys.** F10 grants every seal (dev builds only), next to F8 (skip a day) and F9 (learn all, which now fills the profile and so unlocks every perk).
