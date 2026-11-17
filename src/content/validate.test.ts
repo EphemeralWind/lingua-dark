@@ -48,6 +48,11 @@ describe('content validation', () => {
     ['a reading answer that is not an exit', (c) => (c.rooms.rooms[0].contents.reading.correct = 'north', delete c.rooms.rooms[0].exits.north), /reading answer north is not an exit/],
     ['a reading choice without a sign', (c) => delete c.rooms.rooms[0].contents.sign, /has a reading choice but no sign/],
     ['a reading with fewer than three exits', (c) => (c.rooms.rooms[1].contents.sign = 'x', c.rooms.rooms[1].contents.reading = { goal_en: 'g', correct: 'north', components: ['w'], wrongCost: 'detour' }), /reading choice needs at least three exits/],
+    ['a seal with a missing template', (c) => (c.rooms.seals.words.templates = ['t_nope']), /seal words uses missing template t_nope/],
+    ['a seal with no warden', (c) => delete c.rooms.rooms.find((r: any) => r.id === 'r1_orchard').contents.enemy.seal, /seal words needs exactly one warden, has 0/],
+    ['a seal with two wardens', (c) => (c.rooms.rooms.find((r: any) => r.id === 'r1_lane').contents.enemy.seal = 'words'), /seal words needs exactly one warden, has 2/],
+    ['a warden of an unknown seal', (c) => (c.rooms.rooms.find((r: any) => r.id === 'r1_lane').contents.enemy.seal = 'nope'), /warden guards unknown seal nope/],
+    ['seals without a boss gate', (c) => delete c.rooms.rooms.find((r: any) => r.id === 'r1_gate').exits.north.gate, /declares seals but has no boss gate/],
     ['an item missing from the lexicon', (c) => (c.rooms.rooms[0].contents.item = 'n_grial'), /n_grial is not in the lexicon/],
     ['an unknown enemy attack', (c) => (c.rooms.rooms[1].contents.enemy.attack = 'kick'), /zone1-rooms\.json: rooms\.1\.contents\.enemy\.attack/],
   ])('rejects %s', (_name, mutate, pattern) => {

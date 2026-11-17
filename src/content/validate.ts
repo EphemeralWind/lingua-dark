@@ -94,6 +94,25 @@ function checkRooms(file: string, rooms: RoomsFile, c: Content, errors: string[]
       }
     }
   }
+  const seals = rooms.seals ?? {};
+  const wardens = new Map<string, string[]>();
+  for (const r of rooms.rooms) {
+    const seal = r.contents.enemy?.seal;
+    if (seal === undefined) continue;
+    if (!seals[seal]) errors.push(`${file}: ${r.id} warden guards unknown seal ${seal}`);
+    wardens.set(seal, [...(wardens.get(seal) ?? []), r.id]);
+  }
+  for (const [id, seal] of Object.entries(seals)) {
+    for (const t of seal.templates) {
+      const tmpl = c.templates.find((x) => x.id === t);
+      if (!tmpl) errors.push(`${file}: seal ${id} uses missing template ${t}`);
+      else if (tmpl.zone !== rooms.zone) errors.push(`${file}: seal ${id} uses template ${t} from zone ${tmpl.zone}`);
+    }
+    const n = wardens.get(id)?.length ?? 0;
+    if (n !== 1) errors.push(`${file}: seal ${id} needs exactly one warden, has ${n}`);
+  }
+  const hasGate = rooms.rooms.some((r) => Object.values(r.exits).some((e) => typeof e === 'object' && e?.gate === 'boss'));
+  if (Object.keys(seals).length > 0 && !hasGate) errors.push(`${file}: declares seals but has no boss gate`);
   for (const lock of locks) if (!keys.has(lock)) errors.push(`${file}: door ${lock} is locked but nothing unlocks it`);
   for (const key of keys) if (!locks.has(key)) errors.push(`${file}: exit unlocks ${key} but no door uses it`);
 }

@@ -108,6 +108,8 @@ export const roomsFileSchema = z.strictObject({
   name: z.string(),
   start: z.string(),
   note: z.string().optional(),
+  /** Seals the boss gate needs, one per grammar aspect; each is won from one warden. */
+  seals: z.record(z.string().regex(/^[a-z_]+$/), z.strictObject({ name_en: z.string().min(1), templates: z.array(z.string()).min(1) })).optional(),
   rooms: z
     .array(
       z.strictObject({
@@ -127,7 +129,14 @@ export const roomsFileSchema = z.strictObject({
             })
             .optional(),
           item: z.string().optional(),
-          enemy: z.strictObject({ id: z.string(), attack: z.enum(['jab', 'overhead', 'delayed', 'grab', 'sweep', 'combo']) }).optional(),
+          enemy: z
+            .strictObject({
+              id: z.string(),
+              attack: z.enum(['jab', 'overhead', 'delayed', 'grab', 'sweep', 'combo']),
+              /** Makes this enemy the warden of a seal: its deck is the seal's templates. */
+              seal: z.string().optional(),
+            })
+            .optional(),
           boss: z.strictObject({ id: z.string(), phases: z.array(z.string()).min(1) }).optional(),
           npc: z.strictObject({ id: z.string(), dialogue: z.string() }).optional(),
         }),

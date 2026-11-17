@@ -3,6 +3,31 @@
   "zone": 1,
   "name": "The Hollow Village",
   "start": "r1_bonfire",
+  "seals": {
+    "articles": {
+      "name_en": "Seal of Articles",
+      "templates": [
+        "t_definite_article",
+        "t_indefinite_article",
+        "t_plural_object",
+        "t_indefinite_plural"
+      ]
+    },
+    "present": {
+      "name_en": "Seal of Verbs",
+      "templates": [
+        "t_present_object",
+        "t_combo_two"
+      ]
+    },
+    "words": {
+      "name_en": "Seal of Words",
+      "templates": [
+        "t_vocab_noun",
+        "t_translate_object"
+      ]
+    }
+  },
   "note": "Seed map. Exits are keyed by direction. '$back' returns to the room the player came from. An exit object can carry locked (door id), unlocks (door id it opens), or gate ('boss'). All Spanish text needs native-speaker review.",
   "rooms": [
     {
@@ -55,7 +80,8 @@
       "contents": {
         "enemy": {
           "id": "hollow_monk",
-          "attack": "overhead"
+          "attack": "overhead",
+          "seal": "present"
         },
         "sign": "La puerta del norte está cerrada."
       }
@@ -117,7 +143,8 @@
       "contents": {
         "enemy": {
           "id": "whisperer",
-          "attack": "grab"
+          "attack": "grab",
+          "seal": "articles"
         },
         "sign": "Esta puerta lleva al fuego."
       }
@@ -147,7 +174,8 @@
       "contents": {
         "enemy": {
           "id": "crow",
-          "attack": "jab"
+          "attack": "jab",
+          "seal": "words"
         },
         "sign": "Las manzanas son para todos.",
         "item": "n_manzana",
