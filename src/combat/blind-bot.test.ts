@@ -12,10 +12,13 @@ import { generate } from '../content/generator';
 import { createRng, type Rng } from '../content/rng';
 import type { Template } from '../content/schema';
 import { WARDEN_HP } from '../tuning';
+import { bossIn } from '../world/boss';
 import { sealTemplates } from '../world/seals';
 import { ZONE1 } from '../world/zone';
 import { DIRECTIONS, type Direction } from '../content/types';
+import { cuesBetween } from './cues';
 import { Encounter } from './encounter';
+import { enemyFrame, playerFrame } from './sprites';
 import { animationOf, viewOf, type Animation } from './view';
 
 const FIGHTS = 1000;
@@ -163,11 +166,16 @@ interface Score {
   wins: number;
 }
 
-/** A fight's deck and enemy: the whole zone, or one seal's warden (DECISIONS #73). */
+/** A fight's deck and enemy: the whole zone, one seal's warden (DECISIONS #73), or a boss phase. */
 interface Arena {
   name: string;
   templates: readonly Template[];
   enemyHp?: number;
+  stanceMax?: number;
+  /** Boss flurries: questions chained per exchange (DECISIONS #77). */
+  chain?: number;
+  /** Hollow mode: no timers. */
+  untimed?: boolean;
   /**
    * Fights to play. Article questions are all high-damage overheads, so a guesser dies in
    * about four strikes; the articles warden gets more fights to reach a similar sample.
@@ -183,12 +191,28 @@ const ARENAS: Arena[] = [
     enemyHp: WARDEN_HP,
     fights: id === 'articles' ? FIGHTS * 1.5 : FIGHTS,
   })),
+  // The Zone 1 boss, phase by phase: its own decks, stance meters and chained flurries.
+  ...(bossIn(ZONE1, 'r1_boss_arena')?.phases ?? []).map((p) => ({
+    name: `boss phase ${p.id}`,
+    templates: p.templates,
+    enemyHp: p.hp,
+    stanceMax: p.stanceMax,
+    chain: p.chain,
+    fights: p.id === 'articles_gender' ? FIGHTS * 1.5 : FIGHTS,
+  })),
+  { name: 'whole Zone 1 deck in Hollow mode', templates: zoneTemplates(1), untimed: true, fights: FIGHTS },
 ];
 
 function playFight(bot: Bot, seed: number, arena: Arena): Score {
   const gameRng = createRng(seed);
   const botRng = createRng(seed ^ 0x9e3779b9);
-  const enc = new Encounter(createDeck(gameRng, arena.templates), { zone: 1, ...(arena.enemyHp ? { enemyHp: arena.enemyHp } : {}) });
+  const enc = new Encounter(createDeck(gameRng, arena.templates), {
+    zone: 1,
+    ...(arena.enemyHp ? { enemyHp: arena.enemyHp } : {}),
+    ...(arena.stanceMax ? { stanceMax: arena.stanceMax } : {}),
+    ...(arena.chain ? { chain: arena.chain } : {}),
+    ...(arena.untimed ? { untimed: true } : {}),
+  });
   let now = 0;
   enc.start(now);
 
@@ -247,20 +271,29 @@ describe.each(ARENAS.map((a) => [a.name, a] as const))('blind bot: %s', (_arena,
 describe('wind-up animation carries no answer information', () => {
   it('is identical for every question and every answer direction at the same progress', () => {
     const fractions = [0, 0.1, 0.37, 0.5, 0.92, 0.999];
-    const reference = new Map<number, Animation>();
+    const reference = new Map<number, string>();
+    // The sprite frames and the sound cues are part of what a player sees and hears.
+    const clock = { nowMs: 0, sinceEndMs: 0 };
     for (const template of zoneTemplates(1)) {
       for (let seed = 0; seed < 50; seed++) {
-        const q = generate(template, seed);
-        const enc = new Encounter(() => q, { zone: 1 });
-        enc.start(0);
-        const s = enc.state;
-        if (s.kind !== 'windup') throw new Error('expected wind-up');
-        const span = s.deadlineMs - s.startMs;
-        for (const f of fractions) {
-          const a = animationOf(enc, f * span);
-          const ref = reference.get(f);
-          if (ref) expect(a).toEqual(ref);
-          else reference.set(f, a);
+        for (const config of [{}, { chain: 3 }, { untimed: true }]) {
+          const q = generate(template, seed);
+          const enc = new Encounter(() => q, { zone: 1, ...config });
+          const idle = viewOf(enc, 0);
+          enc.start(0);
+          const s = enc.state;
+          if (s.kind !== 'windup') throw new Error('expected wind-up');
+          const span = s.deadlineMs - s.startMs;
+          let prev = idle;
+          for (const f of fractions) {
+            const view = viewOf(enc, f * span);
+            const a = view.animation;
+            const seen = JSON.stringify({ a: { ...a, timerLeft: null }, enemy: enemyFrame(a, clock), player: playerFrame(a, clock), cues: cuesBetween(prev, view) });
+            prev = view;
+            const ref = reference.get(f);
+            if (ref) expect(seen).toEqual(ref);
+            else reference.set(f, seen);
+          }
         }
       }
     }
@@ -271,6 +304,7 @@ describe('wind-up animation carries no answer information', () => {
     const enc = new Encounter(() => q, { zone: 1 });
     enc.start(0);
     expect(animationOf(enc, 100).toward).toBeNull();
+    expect(animationOf(enc, 100).resolved).toBeNull();
     enc.lockIn('north', 200);
     expect(animationOf(enc, 210).toward).toBe(q.strikes[0]!.correct);
   });

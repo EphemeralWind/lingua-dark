@@ -4,9 +4,10 @@ import { judgeWord } from '../combat/riposte';
 import type { RiposteVerdict } from '../combat/types';
 import type { Question } from '../content/types';
 import type { InputEvent } from '../platform/input';
+import { C } from '../platform/palette';
 import type { Renderer } from '../platform/renderer';
-import type { RiposteInput } from '../platform/riposteInput';
-import { C } from './fight';
+import { completed } from './fight';
+import type { Services } from './services';
 
 type Phase = 'asking' | 'feedback' | 'done';
 
@@ -26,8 +27,7 @@ export class Review {
 
   constructor(
     private readonly questions: readonly Question[],
-    private readonly input: RiposteInput,
-    private readonly setTextMode: (on: boolean) => void,
+    private readonly svc: Services,
     /** Called once per answer with the question and whether it was right. */
     private readonly onAnswer: (q: Question, correct: boolean) => void,
     /** Zone 1 forgives a missing accent (DECISIONS #11). */
@@ -44,7 +44,7 @@ export class Review {
     return this.results.length;
   }
 
-  update(events: InputEvent[]): void {
+  update(events: InputEvent[], nowMs: number): void {
     const q = this.questions[this.index];
     if (this.phase === 'asking' && q) {
       if (!this.open) this.openInput();
@@ -57,11 +57,15 @@ export class Review {
         this.pending = null;
         this.closeInput();
         this.onAnswer(q, verdict !== 'wrong');
+        this.svc.cues.play(verdict === 'wrong' ? 'reviewWrong' : 'reviewRight', nowMs);
+        // The answer is on screen now, so the whole sentence can be heard.
+        this.svc.speech.speak(completed(q));
         this.phase = 'feedback';
       }
       return;
     }
     for (const ev of events) {
+      if (ev.type === 'key' && ev.code === 'KeyR') this.svc.speech.repeat();
       if (ev.type !== 'confirm') continue;
       if (this.phase === 'feedback') {
         this.index += 1;
@@ -79,19 +83,19 @@ export class Review {
 
   private openInput(): void {
     this.open = true;
-    this.setTextMode(true);
-    this.input.open(() => {
-      if (this.phase === 'asking' && this.pending === null) this.pending = this.input.value;
+    this.svc.setTextMode(true);
+    this.svc.riposte.open(() => {
+      if (this.phase === 'asking' && this.pending === null) this.pending = this.svc.riposte.value;
     });
   }
 
   private closeInput(): void {
     this.open = false;
-    this.input.close();
-    this.setTextMode(false);
+    this.svc.riposte.close();
+    this.svc.setTextMode(false);
   }
 
-  render(r: Renderer, footer: string): void {
+  render(r: Renderer, footer: string, nowMs: number): void {
     r.begin(C.sky);
     const g = r.low;
     g.fillStyle = C.floor;
@@ -105,22 +109,23 @@ export class Review {
 
     const total = this.questions.length;
     if (this.phase === 'done') {
-      r.text('REST COMPLETE', 160, 40, { size: 10, align: 'center', bold: true, color: C.signal });
+      r.text('REST COMPLETE', 160, 40, { size: 10, align: 'center', color: C.signal });
       const line = total === 0 ? 'Nothing to review right now.' : `Review: ${this.correctCount} of ${this.answered} correct.`;
       r.text(line, 160, 56, { size: 7, align: 'center' });
       r.text('Vitality and flasks refilled. Enemies have risen again. Game saved.', 160, 70, { size: 6, align: 'center', color: C.dim, maxWidth: 280 });
       r.text(footer, 160, 84, { size: 6, align: 'center', color: C.dim, maxWidth: 280 });
       r.text('Press Enter', 160, 100, { size: 7, align: 'center', color: C.signal });
+      this.svc.cues.draw(r, nowMs, 312, 116);
       return;
     }
 
     const q = this.questions[this.index];
     if (!q) return;
-    r.text(`BONFIRE REVIEW ${this.index + 1}/${total}`, 160, 12, { size: 8, align: 'center', bold: true, color: C.ember });
+    r.text(`BONFIRE REVIEW ${this.index + 1}/${total}`, 160, 12, { size: 8, align: 'center', color: C.ember });
     r.text('Type the missing word. No timer.', 160, 20, { size: 5, align: 'center', color: C.dim });
     const res = this.phase === 'feedback' ? this.results[this.results.length - 1] : undefined;
-    const fill = res ? `[${res.answer}]` : `[${this.input.value}▌]`;
-    r.text(q.sentence.replace('___', fill), 160, 44, { size: 8, align: 'center', maxWidth: 280 });
+    const fill = res ? `[${res.answer}]` : `[${this.svc.riposte.value}▌]`;
+    r.text(q.sentence.replace(/_{2,}/, fill), 160, 44, { size: 10, align: 'center', maxWidth: 284 });
     r.text(q.prompt ?? '', 160, 58, { size: 6, align: 'center', color: C.dim, maxWidth: 280 });
     if (res) {
       const line =
@@ -130,10 +135,11 @@ export class Review {
             ? `≈ ${res.typed} → ${res.answer} (mind the accent)`
             : `✗ ${res.typed || '(blank)'} → ${res.answer}`;
       r.text(line, 160, 76, { size: 7, align: 'center', color: res.verdict === 'wrong' ? C.hurt : C.signal });
-      r.text('Press Enter', 160, 96, { size: 6, align: 'center', color: C.dim });
+      r.text(`Press Enter${this.svc.speech.status.kind === 'voice' ? '   R: hear it again' : ''}`, 160, 96, { size: 6, align: 'center', color: C.dim });
     } else {
       r.text('Enter to answer', 160, 96, { size: 6, align: 'center', color: C.dim });
     }
-    r.text(`${q.id}#${q.seed}`, 316, 176, { size: 4, color: C.enemyDark, align: 'right' });
+    r.text(`${q.id}#${q.seed}`, 316, 176, { size: 4, color: C.cardEdge, align: 'right' });
+    this.svc.cues.draw(r, nowMs, 312, 116);
   }
 }

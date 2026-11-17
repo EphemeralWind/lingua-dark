@@ -3,21 +3,26 @@
 // input, the clock, the renderer and localStorage.
 import { cardRepresentable, templateComponents, zoneComponents } from '../content/components';
 import { createRng } from '../content/rng';
+import type { Template } from '../content/schema';
 import type { Direction } from '../content/types';
 import { Encounter } from '../combat/encounter';
 import { nextPerkAt, perkLines, perksFor, type Perks } from '../learning/perks';
+import type { AnswerContext } from '../learning/mastery';
 import { learnedCount, recordInProfile, type Profile } from '../learning/profile';
 import { createPicker, reviewQuestion, reviewTargets } from '../learning/picker';
+import type { Mood } from '../platform/audio';
 import type { DayClock } from '../platform/clock';
 import { downloadText, pickTextFile } from '../platform/files';
 import type { InputEvent } from '../platform/input';
+import { C } from '../platform/palette';
 import type { Renderer } from '../platform/renderer';
-import type { RiposteInput } from '../platform/riposteInput';
 import type { SaveStore } from '../save/store';
-import { GHOST_HP, GHOST_STANCE_MAX, REVIEW_ROUND_SIZE, ROOM_TRANSITION_MS, WARDEN_HP } from '../tuning';
+import { GHOST_HP, GHOST_STANCE_MAX, PHASE_TRANSITION_MS, REVIEW_ROUND_SIZE, ROOM_TRANSITION_MS, WARDEN_HP } from '../tuning';
+import { bossIn, type BossDef } from '../world/boss';
 import { sealProgress, sealTemplates, socketLine, type SealProgress } from '../world/seals';
 import {
   addGhosts,
+  bossAlive,
   chooseReading,
   die,
   echoAt,
@@ -34,8 +39,9 @@ import {
   type GameState,
 } from '../world/state';
 import { BACK, layoutZone, resolveExit, ZONE1, type Zone } from '../world/zone';
-import { C, Fight } from './fight';
+import { drawArena, Fight } from './fight';
 import { Review } from './review';
+import type { Services } from './services';
 import { drawMap, drawRoom, drawTitle, type ExitLook } from './worldView';
 
 interface FightMode {
@@ -47,6 +53,8 @@ interface FightMode {
   missed: string[];
   /** Component of the last missed strike: the echo's target if the player dies. */
   lastMiss: string | null;
+  /** Boss fights: the phases, the one in play, and the title card between phases. */
+  boss: { def: BossDef; index: number; cardUntil: number | null } | null;
 }
 
 type Mode = { kind: 'title'; confirmNew: boolean } | { kind: 'explore' } | FightMode | { kind: 'review'; review: Review } | { kind: 'map' };
@@ -59,8 +67,6 @@ function enemyLabel(id: string): string {
 }
 
 export interface GameDeps {
-  riposte: RiposteInput;
-  setTextMode: (on: boolean) => void;
   store: SaveStore;
   clock: DayClock;
   /** Dev builds only: F8 skips a day, F9 marks the zone Learned, F10 grants every seal. */
@@ -84,7 +90,10 @@ export class GameScene {
   /** Knowledge and perks that outlive runs (DECISIONS #75). */
   private profile: Profile;
 
-  constructor(private readonly deps: GameDeps) {
+  constructor(
+    private readonly svc: Services,
+    private readonly deps: GameDeps,
+  ) {
     const loaded = deps.store.load();
     this.saved = loaded.game;
     this.profile = loaded.profile;
@@ -113,7 +122,7 @@ export class GameScene {
     return `Learned ${n}/${this.universe.length} (all time).${next === null ? ' All perks earned.' : ` Next perk at ${next}.`}`;
   }
 
-  private record(ids: readonly string[], correct: boolean, ctx: 'combat' | 'review' | 'reading', assisted = false): void {
+  private record(ids: readonly string[], correct: boolean, ctx: AnswerContext, assisted = false): void {
     recordInProfile(this.profile, ids, correct, ctx, this.day, { assisted });
     this.deps.store.saveProfile(this.profile);
   }
@@ -162,6 +171,15 @@ export class GameScene {
     });
   }
 
+  private mood(): Mood {
+    const m = this.mode;
+    if (m.kind === 'title') return 'title';
+    if (m.kind === 'fight') return m.boss ? 'boss' : 'fight';
+    if (m.kind === 'review') return 'rest';
+    const g = this.game;
+    return g && this.zone.room(g.room).contents.bonfire ? 'rest' : 'explore';
+  }
+
   // --- update ----------------------------------------------------------------
 
   update(nowMs: number, events: InputEvent[]): void {
@@ -189,7 +207,7 @@ export class GameScene {
         this.updateFight(m, nowMs, events);
         break;
       case 'review':
-        m.review.update(events);
+        m.review.update(events, nowMs);
         if (m.review.finished) {
           m.review.dispose();
           this.save();
@@ -198,6 +216,7 @@ export class GameScene {
         }
         break;
     }
+    this.svc.sound.setMood(this.mood());
     const ds = document.body.dataset;
     ds['scene'] = this.mode.kind;
     ds['room'] = this.game?.room ?? '';
@@ -270,6 +289,7 @@ export class GameScene {
     const room = this.zone.room(g.room);
     if (enemyAlive(g, this.zone, g.room) && !this.isRetreat(g, dir)) {
       this.say(`The ${enemyLabel(room.contents.enemy?.id ?? 'enemy').toLowerCase()} blocks the way.`, 'Enter: fight.  Or go back.');
+      this.svc.cues.play('blocked', this.now);
       return;
     }
     let res = resolveExit(this.zone, g.room, dir, { cameFrom: g.cameFrom, openDoors: g.openDoors, gateOpen: this.seals().open });
@@ -277,6 +297,7 @@ export class GameScene {
     if (res.kind === 'none' && Object.keys(room.exits).length === 0 && dir === 'south' && g.cameFrom) {
       res = { kind: 'move', to: g.cameFrom, opens: null, back: true };
     }
+    if (res.kind !== 'move') this.svc.cues.play('blocked', this.now);
     switch (res.kind) {
       case 'none':
         this.say('There is no way through there.');
@@ -295,6 +316,9 @@ export class GameScene {
         if (reading) this.deps.store.saveProfile(this.profile);
         if (reading) lines.push(reading.correct ? 'You read the sign right.' : reading.damage > 0 ? `A wrong turn. An ambush! −${reading.damage}` : 'A wrong turn: a detour.');
         walk(g, res.to, res.opens, res.back);
+        this.svc.cues.play('step', this.now);
+        const sign = this.zone.room(g.room).contents.sign;
+        if (sign) this.svc.speech.speak(sign);
         if (res.opens) lines.push('You lift the bar. A shortcut back to the bonfire.');
         lines.push(...this.arrivalLines(g));
         this.enteredAt = this.now;
@@ -310,27 +334,56 @@ export class GameScene {
     const room = this.zone.room(g.room);
     const out: string[] = [];
     const echo = g.echo && g.echo.room === g.room ? g.echo : null;
-    if (echo) out.push(`Your echo lies here (${echo.xp} XP). Beat ${echo.killer === 'enemy' ? 'the foe that killed you' : 'the ghost'} to take it back.`);
+    if (echo) out.push(`Your echo lies here (${echo.xp} XP). Beat ${echo.killer.startsWith('ghost:') ? 'the ghost' : 'the foe that killed you'} to take it back.`);
     const ghosts = g.ghosts[g.room]?.length ?? 0;
     if (ghosts > 0 && !enemyAlive(g, this.zone, g.room)) out.push(`${ghosts} ghost${ghosts > 1 ? 's' : ''} of missed words linger. Enter to face one.`);
     if (room.contents.reading && !g.readingsDone.includes(g.room)) out.push(`Goal: ${room.contents.reading.goal_en}`);
+    const boss = bossIn(this.zone, g.room);
+    if (boss && bossAlive(g, this.zone, g.room)) out.push(`${boss.name} waits. Three phases, the last one blind.`, 'Enter: fight.  ↓: leave.');
     return out;
   }
 
   // --- fights ----------------------------------------------------------------
 
   private startFight(g: GameState, foe: FoeKey): void {
-    const rng = createRng(nextFightSeed(g));
+    if (foe === 'boss') {
+      const def = bossIn(this.zone, g.room);
+      if (def) this.startBossPhase(g, { def, index: 0, cardUntil: null }, [], null);
+      return;
+    }
     const ghost = ghostComponent(foe);
-    const echo = echoAt(g, g.room, foe);
     // A warden asks only its seal's grammar aspect (DECISIONS #73); ghosts and others the whole zone.
     const seal = ghost ? null : this.zone.wardenSeal(g.room);
     const templates = seal ? sealTemplates(this.zone, seal) : undefined;
+    const enemyId = this.zone.room(g.room).contents.enemy?.id ?? 'enemy';
+    const enemyName = enemyLabel(enemyId);
+    const echo = echoAt(g, g.room, foe);
+    const fight = this.makeFight(g, foe, templates, {
+      label: ghost ? 'Ghost' : seal ? `${enemyName} (warden)` : enemyName,
+      character: ghost ? 'ghost' : enemyId,
+      ...(ghost ? { enemyHp: GHOST_HP, stanceMax: GHOST_STANCE_MAX } : seal ? { enemyHp: WARDEN_HP } : {}),
+      ...(echo ? { note: `ECHO ${echo.xp} XP` } : {}),
+    });
+    fight.start(this.now);
+    this.mode = { kind: 'fight', fight, foe, room: g.room, missed: [], lastMiss: null, boss: null };
+    this.message = [];
+  }
+
+  /** One fight against `foe` with a deck (default: the whole zone) and the player's perks. */
+  private makeFight(
+    g: GameState,
+    foe: FoeKey,
+    templates: Template[] | undefined,
+    o: { label: string; character: string; enemyHp?: number; stanceMax?: number; chain?: number; note?: string; blind?: boolean; arena?: 'boss' },
+  ): Fight {
+    const rng = createRng(nextFightSeed(g));
+    const ghost = ghostComponent(foe);
+    const echo = echoAt(g, g.room, foe);
     const among = templates ? [...new Set(templates.flatMap((t) => templateComponents(t)))] : this.universe;
     const target = ghost ?? echo?.target ?? null;
     const picker = createPicker({
       rng: createRng(rng.nextSeed()),
-      // A target the seal deck cannot show falls back to the deck's own due-first order.
+      // A target the deck cannot show falls back to the deck's own due-first order.
       target: target && among.includes(target) ? target : null,
       learner: () => ({ state: this.profile.learner, day: this.day }),
       among,
@@ -344,33 +397,73 @@ export class GameScene {
       riposteDamage: perks.riposteDamage,
       flaskPower: perks.flaskPower,
       flaskRng: createRng(rng.nextSeed()),
-      ...(ghost ? { enemyHp: GHOST_HP, stanceMax: GHOST_STANCE_MAX } : seal ? { enemyHp: WARDEN_HP } : {}),
+      untimed: this.svc.settings.hollow,
+      ...(o.enemyHp !== undefined ? { enemyHp: o.enemyHp } : {}),
+      ...(o.stanceMax !== undefined ? { stanceMax: o.stanceMax } : {}),
+      ...(o.chain !== undefined ? { chain: o.chain } : {}),
     });
-    const enemyName = enemyLabel(this.zone.room(g.room).contents.enemy?.id ?? 'enemy');
-    const label = ghost ? 'Ghost' : seal ? `${enemyName} (warden)` : enemyName;
-    const fight = new Fight(enc, this.deps.riposte, this.deps.setTextMode, {
-      label,
-      ghost: ghost !== null,
+    return new Fight(enc, this.svc, {
+      label: o.label,
+      character: o.character,
       flasks: { count: () => g.flasks, spend: () => (g.flasks = Math.max(0, g.flasks - 1)), power: perks.flaskPower },
+      ...(o.note ? { note: o.note } : {}),
+      ...(o.blind ? { blind: true } : {}),
+      ...(o.arena ? { arena: o.arena } : {}),
+    });
+  }
+
+  /** Starts boss phase `boss.index`; vitality carries over from the phase before. */
+  private startBossPhase(g: GameState, boss: NonNullable<FightMode['boss']>, missed: string[], lastMiss: string | null): void {
+    const phase = boss.def.phases[boss.index];
+    if (!phase) return;
+    const echo = echoAt(g, g.room, 'boss');
+    const fight = this.makeFight(g, 'boss', phase.templates, {
+      label: `${boss.def.name} ${boss.index + 1}/${boss.def.phases.length}`,
+      character: boss.def.id,
+      enemyHp: phase.hp,
+      stanceMax: phase.stanceMax,
+      chain: phase.chain,
+      blind: phase.blind,
+      arena: 'boss',
       ...(echo ? { note: `ECHO ${echo.xp} XP` } : {}),
     });
-    fight.start(this.now);
-    this.mode = { kind: 'fight', fight, foe, room: g.room, missed: [], lastMiss: null };
+    // Each phase opens on a title card; the fight starts when it ends.
+    this.mode = { kind: 'fight', fight, foe: 'boss', room: g.room, missed, lastMiss, boss: { ...boss, cardUntil: this.now + PHASE_TRANSITION_MS } };
+    this.svc.cues.play('phase', this.now);
     this.message = [];
   }
 
   private updateFight(m: FightMode, nowMs: number, events: InputEvent[]): void {
     const g = this.game;
     if (!g) return;
+    if (m.boss?.cardUntil !== null && m.boss?.cardUntil !== undefined) {
+      // Phase title card: Enter skips it.
+      if (nowMs >= m.boss.cardUntil || events.some((ev) => ev.type === 'confirm')) {
+        m.boss.cardUntil = null;
+        m.fight.start(nowMs);
+      }
+      return;
+    }
     if (m.fight.finished) {
-      if (events.some((ev) => ev.type === 'confirm' || ev.type === 'point')) this.endFight(g, m);
+      if (!events.some((ev) => ev.type === 'confirm' || ev.type === 'point')) return;
+      const next = m.boss && m.fight.won ? m.boss.def.phases[m.boss.index + 1] : undefined;
+      if (m.boss && next) {
+        m.fight.dispose();
+        g.vitality = m.fight.enc.vitality;
+        this.startBossPhase(g, { ...m.boss, index: m.boss.index + 1 }, m.missed, m.lastMiss);
+      } else {
+        this.endFight(g, m);
+      }
       return;
     }
     for (const ev of events) m.fight.handle(ev);
     m.fight.update(nowMs);
     for (const rec of m.fight.drainLog()) {
       const parried = rec.result === 'parry';
-      this.record(rec.components, parried, 'combat', rec.assisted);
+      // A blind round is untelegraphed, so it counts toward mastery (DECISIONS #29), unless a
+      // flask helped; ordinary combat only moves the schedule.
+      const ctx = m.fight.blind && !rec.assisted ? 'blind' : 'combat';
+      this.record(rec.components, parried, ctx, rec.assisted);
       if (!parried) {
         const c = rec.components.find((x) => cardRepresentable(x)) ?? null;
         if (c) m.missed.push(c);
@@ -386,11 +479,15 @@ export class GameScene {
     if (m.fight.won) {
       const { recovered, seal } = winFight(g, this.zone, m.room, m.foe);
       addGhosts(g, m.room, m.missed.filter((c) => c !== ghost));
-      const lines = [ghost ? 'The ghost fades.' : 'The foe falls.'];
-      if (seal) lines.push(`You take the ${this.zone.seals[seal]?.name_en ?? seal}. ${socketLine(this.seals())}`);
+      const lines = [m.boss ? `${m.boss.def.name} falls silent. The Hollow Village is free.` : ghost ? 'The ghost fades.' : 'The foe falls.'];
+      if (seal) {
+        lines.push(`You take the ${this.zone.seals[seal]?.name_en ?? seal}. ${socketLine(this.seals())}`);
+        this.svc.cues.play('seal', this.now);
+      }
       if (recovered > 0) lines.push(`Echo recovered: +${recovered} XP.`);
       const ghosts = g.ghosts[m.room]?.length ?? 0;
       if (ghosts > 0) lines.push(`${ghosts} ghost${ghosts > 1 ? 's' : ''} of missed words linger here.`);
+      if (m.boss) lines.push('Zone 1 cleared. The road to the Drowned Library is not built yet.');
       this.say(...lines);
     } else {
       addGhosts(g, m.room, m.missed);
@@ -412,13 +509,8 @@ export class GameScene {
     const targets = reviewTargets(this.profile.learner, this.universe, day, REVIEW_ROUND_SIZE, rng);
     const questions = targets.flatMap((t) => reviewQuestion(rng, t) ?? []);
     this.save();
-    const review = new Review(
-      questions,
-      this.deps.riposte,
-      this.deps.setTextMode,
-      (q, correct) => this.record(q.components, correct, 'review'),
-      g.zone <= 1,
-    );
+    const review = new Review(questions, this.svc, (q, correct) => this.record(q.components, correct, 'review'), g.zone <= 1);
+    this.svc.cues.play('bonfire', this.now);
     this.mode = { kind: 'review', review };
     this.message = [];
   }
@@ -434,25 +526,31 @@ export class GameScene {
         m.kind === 'title' && m.confirmNew
           ? ['Press N again to erase your save and start over', 'Esc: cancel']
           : saved
-            ? ['Enter: continue', 'N: new game   I: import save']
-            : ['Enter: new game', 'I: import save'];
+            ? ['Enter: continue', 'N: new game   I: import save   O: settings']
+            : ['Enter: new game', 'I: import save   O: settings'];
       const perks = perkLines(this.profile.bestLearned);
       drawTitle(r, lines, [this.learnedLine(), perks.length > 0 ? `Perks: ${perks.join(', ')}` : 'Perks: none yet. Learn words at the bonfire.'], this.titleError);
       return;
     }
     if (m.kind === 'fight') {
+      if (m.boss?.cardUntil !== null && m.boss?.cardUntil !== undefined) {
+        this.drawPhaseCard(r, nowMs, m.boss);
+        return;
+      }
       const view = m.fight.render(r, nowMs);
       if (view.phase === 'won' || view.phase === 'lost') {
         const won = view.phase === 'won';
-        r.text(won ? 'FOE DEFEATED' : 'YOU DIED', 160, 60, { size: 14, align: 'center', bold: true, color: won ? C.signal : C.hurt });
-        r.text('Press Enter', 160, 78, { size: 7, align: 'center', color: C.dim });
+        const more = won && m.boss && m.boss.index + 1 < m.boss.def.phases.length;
+        const title = won ? (more ? `PHASE ${(m.boss?.index ?? 0) + 1} BROKEN` : m.boss ? 'THE BELL FALLS SILENT' : 'FOE DEFEATED') : 'YOU DIED';
+        r.text(title, 160, 60, { size: 14, align: 'center', color: won ? C.signal : C.hurt, outline: C.void, maxWidth: 300 });
+        r.text(more ? 'Press Enter for the next phase' : 'Press Enter', 160, 78, { size: 7, align: 'center', color: C.dim, outline: C.void });
       }
       return;
     }
     const seals = this.seals();
     const perks = this.perks();
     if (m.kind === 'review') {
-      m.review.render(r, this.learnedLine());
+      m.review.render(r, this.learnedLine(), nowMs);
       return;
     }
     if (m.kind === 'map') {
@@ -487,14 +585,22 @@ export class GameScene {
     }
     if (Object.keys(room.exits).length === 0 && g.cameFrom) exits.south = 'open';
     const alive = enemyAlive(g, this.zone, g.room);
-    const fade = nowMs - this.enteredAt < ROOM_TRANSITION_MS ? (nowMs - this.enteredAt) / ROOM_TRANSITION_MS : null;
-    const hint = alive ? 'Enter: fight   M: map' : room.contents.bonfire ? 'Enter: rest   M: map' : (g.ghosts[g.room]?.length ?? 0) > 0 ? 'Enter: face a ghost   M: map' : 'Arrows: walk   M: map';
+    const boss = bossAlive(g, this.zone, g.room) ? bossIn(this.zone, g.room) : null;
+    // Reduced motion: rooms cut instead of fading in.
+    const fade = !this.svc.settings.reducedMotion && nowMs - this.enteredAt < ROOM_TRANSITION_MS ? (nowMs - this.enteredAt) / ROOM_TRANSITION_MS : null;
+    const hint = alive || boss ? 'Enter: fight   M: map' : room.contents.bonfire ? 'Enter: rest   M: map' : (g.ghosts[g.room]?.length ?? 0) > 0 ? 'Enter: face a ghost   M: map' : 'Arrows: walk   M: map';
     const warden = this.zone.wardenSeal(g.room);
-    const name = enemyLabel(room.contents.enemy?.id ?? 'enemy');
-    drawRoom(r, {
+    const enemyId = room.contents.enemy?.id ?? 'enemy';
+    const name = enemyLabel(enemyId);
+    drawRoom(r, this.svc.sprites, nowMs, {
       room,
       exits,
-      enemyName: alive ? (warden ? `${name}: warden of the ${this.zone.seals[warden]?.name_en ?? warden}` : name) : null,
+      enemy: boss
+        ? { name: boss.name, character: boss.id, warden: false }
+        : alive
+          ? { name: warden ? `${name}: warden of the ${this.zone.seals[warden]?.name_en ?? warden}` : name, character: enemyId, warden: warden !== null }
+          : null,
+      bossBeaten: room.contents.boss !== undefined && !boss,
       ghosts: g.ghosts[g.room]?.length ?? 0,
       echo: g.echo && g.echo.room === g.room ? g.echo : null,
       readingGoal: room.contents.reading && !g.readingsDone.includes(g.room) ? room.contents.reading.goal_en : null,
@@ -502,6 +608,24 @@ export class GameScene {
       hint,
       message: this.message,
       fade,
+      calm: this.svc.settings.reducedMotion,
     });
+    this.svc.cues.draw(r, nowMs, 312, 40);
+  }
+
+  /** Title card before each boss phase (with its sound, the visual twin of the bell). */
+  private drawPhaseCard(r: Renderer, nowMs: number, boss: NonNullable<FightMode['boss']>): void {
+    const phase = boss.def.phases[boss.index];
+    r.begin(C.bossDeep);
+    drawArena(r, nowMs, 'boss', this.svc.settings.reducedMotion);
+    r.low.fillStyle = 'rgba(11,13,18,0.75)';
+    r.low.fillRect(0, 40, 320, 80);
+    r.present();
+    r.text(boss.def.name.toUpperCase(), 160, 54, { size: 8, align: 'center', color: C.dim, outline: C.void });
+    r.text(`PHASE ${boss.index + 1} OF ${boss.def.phases.length}`, 160, 72, { size: 14, align: 'center', color: C.signal, outline: C.void });
+    r.text(phase?.name ?? '', 160, 90, { size: 8, align: 'center', outline: C.void, maxWidth: 300 });
+    if (phase?.blind) r.text('The bell hides. No cues: read the Spanish, or listen (R repeats).', 160, 104, { size: 6, align: 'center', color: C.dim, maxWidth: 300 });
+    r.text('Enter to begin', 160, 114, { size: 6, align: 'center', color: C.dim });
+    this.svc.cues.draw(r, nowMs, 312, 132);
   }
 }

@@ -1,12 +1,17 @@
 // Drawing for the world: rooms (placeholder backdrops with exits and contents), the map,
 // and the title. Flat shapes on the 320x180 buffer, text on the display layer. Exits never
 // name the room behind them, so a sign's reading choice cannot be read off the screen.
+import { enemyFrame, playerFrame } from '../combat/sprites';
+import type { Animation } from '../combat/view';
 import type { Direction } from '../content/types';
-import type { SealProgress } from '../world/seals';
+import type { SpriteBank } from '../platform/atlas';
+import { C } from '../platform/palette';
 import type { Renderer } from '../platform/renderer';
+import type { SealProgress } from '../world/seals';
 import type { Echo } from '../world/state';
 import { edgeKey, exitTarget, type Room } from '../world/zone';
-import { C } from './fight';
+
+const IDLE: Animation = { enemyPose: 'idle', progress: 0, toward: null, playerPose: 'idle', flash: 'none', timerLeft: null, frozen: false, resolved: null };
 
 /** Palette swaps per backdrop type (SPEC 7: about five backdrops per zone). */
 const BACKDROP: Record<string, { wall: string; floor: string; far: string }> = {
@@ -23,7 +28,10 @@ export type ExitLook = 'open' | 'locked' | 'sealed' | 'gateOpen';
 export interface RoomScene {
   room: Room;
   exits: Partial<Record<Direction, ExitLook>>;
-  enemyName: string | null;
+  /** The living foe in plain view (enemy, warden or boss). */
+  enemy: { name: string; character: string; warden: boolean } | null;
+  /** The arena after its boss fell. */
+  bossBeaten: boolean;
   ghosts: number;
   echo: Echo | null;
   /** Pending reading goal (English), shown under the sign until the choice is made. */
@@ -33,9 +41,11 @@ export interface RoomScene {
   message: string[];
   /** 0 to 1 through the room-entry fade, or null. */
   fade: number | null;
+  /** Reduced motion: no flicker. */
+  calm: boolean;
 }
 
-export function drawRoom(r: Renderer, s: RoomScene): void {
+export function drawRoom(r: Renderer, sprites: SpriteBank, nowMs: number, s: RoomScene): void {
   const pal = BACKDROP[s.room.backdrop] ?? { wall: '#262d3d', floor: '#2f3748', far: '#191e2a' };
   r.begin(C.sky);
   const g = r.low;
@@ -85,10 +95,15 @@ export function drawRoom(r: Renderer, s: RoomScene): void {
 
   const c = s.room.contents;
   if (c.bonfire) {
+    // Beside the player, clear of the message box. The flame flickers unless motion is reduced.
+    const lick = s.calm ? 0 : Math.floor(nowMs / 160) % 2;
+    g.fillStyle = C.emberDark;
+    for (let i = 0; i < 12; i++) g.fillRect(232 - (12 - i), 156 - i * 2 - lick, (12 - i) * 2, 2);
     g.fillStyle = C.ember;
-    for (let i = 0; i < 10; i++) g.fillRect(200 - (10 - i), 130 - i * 2, (10 - i) * 2, 2);
-    g.fillStyle = C.enemyDark;
-    g.fillRect(186, 130, 28, 3);
+    for (let i = 0; i < 8; i++) g.fillRect(232 - (8 - i), 156 - i * 2, (8 - i) * 2, 2);
+    g.fillStyle = C.wood;
+    g.fillRect(216, 156, 32, 3);
+    g.fillRect(220, 159, 24, 2);
   }
   if (s.echo) {
     // Echo: a ring on the floor.
@@ -98,31 +113,24 @@ export function drawRoom(r: Renderer, s: RoomScene): void {
     g.fillRect(102, 129, 1, 7);
     g.fillRect(125, 129, 1, 7);
   }
-  if (s.enemyName) {
-    g.fillStyle = C.enemy;
-    g.fillRect(146, 66, 28, 40);
-    g.fillRect(152, 56, 16, 12);
-    g.fillStyle = C.sky;
-    g.fillRect(155, 60, 3, 2);
-    g.fillRect(162, 60, 3, 2);
-  }
+  const clock = { nowMs, sinceEndMs: 0 };
   for (let i = 0; i < s.ghosts; i++) {
-    // Ghosts: hollow outlines along the left wall.
-    const x = 80 + i * 18;
-    g.fillStyle = C.dim;
-    g.fillRect(x, 84, 12, 22);
-    g.fillRect(x + 2, 78, 8, 7);
-    g.fillStyle = pal.floor;
-    g.fillRect(x + 1, 86, 10, 19);
-    g.fillRect(x + 3, 79, 6, 5);
+    // Ghosts: hollow outlines, small and far, along the left wall.
+    sprites.draw(g, 'ghost', enemyFrame(IDLE, { nowMs: nowMs + i * 300, sinceEndMs: 0 }), 92 + i * 18, 110, { half: true });
+  }
+  if (s.enemy) sprites.draw(g, s.enemy.character, enemyFrame(IDLE, clock), 160, 112);
+  if (s.bossBeaten) {
+    // The silent bell lies on its side.
+    g.fillStyle = C.bossMid;
+    g.fillRect(132, 98, 56, 12);
+    g.fillStyle = C.bossDeep;
+    g.fillRect(180, 96, 10, 16);
   }
 
-  // Player from behind.
-  g.fillStyle = C.playerEdge;
-  g.fillRect(136, 142, 48, 38);
-  g.fillStyle = C.player;
-  g.fillRect(138, 144, 44, 36);
-  g.fillRect(151, 128, 18, 16);
+  // Player from behind; walks while the room fades in.
+  const walking = s.fade !== null;
+  const pf = walking ? { tag: 'walk', frame: Math.floor(nowMs / 120) % 4, flip: false } : playerFrame(IDLE, clock);
+  sprites.draw(g, 'player', pf, 160, 186);
 
   // HUD bars.
   g.fillStyle = C.barBack;
@@ -155,11 +163,14 @@ export function drawRoom(r: Renderer, s: RoomScene): void {
   arrow('west', 47, 64);
   arrow('east', 273, 64);
   arrow('south', 160, 164);
-  if (s.enemyName) r.text(s.enemyName, 160, 48, { size: 6, align: 'center', color: C.hurt, maxWidth: 220 });
+  if (s.enemy) {
+    // Wardens: the seal diamond by the name, as well as the crown on the sprite.
+    r.text(`${s.enemy.warden ? '◆ ' : ''}${s.enemy.name}`, 160, 38, { size: 6, align: 'center', color: C.hurt, maxWidth: 260, outline: C.void });
+  }
   if (s.ghosts > 0) r.text(`ghost ×${s.ghosts}`, 80 + s.ghosts * 9, 74, { size: 5, align: 'center', color: C.dim });
   if (s.echo) r.text(`echo ${s.echo.xp} XP`, 114, 142, { size: 5, align: 'center', color: C.signal });
-  if (c.bonfire) r.text('bonfire', 200, 138, { size: 5, align: 'center', color: C.ember });
-  if (c.boss) r.text('The arena is silent. (Boss fight: a later milestone.)', 160, 40, { size: 6, align: 'center', color: C.dim });
+  if (c.bonfire) r.text('bonfire', 232, 166, { size: 5, align: 'center', color: C.ember, outline: C.void });
+  if (s.bossBeaten) r.text('The arena is silent. The Hollow Village is free.', 160, 38, { size: 6, align: 'center', color: C.dim, outline: C.void });
 
   s.message.forEach((line, i) => r.text(line, 160, 113 + i * 9, { size: 6, align: 'center', maxWidth: 232 }));
 
@@ -229,7 +240,7 @@ export function drawMap(r: Renderer, s: MapScene): void {
   }
   r.present();
 
-  r.text('MAP', 160, 8, { size: 8, align: 'center', bold: true });
+  r.text('MAP', 160, 8, { size: 8, align: 'center' });
   for (const room of shown) {
     const p = at(room.id);
     const marks = [
@@ -248,7 +259,7 @@ export function drawMap(r: Renderer, s: MapScene): void {
 export function drawTitle(r: Renderer, lines: string[], profile: string[], error: string | null): void {
   r.begin(C.sky);
   r.present();
-  r.text('LINGUA DARK', 160, 34, { size: 14, align: 'center', bold: true });
+  r.text('LINGUA DARK', 160, 34, { size: 14, align: 'center' });
   r.text('The Hollow Village', 160, 50, { size: 7, align: 'center', color: C.dim });
   lines.forEach((line, i) => r.text(line, 160, 76 + i * 11, { size: 7, align: 'center', color: i === 0 ? C.signal : C.text }));
   profile.forEach((line, i) => r.text(line, 160, 120 + i * 9, { size: 6, align: 'center', color: C.dim, maxWidth: 300 }));
