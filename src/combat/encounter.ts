@@ -33,6 +33,13 @@ export interface EncounterConfig {
   flaskPower?: number;
   /** Damage per correct riposte word (perks raise it). */
   riposteDamage?: number;
+  /**
+   * Questions per exchange (default 1). A boss chains several questions into one flurry: the
+   * combo-clear bonus needs every strike of the whole chain parried (DECISIONS #77).
+   */
+  chain?: number;
+  /** Hollow mode: no timers. A wind-up never times out; a late answer parries at the floor. */
+  untimed?: boolean;
 }
 
 export class Encounter {
@@ -41,8 +48,14 @@ export class Encounter {
   vitality: number;
   readonly log: ExchangeRecord[] = [];
   private current: EncounterState = { kind: 'idle' };
-  /** True while every strike of the current question has been parried. */
+  /** True while every strike of the current exchange (question or chain) has been parried. */
   private cleanSoFar = true;
+  /** Questions answered so far in the current chain, and strikes across them. */
+  private chainIndex = 0;
+  private chainStrikes = 0;
+  readonly chainLength: number;
+  /** Hollow mode (no timers). Can change mid-fight from the settings menu. */
+  untimed: boolean;
   private readonly zone: number;
   private readonly nextQuestion: () => Question;
   private readonly flaskRng: Rng | null;
@@ -60,6 +73,13 @@ export class Encounter {
     this.flaskRng = config.flaskRng ?? null;
     this.flaskPower = Math.max(1, Math.min(FLASK_POWER_MAX, config.flaskPower ?? FLASK_POWER_BASE));
     this.riposteDamage = config.riposteDamage ?? RIPOSTE_DAMAGE_PER_WORD;
+    this.chainLength = Math.max(1, Math.floor(config.chain ?? 1));
+    this.untimed = config.untimed ?? false;
+  }
+
+  /** Position in the current chain: 0-based question index and the chain length. */
+  get chainPosition(): { index: number; length: number } {
+    return { index: this.chainIndex, length: this.chainLength };
   }
 
   get state(): EncounterState {
@@ -89,7 +109,7 @@ export class Encounter {
     const s = this.current;
     switch (s.kind) {
       case 'windup':
-        if (nowMs >= s.deadlineMs) this.resolve(null, s.deadlineMs);
+        if (!this.untimed && nowMs >= s.deadlineMs) this.resolve(null, s.deadlineMs);
         return;
       case 'resolving':
         if (nowMs < s.untilMs) return;
@@ -99,6 +119,9 @@ export class Encounter {
           this.current = { kind: 'riposte', question: s.question, typed: [] };
         } else if (s.strike + 1 < s.question.strikes.length) {
           this.beginStrike(s.question, s.strike + 1, nowMs);
+        } else if (this.chainIndex + 1 < this.chainLength) {
+          this.chainIndex += 1;
+          this.beginStrike(this.nextQuestion(), 0, nowMs);
         } else {
           this.beginQuestion(nowMs);
         }
@@ -124,6 +147,12 @@ export class Encounter {
   lockIn(dir: Direction, atMs: number): boolean {
     const s = this.current;
     if (s.kind !== 'windup') return false;
+    if (this.untimed) {
+      if (s.greyed.includes(dir)) return false;
+      // No deadline: past the window, quality is 0 and the drain sits at the floor.
+      this.resolve(dir, Math.min(Math.max(atMs, s.startMs), s.deadlineMs));
+      return true;
+    }
     if (s.greyed.includes(dir) && atMs < s.deadlineMs) return false;
     if (atMs >= s.deadlineMs) {
       this.resolve(null, s.deadlineMs);
@@ -166,12 +195,15 @@ export class Encounter {
     };
   }
 
+  /** Starts a new exchange: the first question of a chain. */
   private beginQuestion(nowMs: number): void {
+    this.chainIndex = 0;
+    this.chainStrikes = 0;
+    this.cleanSoFar = true;
     this.beginStrike(this.nextQuestion(), 0, nowMs);
   }
 
   private beginStrike(question: Question, strike: number, nowMs: number): void {
-    if (strike === 0) this.cleanSoFar = true;
     const attack = attackFor(question.kind);
     this.current = { kind: 'windup', question, strike, startMs: nowMs, deadlineMs: nowMs + windowMs(attack, this.zone), greyed: [] };
   }
@@ -196,8 +228,9 @@ export class Encounter {
       this.cleanSoFar = false;
     }
 
-    const isLast = s.strike === s.question.strikes.length - 1;
-    const comboCleared = parried && isLast && s.question.strikes.length > 1 && this.cleanSoFar;
+    this.chainStrikes += 1;
+    const isLast = s.strike === s.question.strikes.length - 1 && this.chainIndex === this.chainLength - 1;
+    const comboCleared = parried && isLast && this.chainStrikes > 1 && this.cleanSoFar;
     if (comboCleared) e.stance -= COMBO_CLEAR_BONUS * e.stanceMax;
     e.stance = Math.max(0, e.stance);
 

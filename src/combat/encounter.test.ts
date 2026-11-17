@@ -340,3 +340,75 @@ describe('Encounter: flasks and the exchange log', () => {
     ]);
   });
 });
+
+describe('Encounter: boss chains (DECISIONS #77)', () => {
+  it('chains several questions into one exchange, each with its own wind-up', () => {
+    let served = 0;
+    const q = question('grammar', [N]);
+    const enc = new Encounter(() => (served++, q), { zone: 1, chain: 3, stanceMax: 1000 });
+    let now = 0;
+    enc.start(now);
+    for (let i = 0; i < 3; i++) {
+      expect(enc.chainPosition).toEqual({ index: i, length: 3 });
+      enc.lockIn(N, now);
+      now += RESOLVE_MS;
+      enc.tick(now);
+    }
+    expect(served).toBe(4);
+    expect(enc.chainPosition.index).toBe(0);
+  });
+
+  it('the combo bonus needs every strike of the whole chain parried', () => {
+    const q = question('grammar', [N]);
+    const clean = setup(q, { chain: 2 });
+    clean.lock(N);
+    expect(expectKind(clean.enc.state, 'resolving').comboCleared).toBe(false);
+    clean.advance(RESOLVE_MS);
+    clean.lock(N);
+    expect(expectKind(clean.enc.state, 'resolving').comboCleared).toBe(true);
+    // 25 + 25 + 25 bonus.
+    expect(clean.enc.enemy.stance).toBe(25);
+
+    const dirty = setup(q, { chain: 2 });
+    dirty.lock(E);
+    dirty.advance(RESOLVE_MS);
+    dirty.lock(N);
+    expect(expectKind(dirty.enc.state, 'resolving').comboCleared).toBe(false);
+  });
+
+  it('a single question with chain 1 never earns the bonus', () => {
+    const t = setup(question('grammar', [N]));
+    t.lock(N);
+    expect(expectKind(t.enc.state, 'resolving').comboCleared).toBe(false);
+  });
+});
+
+describe('Encounter: Hollow mode (no timers)', () => {
+  it('a wind-up never times out', () => {
+    const t = setup(question('grammar', [N]), { untimed: true });
+    t.advance(60_000);
+    expectKind(t.enc.state, 'windup');
+  });
+
+  it('a late answer still parries, at the stance floor', () => {
+    const t = setup(question('grammar', [N]), { untimed: true });
+    expect(t.lock(N, 60_000)).toBe(true);
+    const s = expectKind(t.enc.state, 'resolving');
+    expect(s.result).toBe('parry');
+    expect(s.quality).toBe(0);
+    expect(t.enc.enemy.stance).toBe(100 - 25 * 0.25);
+  });
+
+  it('an early answer keeps its quality', () => {
+    const t = setup(question('grammar', [N]), { untimed: true });
+    t.lock(N);
+    expect(expectKind(t.enc.state, 'resolving').quality).toBe(1);
+  });
+
+  it('can be switched on mid-wind-up', () => {
+    const t = setup(question('grammar', [N]));
+    t.enc.untimed = true;
+    t.advance(60_000);
+    expectKind(t.enc.state, 'windup');
+  });
+});

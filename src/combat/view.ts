@@ -23,6 +23,8 @@ export interface Animation {
   timerLeft: number | null;
   /** True during hit-stop, when motion freezes. */
   frozen: boolean;
+  /** How the strike resolved; null until lock-in or window close. */
+  resolved: 'parry' | 'perfect' | 'hit' | null;
 }
 
 export interface Hud {
@@ -49,6 +51,9 @@ export interface Prompt {
   prompt: string;
   strike: number;
   strikeCount: number;
+  /** Position in a boss flurry (chain): 0-based question index and chain length. */
+  chainIndex: number;
+  chainLength: number;
   /** Bug-report tag: question id and seed. Not the answer. */
   tag: string;
 }
@@ -83,6 +88,7 @@ const REST: Animation = {
   flash: 'none',
   timerLeft: null,
   frozen: false,
+  resolved: null,
 };
 
 export function animationOf(enc: Encounter, nowMs: number): Animation {
@@ -90,15 +96,16 @@ export function animationOf(enc: Encounter, nowMs: number): Animation {
   switch (s.kind) {
     case 'windup': {
       const progress = clamp01((nowMs - s.startMs) / (s.deadlineMs - s.startMs));
-      return { ...REST, enemyPose: 'windup', progress, playerPose: 'guard', timerLeft: 1 - progress };
+      // Hollow mode has no timer: the wind-up holds its last pose until the player answers.
+      return { ...REST, enemyPose: 'windup', progress, playerPose: 'guard', timerLeft: enc.untimed ? null : 1 - progress };
     }
     case 'resolving': {
       const elapsed = nowMs - s.startMs;
       const frozen = elapsed < HIT_STOP_MS;
       const progress = frozen ? 0 : clamp01((elapsed - HIT_STOP_MS) / (s.untilMs - s.startMs - HIT_STOP_MS));
       const parried = s.result === 'parry';
-      let flash: Flash = 'none';
-      if (elapsed < PARRY_FLASH_MS) flash = parried ? (s.quality >= PERFECT_PARRY_Q ? 'perfect' : 'parry') : 'hit';
+      const resolved = parried ? (s.quality >= PERFECT_PARRY_Q ? 'perfect' : 'parry') : 'hit';
+      const flash: Flash = elapsed < PARRY_FLASH_MS ? resolved : 'none';
       return {
         enemyPose: parried ? (s.stanceBroken ? 'staggered' : 'recoil') : 'strike',
         progress,
@@ -107,6 +114,7 @@ export function animationOf(enc: Encounter, nowMs: number): Animation {
         flash,
         timerLeft: null,
         frozen,
+        resolved,
       };
     }
     case 'riposte':
@@ -152,6 +160,8 @@ export function viewOf(enc: Encounter, nowMs: number): EncounterView {
       prompt: s.question.prompt ?? '',
       strike: s.strike,
       strikeCount: s.question.strikes.length,
+      chainIndex: enc.chainPosition.index,
+      chainLength: enc.chainPosition.length,
       tag: `${s.question.id}#${s.question.seed}`,
     };
   } else if (s.kind === 'riposte' || s.kind === 'riposteResult') {
