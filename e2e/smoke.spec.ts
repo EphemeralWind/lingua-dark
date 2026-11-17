@@ -16,6 +16,14 @@ function questionFromTag(tag: string): Question {
   return rebuild(tag);
 }
 
+// Chromium speaks through the OS text-to-speech engine, which --mute-audio does not reach,
+// so the test would read every question aloud. Swallow utterances; voice lookup still runs.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    if ('speechSynthesis' in window) window.speechSynthesis.speak = () => {};
+  });
+});
+
 test('boots and clears a first encounter', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
