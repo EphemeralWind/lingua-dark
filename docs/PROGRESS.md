@@ -200,12 +200,23 @@ Decisions #77–#90.
   - The settings menu toggles and saves. In Hollow mode a wind-up was still open after 9 s. Larger text works.
   - Reduced motion removes the full-screen flash and keeps the steady parry ring and star.
 
+### After M4: hand-drawn art sample (#91)
+
+- `art/` holds hand-drawn sprites: the player (48×64, from behind) and the Hollow Monk warden
+  (64×64, crown and seal diamond), every SPEC 8 tag. `npm run build-art` writes
+  `public/art/atlas.{json,png}`; `art/art.test.ts` checks tags, sizes, the crown in every warden
+  frame, PNG round-trip, and that the committed files match a fresh build.
+- Review: `/art-test.html` (drawn vs placeholder, `?scale=N`), `/?seed=N&enemy=hollow_monk`.
+- Still placeholders: hollow_villager, hollow_smith, whisperer, crow, ghost, boss_zone1, and the
+  room backdrops. Waiting on the designer's verdict on the sample before drawing the rest.
+
 ## Open items and known risks
 
 - **Native review pending** (M2 gate) for `docs/review/zone1-sentences.md`. M4 adds no Spanish:
   the boss name, phase names, captions and settings are English UI.
-- **Real art:** drop an Aseprite export at `public/art/atlas.json` (+ PNG) with tags
-  `<character>/<animation>` (see `requiredTags` and `CHARACTERS`). Missing tags fall back to placeholders.
+- **Real art:** two characters are hand-drawn (#91); the rest are placeholders. An artist's Aseprite
+  export with tags `<character>/<animation>` (see `requiredTags` and `CHARACTERS`) can replace
+  `public/art/atlas.{json,png}`; missing tags fall back to placeholders.
 - **Design questions:**
   - Hollow mode and mastery: provisionally no effect (#82). Designer to confirm.
   - Grab (listening) attacks: matching sound to written cards may be possible without Spanish (#89).

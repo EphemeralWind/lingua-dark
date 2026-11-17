@@ -167,3 +167,15 @@ Each entry: what was ambiguous, the reading picked, and why. Revisit any of them
     - NPC dialogue and items.
 90. **Palette.** 32 colours in `platform/palette.ts`: desaturated blues and greys, warm greys and browns for the bonfire and the boss, bonfire orange as the warm accent, and pale yellow as the signal colour. Every state that a colour marks also has a shape or word.
 
+
+### 2026-11-17: Hand-drawn art pipeline (first sample)
+
+91. **Sprites are drawn by hand as pixel data and built into an Aseprite-format sheet.** Each character lives in `art/sprites/<name>.ts` as hand-drawn parts: grids with one character per pixel, written run-length (`"3. A 5W 13V 4U A"`), one key per palette colour (`art/kit.ts`: `A` is `PALETTE[0]` … `f` is `PALETTE[31]`). Pose tables then place the parts per frame.
+    - Turned and mirrored parts are exact pixel transforms of the same drawing. In-between frames come from moving parts, not from new drawings.
+    - `npm run build-art` lays the frames out with the same `layoutAtlas()` the placeholders use and writes `public/art/atlas.json` + `atlas.png`. It encodes the PNG with `node:zlib`, so no dependency.
+    - Both outputs are committed. A test fails if they drift from a fresh build.
+    - The game loads the sheet at startup. Characters and tags it lacks keep their generated placeholders (#85), so art arrives one character at a time.
+    - The first sample is the player and the Hollow Monk warden. The other five characters are still placeholders.
+    - The wind-up frames depend on the frame index only, so the shared-wind-up rule holds, and the blind-bot suite is unchanged.
+    - Review aids: `/art-test.html` shows every tag of each drawn character above its placeholder, and `/?seed=N&enemy=<id>` sets the practice-fight opponent.
+    - If real art from an artist arrives as an Aseprite export with the same tag names, it replaces this sheet with no code change.
