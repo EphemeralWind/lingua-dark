@@ -10,12 +10,12 @@ behind each choice, see `docs/DECISIONS.md`. Numbers like #4 refer to entries th
 | 0. Kickoff readings | Done | in `bd260db` (DECISIONS #1–32) |
 | 1. Engine: one playable fight | Done | `bd260db` |
 | 2. Content: procedural Spanish | Done, waiting for native review | `c332f2e`, `d1d64d2` |
-| 3. Learning and world | Done | see git log |
+| 3. Learning and world | Done | `d944d25`–`f5af689`; `$back` fix `09b7257`; seals and meta-progression `c00868f`–`058d3eb` |
 | 4. Art, audio, settings | Not started | |
 | 5. Playtest and tuning | Not started | |
 
-All checks pass at the Milestone 3 commit: `npm run typecheck`, `npm run lint`, `npm test`
-(205 tests), `npm run build`, `npm run test:e2e`.
+All checks pass at `058d3eb`: `npm run typecheck`, `npm run lint`, `npm test` (274 tests),
+`npm run build`, `npm run test:e2e`.
 
 ## Milestone 1: Engine (done)
 
@@ -87,60 +87,83 @@ One fight, playable start to finish in the browser (`npm run dev`, then press En
 
 `npm run dev`, then open `/` for the world. `/?seed=N` is still the practice fight.
 
+After the first M3 build, the designer changed two things (DECISIONS #73–#76):
+- **The boss gate needs seals from wardens, not 80% Learned**, so a zone can be cleared in one
+  sitting.
+- **Learned is meta-progression**: a profile that survives New Game and grants perks.
+
+The notes below describe the current state.
+
 - **Learning (pure, `src/learning/`):**
   - `scheduler.ts`: Leitner boxes 1–5 (1/3/7/14/30 days), at most one promotion a day (#57).
   - `mastery.ts`: Learned = untelegraphed correct answers on 2 different days. Combat never
-    counts; an untelegraphed miss resets the streak (#59).
+    counts; an untelegraphed miss resets the streak and un-learns (#59).
   - `learner.ts`: per-component records, `recordAnswer`, `dueComponents`.
-  - `gate.ts`: `gateProgress` against `GATE_THRESHOLD` (0.8).
+  - `profile.ts`: the learner plus `bestLearned` (high-water mark). Survives New Game (#75).
+  - `perks.ts`: `perksFor(bestLearned)` from `PERKS` in `tuning.ts`. The perks are vitality,
+    riposte damage, flask power 1 → 2 (never 3), and +1 flask per rest (#74, #75).
   - `picker.ts`: due-first, ghost and echo questions by card-set membership (#58); typed review
     questions and review order (#60).
-- **Content:** `components.ts` enumerates the zone universe (120 for Zone 1, #68), maps
-  components to card text, and splits a question's components per strike.
-- **Combat:** flasks (`useFlask`, greyed cards unpickable), and the exchange log now carries
-  components and `assisted` (#61).
-- **World (pure, `src/world/`):** `zone.ts` covers exits, `$back`, shortcut doors, the gate,
-  and the map layout. `state.ts` holds the run (visits, doors, defeated enemies, ghosts, echo,
-  XP, flasks, readings, learner) and the rest/die/win rules (#62–#64).
-- **Save (`src/save/store.ts`):** a localStorage key with validated JSON export and import (#65).
+- **Content:**
+  - `components.ts` enumerates the zone universe (120 for Zone 1, #68), maps components to card
+    text, and splits a question's components per strike.
+  - `zone1-rooms.json` has a `seals` map and `enemy.seal` on three wardens, both validated.
+  - The bonfire room has a `reading` (goal "Find the well.", answer west). No new Spanish.
+- **Combat:**
+  - Flasks: `useFlask`, with configurable `flaskPower`; greyed cards can't be picked.
+  - Configurable `riposteDamage`.
+  - The exchange log carries components and `assisted` (#61).
+- **World (pure, `src/world/`):**
+  - `zone.ts`: exits, shortcut doors, the map layout, and `wardenSeal`. `$back` follows each
+    room's own way back (`backOf`, #72).
+  - `seals.ts`: `sealProgress`, `sealTemplates`, `socketLine` (#73).
+  - `state.ts`: the run (visits, doors, defeated enemies, beaten wardens, seals, ghosts, echo,
+    XP, flasks, readings) and the rest/die/win rules (#62–#64). Wardens never respawn.
+- **Save (`src/save/store.ts`):**
+  - Two localStorage keys: the run (`lingua-dark/save`, format v2) and the profile
+    (`lingua-dark/profile`).
+  - v1 saves migrate on load.
+  - Export bundles run and profile; import validates both (#65, #75).
 - **Platform:** `clock.ts` (local day plus the dev day skip), `storage.ts`, `files.ts`; input
-  now emits `key` events.
+  emits `key` events.
 - **Scenes:**
-  - `fight.ts`: the shared fight presenter, extracted from M1's combat scene.
+  - `fight.ts`: the shared fight presenter.
   - `combat.ts`: the practice fight.
-  - `game.ts`: title, explore, fights, rest and review, map.
-  - `review.ts`, `worldView.ts`.
+  - `game.ts`: title (with Learned and perks), explore, fights (wardens use their seal deck and
+    `WARDEN_HP`), rest and review, map.
+  - `review.ts`, `worldView.ts` (seal sockets ◆/◇ on the HUD, the gate and the map).
 - **Controls:** arrows/WASD walk and answer. Enter fights a foe or rests at the bonfire. F
   drinks a flask. M opens the map, where E exports and I imports a save. Dev only: F8 skips a
   day, F9 marks everything Learned, F10 grants every seal.
-- **Seals and meta-progression (after M3, DECISIONS #73–#76):**
-  - The boss gate needs three seals, won from wardens: cellar (Articles), chapel (Verbs),
-    orchard (Words). Each warden asks only its aspect, and the whole zone can be cleared in one
-    sitting.
-  - Learned now lives in a profile that survives New Game and grants perks (`PERKS` in
-    `tuning.ts`).
-  - A flask greys out 1 wrong card, 2 with the flask perk.
-  - Save format v2, which migrates v1 saves.
-  - Code: `src/world/seals.ts`, `src/learning/perks.ts`, `src/learning/profile.ts`.
-- **Content edit:** the bonfire room has a `reading` (goal "Find the well.", answer west). No new
-  Spanish was written.
-- **Verified by hand in a browser script, not kept as a test** (CLAUDE.md allows one Playwright
-  test):
-  - new game, then the reading choice
-  - win at the well, then die in the cellar, which drops a 50 XP echo and three ghosts
-  - beat the well again, then beat the Whisperer to recover the echo
-  - open the shortcut, clear the lane and chapel
-  - the gate stays sealed at 0/120; F9 opens it into the arena
-  - flask greying and a ghost fight
+- **Blind bots:** all 14 now play the whole deck and each seal deck: 23.8%–25.9%, no wins. The
+  articles warden runs 1,500 fights, because guessers die faster there (#73). Memory bots
+  against the due-first picker: 25.5% / 25.3% (#58).
+- **Verified by hand with throwaway browser scripts, not kept as tests** (CLAUDE.md allows one
+  Playwright test):
+  - Original M3 world:
+    - new game, then the reading choice
+    - win at the well, then die in the cellar, which drops a 50 XP echo and three ghosts
+    - beat the well again, then the cellar enemy to recover the echo
+    - open the shortcut, check the gate stays shut without dev keys, then into the arena
+    - flask greying and a ghost fight
+  - Seals:
+    - beat all three wardens with no dev keys; each asked only its own templates
+    - die with a seal held: the seal and the dead warden stay
+    - the gate opens into the arena
+    - F9 → title lists all perks; a new run has 130 vitality and 4 flasks, and a flask greys 2
+      cards
 
 ## Open items and known risks
 
 - **Native review pending** (M2 gate) for `docs/review/zone1-sentences.md`. M3 adds no Spanish.
+  The seal names and perk text are English UI.
 - **Design questions raised by M3:**
-  - Perk table and warden toughness (`WARDEN_HP`) need tuning at playtest.
+  - Perk table and warden toughness (`WARDEN_HP`) need tuning at playtest. The articles warden
+    asks only high-damage overheads, so it is the hardest of the three.
   - The boss fight should reuse the seal decks per phase (#73).
   - Only one sign has a reading choice (#62). More need hand-written, native-checked Spanish.
-  - Reading components (`w_*`) sit outside the gate universe.
+  - Reading components (`w_*`) count toward the profile, but no template teaches them, so they
+    are outside the 120 shown as "Learned N/120".
   - Should Hollow mode count toward mastery? Still open.
 - Accepted risks, to watch at the playtest:
   - Riposte words can be copied from the card that just won (#10).
@@ -157,3 +180,6 @@ Follow Prompt 4 in `docs/PROMPTS.md`. Notes:
 - The room-entry fade in `worldView.ts` and the hit shake in `fight.ts` must respect reduced motion.
 - Hollow mode (no timers) should pause wind-ups. Fixing #38 (visibility pause) fits there.
 - Sprites replace the flat shapes in `fight.ts` (combat) and `worldView.ts` (rooms, map).
+  Wardens need a look that sets them apart from regular enemies (today only the label does).
+- The Zone 1 boss is part of Prompt 4. It should take its phase decks from
+  `sealTemplates` (#73).
