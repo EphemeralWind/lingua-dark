@@ -29,16 +29,32 @@ export function perksFor(bestLearned: number, table: readonly PerkRow[] = PERKS)
   return p;
 }
 
-/** One line per perk earned, for the title and map screens. */
+/**
+ * One line per kind of perk earned, for the title and map screens. Repeats of a kind are
+ * summed into one line ("+30 vitality", not "+10 vitality" three times), in the order each
+ * kind was first earned.
+ */
 export function perkLines(bestLearned: number, table: readonly PerkRow[] = PERKS): string[] {
-  return table
-    .filter((row) => bestLearned >= row.at)
-    .map((row) => {
-      if (row.vitality) return `+${row.vitality} vitality`;
-      if (row.riposte) return `+${row.riposte} riposte damage`;
-      if (row.flaskPower) return 'stronger flasks';
-      return `+${row.flasks ?? 0} flask per rest`;
-    });
+  const totals = new Map<'vitality' | 'riposte' | 'flaskPower' | 'flasks', number>();
+  for (const row of table) {
+    if (bestLearned < row.at) continue;
+    for (const kind of ['vitality', 'riposte', 'flaskPower', 'flasks'] as const) {
+      const n = row[kind];
+      if (n) totals.set(kind, (totals.get(kind) ?? 0) + n);
+    }
+  }
+  return [...totals].map(([kind, n]) => {
+    switch (kind) {
+      case 'vitality':
+        return `+${n} vitality`;
+      case 'riposte':
+        return `+${n} riposte damage`;
+      case 'flaskPower':
+        return 'stronger flasks';
+      case 'flasks':
+        return `+${n} ${n === 1 ? 'flask' : 'flasks'} per rest`;
+    }
+  });
 }
 
 /** The next perk threshold above `bestLearned`, or null when all are earned. */

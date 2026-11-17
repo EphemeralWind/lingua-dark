@@ -31,8 +31,25 @@ describe('perks', () => {
   it('describes earned perks and the next threshold', () => {
     expect(perkLines(0)).toEqual([]);
     expect(perkLines(25)).toEqual(['+10 vitality', 'stronger flasks']);
-    expect(nextPerkAt(0)).toBe(10);
     expect(nextPerkAt(25)).toBe(40);
+  });
+
+  it('sums repeated perks of one kind into one line, in first-earned order', () => {
+    const table = [
+      { at: 1, vitality: 10 },
+      { at: 2, flasks: 1 },
+      { at: 3, riposte: 3 },
+      { at: 4, vitality: 10 },
+      { at: 5, flasks: 1 },
+      { at: 6, riposte: 3 },
+    ];
+    expect(perkLines(6, table)).toEqual(['+20 vitality', '+2 flasks per rest', '+6 riposte damage']);
+    expect(perkLines(3, table)).toEqual(['+10 vitality', '+1 flask per rest', '+3 riposte damage']);
+    expect(perkLines(500)).toEqual(['+30 vitality', 'stronger flasks', '+6 riposte damage', '+1 flask per rest']);
+  });
+
+  it('gives the next perk threshold', () => {
+    expect(nextPerkAt(0)).toBe(10);
     expect(nextPerkAt(500)).toBeNull();
   });
 });
