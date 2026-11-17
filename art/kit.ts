@@ -85,3 +85,77 @@ export function rasterize(frame: Frame, w: number, h: number): Int8Array {
 }
 
 export const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
+
+// --- shading helpers ---------------------------------------------------------
+
+/** Colour ramps, darkest first. Darkening moves one step down a ramp; A (outline) stays. */
+const RAMPS = ['BCDEFGHIJKLMNOPQRS', 'TUVW', 'XYZ', 'ba', 'dc'];
+const DARKER: Record<string, string> = { f: 'M' };
+for (const r of RAMPS) for (let i = 0; i < r.length; i++) DARKER[r[i] ?? ''] = r[Math.max(0, i - 1)] ?? '';
+
+/** One shade darker (light falls from the upper left, so right halves are darker). */
+export const darken = (key: string): string => DARKER[key] ?? key;
+
+/**
+ * A symmetric part drawn as its left half; the right half is the mirror image one shade
+ * darker. With `odd`, the half's last column is the shared middle column.
+ */
+export function mirrored(name: string, halfW: number, rle: readonly string[], odd = false): Part {
+  const w = odd ? halfW * 2 - 1 : halfW * 2;
+  const rows = rle.map((r, i) => {
+    const left = decodeRow(r, halfW, `${name} row ${i}`);
+    const right = [...left].reverse().slice(odd ? 1 : 0).map(darken).join('');
+    return left + right;
+  });
+  return { name, w, h: rows.length, rows };
+}
+
+/** The same shape in other colours, e.g. `{ W: 'O', V: 'N' }`. */
+export const recolor = (p: Part, map: Record<string, string>, name = p.name): Part => ({
+  ...p,
+  name,
+  rows: p.rows.map((r) => [...r].map((k) => map[k] ?? k).join('')),
+});
+
+const luma = (key: string): number => {
+  const hex = PALETTE[KEYS.indexOf(key)] ?? '#000000';
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255) as [number, number, number];
+  return 0.3 * r + 0.59 * g + 0.11 * b;
+};
+
+/**
+ * A see-through version of a part: its outer outline turns `edge`, inner lines stay dark,
+ * lit areas become solid `fill`, mid tones `fill` on every other pixel, and shadows clear, so
+ * the form survives while the background shows through (ghosts).
+ */
+export function ghostly(p: Part, fill = 'f', edge = 'R'): Part {
+  const clear = (x: number, y: number): boolean => (p.rows[y]?.[x] ?? '.') === '.';
+  const rows = p.rows.map((row, y) =>
+    [...row]
+      .map((k, x) => {
+        if (k === '.') return '.';
+        if (k === 'A') return clear(x - 1, y) || clear(x + 1, y) || clear(x, y - 1) || clear(x, y + 1) ? edge : 'A';
+        const l = luma(k);
+        if (l >= 0.5) return fill;
+        if (l >= 0.36) return (x + y) % 2 === 0 ? fill : '.';
+        return '.';
+      })
+      .join(''),
+  );
+  return { ...p, name: `${p.name}~ghost`, rows };
+}
+
+/** An empty part, for shapes plotted point by point. */
+export const blank = (name: string, w: number, h: number): Part => ({ name, w, h, rows: Array.from({ length: h }, () => '.'.repeat(w)) });
+
+/** Sets single pixels, `[x, y, key]`. With `onlyOver`, a pixel lands only where the part is not clear. */
+export function paint(p: Part, dots: readonly (readonly [number, number, string])[], onlyOver = false, name = p.name): Part {
+  const rows = p.rows.map((r) => [...r]);
+  for (const [x, y, k] of dots) {
+    const row = rows[y];
+    if (!row || x < 0 || x >= p.w) continue;
+    if (onlyOver && row[x] === '.') continue;
+    row[x] = k;
+  }
+  return { ...p, name, rows: rows.map((r) => r.join('')) };
+}

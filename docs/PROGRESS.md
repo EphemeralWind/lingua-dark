@@ -209,14 +209,21 @@ Decisions #77–#90.
 - Review: `/art-test.html` (drawn vs placeholder, `?scale=N`), `/?seed=N&enemy=hollow_monk`.
 - Player revision (#92): shield and readied sword drawn in front of the body (hidden where the
   body covers them), and a new `guard` tag for the fight stance with the sword readied.
-- Still placeholders: hollow_villager, hollow_smith, whisperer, crow, ghost, boss_zone1, and the
-  room backdrops. Waiting on the designer's verdict on the sample before drawing the rest.
+- The rest of the cast (#93), drawn after the designer approved the sample:
+  - Hollow Villager: pitchfork, hunched, torn tunic.
+  - Hollow Smith: pot helm with embers behind the slit, apron, sledgehammer.
+  - Whisperer (warden): floating pointed hood, the cellar's great key.
+  - Crow (warden): feather mantle, bone beak, billhook.
+  - Ghost: a see-through villager with a spear.
+  - The Hollow Bell (boss, 128×112): a living bronze bell with a maul. It cracks and sinks when it dies.
+
+  Every character now has hand-drawn art. The room backdrops are still drawn in code.
 
 ## Open items and known risks
 
 - **Native review pending** (M2 gate) for `docs/review/zone1-sentences.md`. M4 adds no Spanish:
   the boss name, phase names, captions and settings are English UI.
-- **Real art:** two characters are hand-drawn (#91); the rest are placeholders. An artist's Aseprite
+- **Real art:** all eight characters are hand-drawn (#91, #93). Room backdrops are still drawn in code. An artist's Aseprite
   export with tags `<character>/<animation>` (see `requiredTags` and `CHARACTERS`) can replace
   `public/art/atlas.{json,png}`; missing tags fall back to placeholders.
 - **Design questions:**

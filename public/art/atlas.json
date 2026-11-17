@@ -719,13 +719,2227 @@
     "w": 64,
     "h": 64
    }
+  },
+  {
+   "filename": "hollow_villager/idle 0",
+   "frame": {
+    "x": 0,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/idle 1",
+   "frame": {
+    "x": 64,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/idle 2",
+   "frame": {
+    "x": 128,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/idle 3",
+   "frame": {
+    "x": 192,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/windup 0",
+   "frame": {
+    "x": 256,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/windup 1",
+   "frame": {
+    "x": 320,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/windup 2",
+   "frame": {
+    "x": 384,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/windup 3",
+   "frame": {
+    "x": 448,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/windup 4",
+   "frame": {
+    "x": 512,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/windup 5",
+   "frame": {
+    "x": 576,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/strike_north 0",
+   "frame": {
+    "x": 640,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/strike_north 1",
+   "frame": {
+    "x": 704,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/strike_north 2",
+   "frame": {
+    "x": 768,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/strike_east 0",
+   "frame": {
+    "x": 832,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/strike_east 1",
+   "frame": {
+    "x": 896,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/strike_east 2",
+   "frame": {
+    "x": 960,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/strike_south 0",
+   "frame": {
+    "x": 1024,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/strike_south 1",
+   "frame": {
+    "x": 1088,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/strike_south 2",
+   "frame": {
+    "x": 1152,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/recoil_north 0",
+   "frame": {
+    "x": 1216,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/recoil_north 1",
+   "frame": {
+    "x": 1280,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/recoil_north 2",
+   "frame": {
+    "x": 1344,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/recoil_north 3",
+   "frame": {
+    "x": 1408,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/recoil_east 0",
+   "frame": {
+    "x": 1472,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/recoil_east 1",
+   "frame": {
+    "x": 1536,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/recoil_east 2",
+   "frame": {
+    "x": 1600,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/recoil_east 3",
+   "frame": {
+    "x": 1664,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/recoil_south 0",
+   "frame": {
+    "x": 1728,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/recoil_south 1",
+   "frame": {
+    "x": 1792,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/recoil_south 2",
+   "frame": {
+    "x": 1856,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/recoil_south 3",
+   "frame": {
+    "x": 1920,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/break 0",
+   "frame": {
+    "x": 1984,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/break 1",
+   "frame": {
+    "x": 2048,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/break 2",
+   "frame": {
+    "x": 2112,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/break 3",
+   "frame": {
+    "x": 2176,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/death 0",
+   "frame": {
+    "x": 2240,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/death 1",
+   "frame": {
+    "x": 2304,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/death 2",
+   "frame": {
+    "x": 2368,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/death 3",
+   "frame": {
+    "x": 2432,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/death 4",
+   "frame": {
+    "x": 2496,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_villager/death 5",
+   "frame": {
+    "x": 2560,
+    "y": 128,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/idle 0",
+   "frame": {
+    "x": 0,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/idle 1",
+   "frame": {
+    "x": 64,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/idle 2",
+   "frame": {
+    "x": 128,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/idle 3",
+   "frame": {
+    "x": 192,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/windup 0",
+   "frame": {
+    "x": 256,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/windup 1",
+   "frame": {
+    "x": 320,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/windup 2",
+   "frame": {
+    "x": 384,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/windup 3",
+   "frame": {
+    "x": 448,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/windup 4",
+   "frame": {
+    "x": 512,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/windup 5",
+   "frame": {
+    "x": 576,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/strike_north 0",
+   "frame": {
+    "x": 640,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/strike_north 1",
+   "frame": {
+    "x": 704,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/strike_north 2",
+   "frame": {
+    "x": 768,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/strike_east 0",
+   "frame": {
+    "x": 832,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/strike_east 1",
+   "frame": {
+    "x": 896,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/strike_east 2",
+   "frame": {
+    "x": 960,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/strike_south 0",
+   "frame": {
+    "x": 1024,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/strike_south 1",
+   "frame": {
+    "x": 1088,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/strike_south 2",
+   "frame": {
+    "x": 1152,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/recoil_north 0",
+   "frame": {
+    "x": 1216,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/recoil_north 1",
+   "frame": {
+    "x": 1280,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/recoil_north 2",
+   "frame": {
+    "x": 1344,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/recoil_north 3",
+   "frame": {
+    "x": 1408,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/recoil_east 0",
+   "frame": {
+    "x": 1472,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/recoil_east 1",
+   "frame": {
+    "x": 1536,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/recoil_east 2",
+   "frame": {
+    "x": 1600,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/recoil_east 3",
+   "frame": {
+    "x": 1664,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/recoil_south 0",
+   "frame": {
+    "x": 1728,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/recoil_south 1",
+   "frame": {
+    "x": 1792,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/recoil_south 2",
+   "frame": {
+    "x": 1856,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/recoil_south 3",
+   "frame": {
+    "x": 1920,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/break 0",
+   "frame": {
+    "x": 1984,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/break 1",
+   "frame": {
+    "x": 2048,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/break 2",
+   "frame": {
+    "x": 2112,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/break 3",
+   "frame": {
+    "x": 2176,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/death 0",
+   "frame": {
+    "x": 2240,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/death 1",
+   "frame": {
+    "x": 2304,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/death 2",
+   "frame": {
+    "x": 2368,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/death 3",
+   "frame": {
+    "x": 2432,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/death 4",
+   "frame": {
+    "x": 2496,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "hollow_smith/death 5",
+   "frame": {
+    "x": 2560,
+    "y": 192,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/idle 0",
+   "frame": {
+    "x": 0,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/idle 1",
+   "frame": {
+    "x": 64,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/idle 2",
+   "frame": {
+    "x": 128,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/idle 3",
+   "frame": {
+    "x": 192,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/windup 0",
+   "frame": {
+    "x": 256,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/windup 1",
+   "frame": {
+    "x": 320,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/windup 2",
+   "frame": {
+    "x": 384,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/windup 3",
+   "frame": {
+    "x": 448,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/windup 4",
+   "frame": {
+    "x": 512,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/windup 5",
+   "frame": {
+    "x": 576,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/strike_north 0",
+   "frame": {
+    "x": 640,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/strike_north 1",
+   "frame": {
+    "x": 704,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/strike_north 2",
+   "frame": {
+    "x": 768,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/strike_east 0",
+   "frame": {
+    "x": 832,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/strike_east 1",
+   "frame": {
+    "x": 896,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/strike_east 2",
+   "frame": {
+    "x": 960,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/strike_south 0",
+   "frame": {
+    "x": 1024,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/strike_south 1",
+   "frame": {
+    "x": 1088,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/strike_south 2",
+   "frame": {
+    "x": 1152,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/recoil_north 0",
+   "frame": {
+    "x": 1216,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/recoil_north 1",
+   "frame": {
+    "x": 1280,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/recoil_north 2",
+   "frame": {
+    "x": 1344,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/recoil_north 3",
+   "frame": {
+    "x": 1408,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/recoil_east 0",
+   "frame": {
+    "x": 1472,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/recoil_east 1",
+   "frame": {
+    "x": 1536,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/recoil_east 2",
+   "frame": {
+    "x": 1600,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/recoil_east 3",
+   "frame": {
+    "x": 1664,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/recoil_south 0",
+   "frame": {
+    "x": 1728,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/recoil_south 1",
+   "frame": {
+    "x": 1792,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/recoil_south 2",
+   "frame": {
+    "x": 1856,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/recoil_south 3",
+   "frame": {
+    "x": 1920,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/break 0",
+   "frame": {
+    "x": 1984,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/break 1",
+   "frame": {
+    "x": 2048,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/break 2",
+   "frame": {
+    "x": 2112,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/break 3",
+   "frame": {
+    "x": 2176,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/death 0",
+   "frame": {
+    "x": 2240,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/death 1",
+   "frame": {
+    "x": 2304,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/death 2",
+   "frame": {
+    "x": 2368,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/death 3",
+   "frame": {
+    "x": 2432,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/death 4",
+   "frame": {
+    "x": 2496,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "crow/death 5",
+   "frame": {
+    "x": 2560,
+    "y": 256,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/idle 0",
+   "frame": {
+    "x": 0,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/idle 1",
+   "frame": {
+    "x": 64,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/idle 2",
+   "frame": {
+    "x": 128,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/idle 3",
+   "frame": {
+    "x": 192,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/windup 0",
+   "frame": {
+    "x": 256,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/windup 1",
+   "frame": {
+    "x": 320,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/windup 2",
+   "frame": {
+    "x": 384,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/windup 3",
+   "frame": {
+    "x": 448,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/windup 4",
+   "frame": {
+    "x": 512,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/windup 5",
+   "frame": {
+    "x": 576,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/strike_north 0",
+   "frame": {
+    "x": 640,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/strike_north 1",
+   "frame": {
+    "x": 704,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/strike_north 2",
+   "frame": {
+    "x": 768,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/strike_east 0",
+   "frame": {
+    "x": 832,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/strike_east 1",
+   "frame": {
+    "x": 896,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/strike_east 2",
+   "frame": {
+    "x": 960,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/strike_south 0",
+   "frame": {
+    "x": 1024,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/strike_south 1",
+   "frame": {
+    "x": 1088,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/strike_south 2",
+   "frame": {
+    "x": 1152,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/recoil_north 0",
+   "frame": {
+    "x": 1216,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/recoil_north 1",
+   "frame": {
+    "x": 1280,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/recoil_north 2",
+   "frame": {
+    "x": 1344,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/recoil_north 3",
+   "frame": {
+    "x": 1408,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/recoil_east 0",
+   "frame": {
+    "x": 1472,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/recoil_east 1",
+   "frame": {
+    "x": 1536,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/recoil_east 2",
+   "frame": {
+    "x": 1600,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/recoil_east 3",
+   "frame": {
+    "x": 1664,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/recoil_south 0",
+   "frame": {
+    "x": 1728,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/recoil_south 1",
+   "frame": {
+    "x": 1792,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/recoil_south 2",
+   "frame": {
+    "x": 1856,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/recoil_south 3",
+   "frame": {
+    "x": 1920,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/break 0",
+   "frame": {
+    "x": 1984,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/break 1",
+   "frame": {
+    "x": 2048,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/break 2",
+   "frame": {
+    "x": 2112,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/break 3",
+   "frame": {
+    "x": 2176,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/death 0",
+   "frame": {
+    "x": 2240,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/death 1",
+   "frame": {
+    "x": 2304,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/death 2",
+   "frame": {
+    "x": 2368,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/death 3",
+   "frame": {
+    "x": 2432,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/death 4",
+   "frame": {
+    "x": 2496,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "ghost/death 5",
+   "frame": {
+    "x": 2560,
+    "y": 320,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/idle 0",
+   "frame": {
+    "x": 0,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/idle 1",
+   "frame": {
+    "x": 64,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/idle 2",
+   "frame": {
+    "x": 128,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/idle 3",
+   "frame": {
+    "x": 192,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/windup 0",
+   "frame": {
+    "x": 256,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/windup 1",
+   "frame": {
+    "x": 320,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/windup 2",
+   "frame": {
+    "x": 384,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/windup 3",
+   "frame": {
+    "x": 448,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/windup 4",
+   "frame": {
+    "x": 512,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/windup 5",
+   "frame": {
+    "x": 576,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/strike_north 0",
+   "frame": {
+    "x": 640,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/strike_north 1",
+   "frame": {
+    "x": 704,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/strike_north 2",
+   "frame": {
+    "x": 768,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/strike_east 0",
+   "frame": {
+    "x": 832,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/strike_east 1",
+   "frame": {
+    "x": 896,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/strike_east 2",
+   "frame": {
+    "x": 960,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/strike_south 0",
+   "frame": {
+    "x": 1024,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/strike_south 1",
+   "frame": {
+    "x": 1088,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/strike_south 2",
+   "frame": {
+    "x": 1152,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/recoil_north 0",
+   "frame": {
+    "x": 1216,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/recoil_north 1",
+   "frame": {
+    "x": 1280,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/recoil_north 2",
+   "frame": {
+    "x": 1344,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/recoil_north 3",
+   "frame": {
+    "x": 1408,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/recoil_east 0",
+   "frame": {
+    "x": 1472,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/recoil_east 1",
+   "frame": {
+    "x": 1536,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/recoil_east 2",
+   "frame": {
+    "x": 1600,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/recoil_east 3",
+   "frame": {
+    "x": 1664,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/recoil_south 0",
+   "frame": {
+    "x": 1728,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/recoil_south 1",
+   "frame": {
+    "x": 1792,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/recoil_south 2",
+   "frame": {
+    "x": 1856,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/recoil_south 3",
+   "frame": {
+    "x": 1920,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/break 0",
+   "frame": {
+    "x": 1984,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/break 1",
+   "frame": {
+    "x": 2048,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/break 2",
+   "frame": {
+    "x": 2112,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/break 3",
+   "frame": {
+    "x": 2176,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/death 0",
+   "frame": {
+    "x": 2240,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/death 1",
+   "frame": {
+    "x": 2304,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/death 2",
+   "frame": {
+    "x": 2368,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/death 3",
+   "frame": {
+    "x": 2432,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/death 4",
+   "frame": {
+    "x": 2496,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "whisperer/death 5",
+   "frame": {
+    "x": 2560,
+    "y": 384,
+    "w": 64,
+    "h": 64
+   }
+  },
+  {
+   "filename": "boss_zone1/idle 0",
+   "frame": {
+    "x": 0,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/idle 1",
+   "frame": {
+    "x": 128,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/idle 2",
+   "frame": {
+    "x": 256,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/idle 3",
+   "frame": {
+    "x": 384,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/windup 0",
+   "frame": {
+    "x": 512,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/windup 1",
+   "frame": {
+    "x": 640,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/windup 2",
+   "frame": {
+    "x": 768,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/windup 3",
+   "frame": {
+    "x": 896,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/windup 4",
+   "frame": {
+    "x": 1024,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/windup 5",
+   "frame": {
+    "x": 1152,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/strike_north 0",
+   "frame": {
+    "x": 1280,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/strike_north 1",
+   "frame": {
+    "x": 1408,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/strike_north 2",
+   "frame": {
+    "x": 1536,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/strike_east 0",
+   "frame": {
+    "x": 1664,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/strike_east 1",
+   "frame": {
+    "x": 1792,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/strike_east 2",
+   "frame": {
+    "x": 1920,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/strike_south 0",
+   "frame": {
+    "x": 2048,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/strike_south 1",
+   "frame": {
+    "x": 2176,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/strike_south 2",
+   "frame": {
+    "x": 2304,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/recoil_north 0",
+   "frame": {
+    "x": 2432,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/recoil_north 1",
+   "frame": {
+    "x": 2560,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/recoil_north 2",
+   "frame": {
+    "x": 2688,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/recoil_north 3",
+   "frame": {
+    "x": 2816,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/recoil_east 0",
+   "frame": {
+    "x": 2944,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/recoil_east 1",
+   "frame": {
+    "x": 3072,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/recoil_east 2",
+   "frame": {
+    "x": 3200,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/recoil_east 3",
+   "frame": {
+    "x": 3328,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/recoil_south 0",
+   "frame": {
+    "x": 3456,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/recoil_south 1",
+   "frame": {
+    "x": 3584,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/recoil_south 2",
+   "frame": {
+    "x": 3712,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/recoil_south 3",
+   "frame": {
+    "x": 3840,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/break 0",
+   "frame": {
+    "x": 3968,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/break 1",
+   "frame": {
+    "x": 4096,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/break 2",
+   "frame": {
+    "x": 4224,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/break 3",
+   "frame": {
+    "x": 4352,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/death 0",
+   "frame": {
+    "x": 4480,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/death 1",
+   "frame": {
+    "x": 4608,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/death 2",
+   "frame": {
+    "x": 4736,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/death 3",
+   "frame": {
+    "x": 4864,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/death 4",
+   "frame": {
+    "x": 4992,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
+  },
+  {
+   "filename": "boss_zone1/death 5",
+   "frame": {
+    "x": 5120,
+    "y": 448,
+    "w": 128,
+    "h": 112
+   }
   }
  ],
  "meta": {
   "image": "atlas.png",
   "size": {
-   "w": 2624,
-   "h": 128
+   "w": 5248,
+   "h": 560
   },
   "frameTags": [
    {
@@ -827,6 +3041,306 @@
     "name": "hollow_monk/death",
     "from": 74,
     "to": 79
+   },
+   {
+    "name": "hollow_villager/idle",
+    "from": 80,
+    "to": 83
+   },
+   {
+    "name": "hollow_villager/windup",
+    "from": 84,
+    "to": 89
+   },
+   {
+    "name": "hollow_villager/strike_north",
+    "from": 90,
+    "to": 92
+   },
+   {
+    "name": "hollow_villager/strike_east",
+    "from": 93,
+    "to": 95
+   },
+   {
+    "name": "hollow_villager/strike_south",
+    "from": 96,
+    "to": 98
+   },
+   {
+    "name": "hollow_villager/recoil_north",
+    "from": 99,
+    "to": 102
+   },
+   {
+    "name": "hollow_villager/recoil_east",
+    "from": 103,
+    "to": 106
+   },
+   {
+    "name": "hollow_villager/recoil_south",
+    "from": 107,
+    "to": 110
+   },
+   {
+    "name": "hollow_villager/break",
+    "from": 111,
+    "to": 114
+   },
+   {
+    "name": "hollow_villager/death",
+    "from": 115,
+    "to": 120
+   },
+   {
+    "name": "hollow_smith/idle",
+    "from": 121,
+    "to": 124
+   },
+   {
+    "name": "hollow_smith/windup",
+    "from": 125,
+    "to": 130
+   },
+   {
+    "name": "hollow_smith/strike_north",
+    "from": 131,
+    "to": 133
+   },
+   {
+    "name": "hollow_smith/strike_east",
+    "from": 134,
+    "to": 136
+   },
+   {
+    "name": "hollow_smith/strike_south",
+    "from": 137,
+    "to": 139
+   },
+   {
+    "name": "hollow_smith/recoil_north",
+    "from": 140,
+    "to": 143
+   },
+   {
+    "name": "hollow_smith/recoil_east",
+    "from": 144,
+    "to": 147
+   },
+   {
+    "name": "hollow_smith/recoil_south",
+    "from": 148,
+    "to": 151
+   },
+   {
+    "name": "hollow_smith/break",
+    "from": 152,
+    "to": 155
+   },
+   {
+    "name": "hollow_smith/death",
+    "from": 156,
+    "to": 161
+   },
+   {
+    "name": "crow/idle",
+    "from": 162,
+    "to": 165
+   },
+   {
+    "name": "crow/windup",
+    "from": 166,
+    "to": 171
+   },
+   {
+    "name": "crow/strike_north",
+    "from": 172,
+    "to": 174
+   },
+   {
+    "name": "crow/strike_east",
+    "from": 175,
+    "to": 177
+   },
+   {
+    "name": "crow/strike_south",
+    "from": 178,
+    "to": 180
+   },
+   {
+    "name": "crow/recoil_north",
+    "from": 181,
+    "to": 184
+   },
+   {
+    "name": "crow/recoil_east",
+    "from": 185,
+    "to": 188
+   },
+   {
+    "name": "crow/recoil_south",
+    "from": 189,
+    "to": 192
+   },
+   {
+    "name": "crow/break",
+    "from": 193,
+    "to": 196
+   },
+   {
+    "name": "crow/death",
+    "from": 197,
+    "to": 202
+   },
+   {
+    "name": "ghost/idle",
+    "from": 203,
+    "to": 206
+   },
+   {
+    "name": "ghost/windup",
+    "from": 207,
+    "to": 212
+   },
+   {
+    "name": "ghost/strike_north",
+    "from": 213,
+    "to": 215
+   },
+   {
+    "name": "ghost/strike_east",
+    "from": 216,
+    "to": 218
+   },
+   {
+    "name": "ghost/strike_south",
+    "from": 219,
+    "to": 221
+   },
+   {
+    "name": "ghost/recoil_north",
+    "from": 222,
+    "to": 225
+   },
+   {
+    "name": "ghost/recoil_east",
+    "from": 226,
+    "to": 229
+   },
+   {
+    "name": "ghost/recoil_south",
+    "from": 230,
+    "to": 233
+   },
+   {
+    "name": "ghost/break",
+    "from": 234,
+    "to": 237
+   },
+   {
+    "name": "ghost/death",
+    "from": 238,
+    "to": 243
+   },
+   {
+    "name": "whisperer/idle",
+    "from": 244,
+    "to": 247
+   },
+   {
+    "name": "whisperer/windup",
+    "from": 248,
+    "to": 253
+   },
+   {
+    "name": "whisperer/strike_north",
+    "from": 254,
+    "to": 256
+   },
+   {
+    "name": "whisperer/strike_east",
+    "from": 257,
+    "to": 259
+   },
+   {
+    "name": "whisperer/strike_south",
+    "from": 260,
+    "to": 262
+   },
+   {
+    "name": "whisperer/recoil_north",
+    "from": 263,
+    "to": 266
+   },
+   {
+    "name": "whisperer/recoil_east",
+    "from": 267,
+    "to": 270
+   },
+   {
+    "name": "whisperer/recoil_south",
+    "from": 271,
+    "to": 274
+   },
+   {
+    "name": "whisperer/break",
+    "from": 275,
+    "to": 278
+   },
+   {
+    "name": "whisperer/death",
+    "from": 279,
+    "to": 284
+   },
+   {
+    "name": "boss_zone1/idle",
+    "from": 285,
+    "to": 288
+   },
+   {
+    "name": "boss_zone1/windup",
+    "from": 289,
+    "to": 294
+   },
+   {
+    "name": "boss_zone1/strike_north",
+    "from": 295,
+    "to": 297
+   },
+   {
+    "name": "boss_zone1/strike_east",
+    "from": 298,
+    "to": 300
+   },
+   {
+    "name": "boss_zone1/strike_south",
+    "from": 301,
+    "to": 303
+   },
+   {
+    "name": "boss_zone1/recoil_north",
+    "from": 304,
+    "to": 307
+   },
+   {
+    "name": "boss_zone1/recoil_east",
+    "from": 308,
+    "to": 311
+   },
+   {
+    "name": "boss_zone1/recoil_south",
+    "from": 312,
+    "to": 315
+   },
+   {
+    "name": "boss_zone1/break",
+    "from": 316,
+    "to": 319
+   },
+   {
+    "name": "boss_zone1/death",
+    "from": 320,
+    "to": 325
    }
   ]
  }

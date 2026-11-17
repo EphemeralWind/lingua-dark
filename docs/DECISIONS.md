@@ -185,3 +185,21 @@ Each entry: what was ambiguous, the reading picked, and why. Revisit any of them
     - south: low on the left.
 
     In fights the sword is readied: point up and leaning in, aimed at the enemy, its hilt hidden in front of the chest. A test checks no hilt pixel shows in any fight frame. A hit knocks the sword low. Exploring frames keep it relaxed at the hip. `guard` (4 frames) is a player tag added to SPEC 8's list. `playerFrame(…, 'fight')` uses it for the fight's rest pose, and every wind-up holds guard frame 0, still one frame for every question. West parries are the east frames mirrored, as SPEC 8 asks, so for those frames shield and sword swap hands. Accepted.
+
+### 2026-11-17: The rest of the cast
+
+93. **Every character is hand-drawn, and the pole fighters share one rig.**
+    - The villager, smith, crow, whisperer and ghost each hold a pole weapon in the right hand: pitchfork, sledgehammer, billhook, key and spear.
+    - They move on `art/sprites/rig.ts`, the Hollow Monk's pose table made generic. The monk now uses it too, with pixel-identical output.
+    - A rig character supplies its figure, a 7×18 sleeve, a 10×12 raised forearm, a 7×44 weapon and its 7×21 foreshortened version. So all of them wind up, strike, recoil, break and fall the same way, and the wind-up is still a function of the frame index only.
+    - Kit helpers:
+      - `mirrored` draws a symmetric part from its left half, with the right half one shade darker, for light from the upper left.
+      - `recolor` reuses a shape in new colours. Sleeves and fallen bodies come from the monk's.
+      - `ghostly` makes a part see-through: pale outer edge, solid lit areas, dithered mid tones, clear shadows.
+      - `paint` and `blank` set single pixels.
+    - Wardens share `art/sprites/warden.ts` (crown and seal). A test checks that every warden wears the crown in every frame.
+    - The Hollow Bell is drawn on its own: a living bronze bell, 128×112.
+      - The fight's prompt band covers the top 32 rows of its frame. So its wind-up keeps the maul below that line, and a test checks this. Its strikes may rise behind the band, since by then the answer is locked.
+      - It dies by cracking open and sinking into the floor.
+    - Room backdrops stay procedural (`drawArena`, `worldView`) for now.
+

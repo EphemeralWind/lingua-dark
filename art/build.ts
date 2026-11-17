@@ -5,11 +5,17 @@ import { deflateSync } from 'node:zlib';
 import { layoutAtlas, type AsepriteJson } from '../src/platform/atlas';
 import { PALETTE } from '../src/platform/palette';
 import { rasterize, type CharacterArt } from './kit';
+import { BOSS_BELL } from './sprites/bossBell';
+import { CROW } from './sprites/crow';
+import { GHOST } from './sprites/ghost';
 import { HOLLOW_MONK } from './sprites/hollowMonk';
+import { HOLLOW_SMITH } from './sprites/hollowSmith';
+import { HOLLOW_VILLAGER } from './sprites/hollowVillager';
 import { PLAYER } from './sprites/player';
+import { WHISPERER } from './sprites/whisperer';
 
 /** Characters with hand-drawn art. Everything else falls back to the placeholder sheet. */
-export const ART: readonly CharacterArt[] = [PLAYER, HOLLOW_MONK];
+export const ART: readonly CharacterArt[] = [PLAYER, HOLLOW_MONK, HOLLOW_VILLAGER, HOLLOW_SMITH, CROW, GHOST, WHISPERER, BOSS_BELL];
 
 export interface BuiltSheet {
   json: AsepriteJson;

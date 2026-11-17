@@ -5,9 +5,25 @@ import { requiredTags } from '../src/combat/sprites';
 import { missingTags, parseAtlas } from '../src/platform/atlas';
 import { CHARACTERS } from '../src/platform/characters';
 import { ART, atlasJsonText, buildSheet, encodePng } from './build';
-import { decodeRow, flipX, KEYS, part, rasterize, rotCW } from './kit';
+import { decodeRow, flipX, ghostly, KEYS, mirrored, part, rasterize, recolor, rotCW } from './kit';
 
 describe('art kit', () => {
+  it('mirrors a half with the right side one shade darker', () => {
+    expect(mirrored('m', 2, ['A W']).rows).toEqual(['AWVA']);
+    expect(mirrored('m', 2, ['A R'], true).rows).toEqual(['ARA']);
+  });
+
+  it('recolours a part and leaves other keys alone', () => {
+    expect(recolor(part('p', 3, ['AWV']), { W: 'O' }).rows).toEqual(['AOV']);
+  });
+
+  it('makes a see-through ghost: pale outer edge, dark inner lines, dithered mid tones', () => {
+    const g = ghostly(part('g', 4, ['4A', 'A N A A', 'A 2N A', '4A']));
+    expect(g.rows[0]).toBe('RRRR');
+    expect(g.rows[1]).toBe('RfAR');
+    expect(g.rows[2]).toBe('R.fR');
+  });
+
   it('decodes run-length rows and pads them to the part width', () => {
     expect(decodeRow('3. A 2W', 8, 't')).toBe('...AWW..');
     expect(decodeRow('12A', 12, 't')).toBe('A'.repeat(12));
@@ -61,11 +77,27 @@ describe('hand-drawn characters', () => {
     }
   });
 
-  it('the warden wears its crown in every frame, even fallen', () => {
-    const monk = ART.find((c) => c.id === 'hollow_monk')!;
-    for (const [tag, frames] of Object.entries(monk.tags)) {
-      frames.forEach((f, i) => expect(f.some((p) => p.part.name === 'warden crown'), `${tag} ${i}`).toBe(true));
+  it('every warden wears its crown in every frame, even fallen', () => {
+    const wardens = ART.filter((c) => CHARACTERS.find((x) => x.id === c.id)?.warden);
+    expect(wardens.map((c) => c.id).sort()).toEqual(['crow', 'hollow_monk', 'whisperer']);
+    for (const c of wardens) {
+      for (const [tag, frames] of Object.entries(c.tags)) {
+        frames.forEach((f, i) => expect(f.some((p) => p.part.name === 'warden crown'), `${c.id}/${tag} ${i}`).toBe(true));
+      }
     }
+  });
+
+  it("the boss's wind-up stays below the rows the fight's prompt band covers", () => {
+    const boss = ART.find((c) => c.id === 'boss_zone1')!;
+    // fight.ts draws the boss's bottom at y 108, so frame row 32 is screen row 28, under the band.
+    boss.tags['windup']!.forEach((f, i) => {
+      const px = rasterize(f, boss.w, boss.h);
+      expect(px.subarray(0, 32 * boss.w).some((k) => k >= 0), `windup ${i}`).toBe(false);
+    });
+  });
+
+  it('every character in the game has hand-drawn art', () => {
+    expect(ART.map((c) => c.id).sort()).toEqual(CHARACTERS.map((c) => c.id).sort());
   });
 });
 
