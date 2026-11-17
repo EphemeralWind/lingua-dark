@@ -234,4 +234,9 @@ Each entry: what was ambiguous, the reading picked, and why. Revisit any of them
       - every backdrop the zone data uses has a room;
       - each door state is a different picture;
       - the committed scenery files match a fresh build.
+    - **The bonfire rest scene** (`scenes/review.ts`) uses the same sheet:
+      - `rest_backdrop`: a close stone wall and floor in the fire's glow, darkest at the top, where the title sits;
+      - the bonfire prop;
+      - `rest_player`: the player from behind, seated with his shield at his side, built from his own parts. His sword is planted beyond the fire.
 
+      He breathes and the fire flickers, both held still with reduced motion. The review panel keeps its place and gains a thin frame. Nothing in the scene changes with the question.

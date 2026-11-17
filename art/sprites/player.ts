@@ -6,7 +6,7 @@ import { at, flipX, lerp, part, rotCW, type CharacterArt, type Frame, type Place
 
 // --- parts -----------------------------------------------------------------
 
-const cloak = part('player cloak', 34, [
+export const cloak = part('player cloak', 34, [
   '9. 16A',
   '4. 5A 16M 5A',
   '2. 2A 3R 2Q A 14M A 2Q 3P 2A',
@@ -23,7 +23,7 @@ const cloak = part('player cloak', 34, [
   '4. 4A 2. 10A 2. 5A',
 ]);
 
-const head = part('player head', 14, [
+export const head = part('player head', 14, [
   '4. 6A',
   '2. 2A 6V 2A',
   '1. A 3V 6U A',
@@ -44,7 +44,7 @@ const legL = part('player leg', 9, ['A 7I A', 'A 6J I A', 'A 6J I A', 'A 6J I A'
 const legR = flipX(legL);
 
 /** The back of a round-topped plank shield: steel rim, wooden planks, a leather strap. */
-const shield = part('player shield', 16, [
+export const shield = part('player shield', 16, [
   '2. 12Q',
   '1. Q R 11W Q',
   'Q R 3W U 3W U 4W P Q',
@@ -68,7 +68,7 @@ const shield = part('player shield', 16, [
 ]);
 
 /** Sword at the hip, point down. */
-const sword = part('player sword', 5, [
+export const sword = part('player sword', 5, [
   '1. 3d',
   '1. d c d',
   '2. V',

@@ -13,6 +13,9 @@ export const PROP_AT = {
   /** Fight arena layers: back and near fill rows 28..179; the far strip stands on the horizon. */
   arena: { x: 160, bottom: 180 },
   arenaFar: { bottom: 82, tile: 64 },
+  /** The bonfire rest scene: the fire close up, the player seated to its left. */
+  restFire: { x: 160, bottom: 172 },
+  restPlayer: { x: 112, bottom: 176 },
 } as const;
 
 export const STILL: SpriteFrame = { tag: 'still', frame: 0, flip: false };

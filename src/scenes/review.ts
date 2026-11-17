@@ -7,6 +7,7 @@ import type { InputEvent } from '../platform/input';
 import { C } from '../platform/palette';
 import type { Renderer } from '../platform/renderer';
 import { completed } from './fight';
+import { PROP_AT, STILL } from './sceneryLayout';
 import type { Services } from './services';
 
 type Phase = 'asking' | 'feedback' | 'done';
@@ -98,13 +99,24 @@ export class Review {
   render(r: Renderer, footer: string, nowMs: number): void {
     r.begin(C.sky);
     const g = r.low;
-    g.fillStyle = C.floor;
-    g.fillRect(0, 120, 320, 60);
-    // Bonfire: a stack of flame triangles.
-    g.fillStyle = C.ember;
-    for (let i = 0; i < 10; i++) g.fillRect(160 - (10 - i), 150 - i * 2, (10 - i) * 2, 2);
+    // The player resting by the fire; flat shapes if the scenery sheet is missing. The fire
+    // flickers and he breathes unless motion is reduced.
+    const calm = this.svc.settings.reducedMotion;
+    const sprites = this.svc.sprites;
+    if (sprites.draw(g, 'rest_backdrop', STILL, PROP_AT.room.x, PROP_AT.room.bottom)) {
+      sprites.draw(g, 'bonfire', { tag: 'burn', frame: calm ? 0 : Math.floor(nowMs / 160) % 2, flip: false }, PROP_AT.restFire.x, PROP_AT.restFire.bottom);
+      sprites.draw(g, 'rest_player', { tag: 'sit', frame: calm ? 0 : Math.floor(nowMs / 1100) % 2, flip: false }, PROP_AT.restPlayer.x, PROP_AT.restPlayer.bottom);
+    } else {
+      g.fillStyle = C.floor;
+      g.fillRect(0, 120, 320, 60);
+      g.fillStyle = C.ember;
+      for (let i = 0; i < 10; i++) g.fillRect(160 - (10 - i), 150 - i * 2, (10 - i) * 2, 2);
+    }
     g.fillStyle = C.barBack;
     g.fillRect(16, 26, 288, 84);
+    g.fillStyle = C.cardEdge;
+    g.fillRect(16, 26, 288, 1);
+    g.fillRect(16, 109, 288, 1);
     r.present();
 
     const total = this.questions.length;

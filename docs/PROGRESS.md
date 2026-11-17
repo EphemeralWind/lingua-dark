@@ -222,7 +222,8 @@ Decisions #77–#90.
   - the six room backdrops, in perspective, with their own textures and props;
   - doors in four states that differ by shape;
   - the bonfire;
-  - both fight arenas, as back, drifting far and near layers.
+  - both fight arenas, as back, drifting far and near layers;
+  - the bonfire rest scene, with the player seated by the fire.
 
   The flat shapes remain as the fallback.
 

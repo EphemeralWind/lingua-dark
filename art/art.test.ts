@@ -193,6 +193,11 @@ describe('scenery', () => {
     }
   });
 
+  it('has the bonfire rest scene: a backdrop and the seated player breathing', () => {
+    expect([piece('rest_backdrop').w, piece('rest_backdrop').h]).toEqual([320, 180]);
+    expect(piece('rest_player').tags['sit']).toHaveLength(2);
+  });
+
   it('the committed public/art/scenery files match a fresh build (run `npm run build-art`)', () => {
     expect(readFileSync('public/art/scenery.json', 'utf8')).toBe(atlasJsonText(sheet));
     expect(Buffer.from(readFileSync('public/art/scenery.png')).equals(Buffer.from(encodePng(sheet.width, sheet.height, sheet.rgba)))).toBe(true);

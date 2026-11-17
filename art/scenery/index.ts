@@ -2,6 +2,7 @@
 import type { CharacterArt } from '../kit';
 import { ARENAS } from './arenas';
 import { PROPS } from './props';
+import { REST } from './rest';
 import { ROOMS } from './rooms';
 
-export const SCENERY: readonly CharacterArt[] = [...ROOMS, ...PROPS, ...ARENAS];
+export const SCENERY: readonly CharacterArt[] = [...ROOMS, ...PROPS, ...ARENAS, ...REST];

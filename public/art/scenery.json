@@ -215,13 +215,40 @@
     "w": 320,
     "h": 152
    }
+  },
+  {
+   "filename": "rest_backdrop/still 0",
+   "frame": {
+    "x": 0,
+    "y": 1930,
+    "w": 320,
+    "h": 180
+   }
+  },
+  {
+   "filename": "rest_player/sit 0",
+   "frame": {
+    "x": 0,
+    "y": 2110,
+    "w": 48,
+    "h": 44
+   }
+  },
+  {
+   "filename": "rest_player/sit 1",
+   "frame": {
+    "x": 48,
+    "y": 2110,
+    "w": 48,
+    "h": 44
+   }
   }
  ],
  "meta": {
   "image": "scenery.png",
   "size": {
    "w": 320,
-   "h": 1930
+   "h": 2154
   },
   "frameTags": [
    {
@@ -338,6 +365,16 @@
     "name": "arena_boss_near/still",
     "from": 23,
     "to": 23
+   },
+   {
+    "name": "rest_backdrop/still",
+    "from": 24,
+    "to": 24
+   },
+   {
+    "name": "rest_player/sit",
+    "from": 25,
+    "to": 26
    }
   ]
  }
