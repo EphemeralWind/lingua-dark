@@ -11,7 +11,7 @@ describe('sprite frames', () => {
     const enemy = requiredTags('enemy');
     expect(enemy).toMatchObject({ idle: 4, windup: 6, strike_north: 3, strike_east: 3, strike_south: 3, recoil_east: 4, break: 4, death: 6 });
     expect(enemy['strike_west']).toBeUndefined();
-    expect(requiredTags('player')).toMatchObject({ idle: 4, parry_north: 4, parry_south: 4, hit_east: 3, death: 6 });
+    expect(requiredTags('player')).toMatchObject({ idle: 4, guard: 4, parry_north: 4, parry_south: 4, hit_east: 3, death: 6 });
   });
 
   it('time-stretches one wind-up over the window: six frames by progress', () => {
@@ -23,7 +23,10 @@ describe('sprite frames', () => {
   it('ignores the clock during a wind-up', () => {
     const a: Animation = { ...base, enemyPose: 'windup', progress: 0.5, playerPose: 'guard', timerLeft: 0.5 };
     expect(enemyFrame(a, { nowMs: 0, sinceEndMs: 0 })).toEqual(enemyFrame(a, { nowMs: 12345, sinceEndMs: 999 }));
-    expect(playerFrame(a, { nowMs: 0, sinceEndMs: 0 })).toEqual(playerFrame(a, { nowMs: 12345, sinceEndMs: 999 }));
+    for (const scene of ['world', 'fight'] as const) {
+      expect(playerFrame(a, { nowMs: 0, sinceEndMs: 0 }, scene)).toEqual({ tag: 'guard', frame: 0, flip: false });
+      expect(playerFrame(a, { nowMs: 12345, sinceEndMs: 999 }, scene)).toEqual({ tag: 'guard', frame: 0, flip: false });
+    }
   });
 
   it('mirrors the east set for west', () => {
@@ -53,5 +56,10 @@ describe('sprite frames', () => {
   it('plays death once and holds the last frame', () => {
     expect(enemyFrame({ ...base, enemyPose: 'dead' }, { nowMs: 0, sinceEndMs: 0 }).frame).toBe(0);
     expect(enemyFrame({ ...base, enemyPose: 'dead' }, { nowMs: 0, sinceEndMs: 100_000 }).frame).toBe(5);
+  });
+
+  it('stands in guard during a fight and relaxed in the world', () => {
+    expect(playerFrame(base, { nowMs: 500, sinceEndMs: 0 }, 'fight').tag).toBe('guard');
+    expect(playerFrame(base, { nowMs: 500, sinceEndMs: 0 }).tag).toBe('idle');
   });
 });

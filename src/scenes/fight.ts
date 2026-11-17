@@ -277,7 +277,7 @@ export class Fight {
   }
 
   private drawPlayer(r: Renderer, a: Animation, nowMs: number, calm: boolean): void {
-    const f = playerFrame(a, { nowMs, sinceEndMs: this.endedAt === null ? 0 : nowMs - this.endedAt });
+    const f = playerFrame(a, { nowMs, sinceEndMs: this.endedAt === null ? 0 : nowMs - this.endedAt }, 'fight');
     // Hit shake, after the hit-stop; none with reduced motion.
     const shake = a.playerPose === 'hit' && !a.frozen && !calm ? Math.round(Math.sin(a.progress * 24) * HIT_SHAKE_PX) : 0;
     this.svc.sprites.draw(r.low, 'player', f, 160 + shake, PLAYER_BOTTOM);

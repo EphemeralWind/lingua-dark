@@ -79,6 +79,42 @@ const sword = part('player sword', 5, [
   '2. Q',
 ]);
 
+/**
+ * The sword readied, point up, leaning toward the centre: aimed forward at the enemy, as seen
+ * from behind. The guard and grip sit low, where the cloak hides them.
+ */
+const swordReady = part('player sword readied', 12, [
+  '1. Q',
+  '1. R Q',
+  '1. R Q P',
+  '1. R Q P',
+  '2. R Q P',
+  '2. R Q P',
+  '2. R Q P',
+  '2. R Q P',
+  '3. R Q P',
+  '3. R Q P',
+  '3. R Q P',
+  '3. R Q P',
+  '4. R Q P',
+  '4. R Q P',
+  '4. R Q P',
+  '4. R Q P',
+  '5. R Q P',
+  '5. R Q P',
+  '5. R Q P',
+  '5. R Q P',
+  '6. R Q P',
+  '6. R Q P',
+  '6. R Q P',
+  '6. R Q P',
+  '5. 5d',
+  '6. d c d',
+  '7. V',
+  '7. V',
+  '6. 3d',
+]);
+
 const sleeveUp = part('player sleeve up', 6, ['1. 4A', 'A 2M 2K A', 'A M 3K A', 'A M 3K A', 'A M 3K A', 'A M 3K A', 'A M 3K A', 'A M 3J A', 'A M 3J A', '1. 4A']);
 const sleeveAcross = part('player sleeve across', 20, ['1. 18A', 'A 18M A', 'A 18K A', 'A 18K A', 'A 18J A', '1. 18A']);
 
@@ -102,8 +138,16 @@ const fallen = part('player fallen', 40, [
 ]);
 
 // --- poses -----------------------------------------------------------------
+//
+// The camera is behind the player, so anything held toward the enemy is in front of the body:
+// shield and readied sword are drawn first and the legs, head and cloak cover what they overlap.
+// Only what sticks out past the body shows. Sleeves are nearer the camera than the shield, so
+// they are drawn last. The relaxed sword hangs at the hip, beside the body, and is drawn on top.
 
+/** Shield in front of the left side: its rim peeks out past the cloak. */
 const SHIELD_REST = { x: 0, y: 32 };
+/** Readied sword: hilt hidden in front of the chest, blade rising past the right of the head. */
+const SWORD_READY = { x: 28, y: 4 };
 
 interface Pose {
   dx?: number;
@@ -112,6 +156,8 @@ interface Pose {
   head?: { x: number; y: number };
   legs?: { l: number; r: number };
   shield?: { x: number; y: number };
+  /** `ready` in fights (offset from SWORD_READY), `hip` when exploring. */
+  sword?: { x: number; y: number } | 'hip';
   extra?: Placed[];
 }
 
@@ -119,17 +165,20 @@ function pose(p: Pose = {}): Frame {
   const dx = p.dx ?? 0;
   const dy = p.dy ?? 0;
   const s = p.shield ?? SHIELD_REST;
+  const sw = p.sword ?? 'hip';
   return [
+    at(shield, s.x + dx, s.y + dy),
+    ...(sw === 'hip' ? [] : [at(swordReady, SWORD_READY.x + sw.x + dx, SWORD_READY.y + sw.y + dy)]),
     at(legL, 12, 53 + (p.legs?.l ?? 0)),
     at(legR, 27, 53 + (p.legs?.r ?? 0)),
     at(head, 17 + dx + (p.head?.x ?? 0), 12 + dy + (p.head?.y ?? 0)),
     at(cloak, 7 + dx, 25 + dy),
-    at(sword, 40 + dx, 33 + dy),
+    ...(sw === 'hip' ? [at(sword, 40 + dx, 33 + dy)] : []),
     ...(p.extra ?? []),
-    at(shield, s.x + dx, s.y + dy),
   ];
 }
 
+const READY = { x: 0, y: 0 };
 const idle = [0, 0, 1, 1].map((dy) => pose({ dy }));
 const walk = [
   pose({ legs: { l: -2, r: 0 } }),
@@ -137,11 +186,16 @@ const walk = [
   pose({ legs: { l: 0, r: -2 } }),
   pose({ dy: 1 }),
 ];
+/** Fight stance: sword readied, a slow breath. Frame 0 is held through every wind-up. */
+const guard = [0, 0, 1, 1].map((dy) => pose({ dy, sword: READY }));
 
-const PARRY: Record<'north' | 'east' | 'south', { shield: { x: number; y: number }; dy: number; sleeve: Placed | null }> = {
-  north: { shield: { x: 16, y: 0 }, dy: 0, sleeve: at(sleeveUp, 17, 15) },
-  east: { shield: { x: 31, y: 22 }, dy: 0, sleeve: at(sleeveAcross, 14, 29) },
-  south: { shield: { x: 5, y: 42 }, dy: 2, sleeve: null },
+const PARRY: Record<'north' | 'east' | 'south', { shield: { x: number; y: number }; dy: number; sleeve: Placed | null; sword: { x: number; y: number } }> = {
+  // Raised in front of the face: the head hides its lower edge.
+  north: { shield: { x: 15, y: -1 }, dy: 0, sleeve: at(sleeveUp, 11, 15), sword: { x: 2, y: 2 } },
+  // Pushed out past the right shoulder.
+  east: { shield: { x: 33, y: 16 }, dy: 0, sleeve: at(sleeveAcross, 14, 29), sword: { x: -3, y: 2 } },
+  // Low on the left, the player crouching behind it.
+  south: { shield: { x: -1, y: 40 }, dy: 2, sleeve: null, sword: { x: 0, y: 2 } },
 };
 /** Contact on frame 0 (held through the hit-stop), then the shield eases back. */
 const EASE = [1, 0.85, 0.55, 0.25];
@@ -155,6 +209,7 @@ const parry = Object.fromEntries(
         pose({
           dy: Math.round(t.dy * k),
           shield: { x: lerp(SHIELD_REST.x, t.shield.x, k), y: lerp(SHIELD_REST.y, t.shield.y, k) },
+          sword: { x: Math.round(t.sword.x * k), y: Math.round(t.sword.y * k) },
           extra: t.sleeve && k > 0.6 ? [t.sleeve] : [],
         }),
       ),
@@ -163,21 +218,29 @@ const parry = Object.fromEntries(
 ) as Record<'north' | 'east' | 'south', Frame[]>;
 
 const UNIT = { north: { x: 0, y: -1 }, east: { x: 1, y: 0 }, south: { x: 0, y: 1 } };
+/** Hit: knocked back, shield sagging, sword knocked low and outward, then recovering. */
 const hit = Object.fromEntries(
   (['north', 'east', 'south'] as const).map((d) => [
     d,
     [4, 3, 1].map((push, f) => {
       const dx = -UNIT[d].x * push;
       const dy = d === 'north' ? ([3, 2, 0][f] ?? 0) : d === 'south' ? -([2, 1, 0][f] ?? 0) : 1;
-      return pose({ dx, dy, head: { x: f === 0 ? -UNIT[d].x : 0, y: f === 0 ? 1 : 0 }, shield: { x: SHIELD_REST.x + 2, y: SHIELD_REST.y + 4 } });
+      const knock = [6, 4, 1][f] ?? 0;
+      return pose({
+        dx,
+        dy,
+        head: { x: f === 0 ? -UNIT[d].x : 0, y: f === 0 ? 1 : 0 },
+        shield: { x: SHIELD_REST.x + 1, y: SHIELD_REST.y + 4 },
+        sword: { x: Math.floor(knock / 3), y: knock },
+      });
     }),
   ]),
 ) as Record<'north' | 'east' | 'south', Frame[]>;
 
 const lying = (y: number): Frame => [at(rotCW(shield), -3, 51), at(rotCW(sword), 21, 60), at(fallen, 4, y)];
 const death: Frame[] = [
-  pose({ dy: 4, head: { x: 0, y: 1 }, shield: { x: 1, y: 38 } }),
-  pose({ dy: 8, head: { x: 0, y: 2 }, shield: { x: 2, y: 44 } }),
+  pose({ dy: 4, head: { x: 0, y: 1 }, shield: { x: 1, y: 38 }, sword: { x: 1, y: 10 } }),
+  pose({ dy: 8, head: { x: 0, y: 2 }, shield: { x: 2, y: 44 }, sword: 'hip' }),
   lying(44),
   lying(46),
   lying(47),
@@ -191,6 +254,7 @@ export const PLAYER: CharacterArt = {
   tags: {
     idle,
     walk,
+    guard,
     parry_north: parry.north,
     parry_east: parry.east,
     parry_south: parry.south,

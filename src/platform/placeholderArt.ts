@@ -223,7 +223,7 @@ function paintPlayer(g: G, spec: CharacterSpec, tag: string, f: number, ox: numb
   let flat = 0;
   let shield = { x: -14, y: 26 };
   let leg = 0;
-  if (name === 'idle') dy = [0, 0, 1, 1][f] ?? 0;
+  if (name === 'idle' || name === 'guard') dy = [0, 0, 1, 1][f] ?? 0;
   if (name === 'walk') {
     dy = [0, 1, 0, 1][f] ?? 0;
     leg = [1, 0, -1, 0][f] ?? 0;
@@ -266,8 +266,10 @@ function paintPlayer(g: G, spec: CharacterSpec, tag: string, f: number, ox: numb
   // Head: hair from behind.
   rect(g, cx - 6, top - 13 + Math.round(crouch * 4), 12, 13, C.void);
   rect(g, cx - 5, top - 12 + Math.round(crouch * 4), 10, 4, look.dark);
-  // Sword down the right side.
-  ray(g, cx + 17, top + 10, 175, 26, 2, C.weapon);
+  // Sword: readied point-up in fights (guard, parry, hit), down the right side otherwise.
+  const ready = name === 'guard' || name === 'parry' || name === 'hit';
+  if (ready) ray(g, cx + 14, top + 12, -8, 30, 2, C.weapon);
+  else ray(g, cx + 17, top + 10, 175, 26, 2, C.weapon);
   // Shield (its back, with the grip): left hand, moved to the parry direction.
   const sx = cx + shield.x;
   const sy = top - 14 + shield.y;

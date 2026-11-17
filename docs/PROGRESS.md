@@ -207,6 +207,8 @@ Decisions #77–#90.
   `public/art/atlas.{json,png}`; `art/art.test.ts` checks tags, sizes, the crown in every warden
   frame, PNG round-trip, and that the committed files match a fresh build.
 - Review: `/art-test.html` (drawn vs placeholder, `?scale=N`), `/?seed=N&enemy=hollow_monk`.
+- Player revision (#92): shield and readied sword drawn in front of the body (hidden where the
+  body covers them), and a new `guard` tag for the fight stance with the sword readied.
 - Still placeholders: hollow_villager, hollow_smith, whisperer, crow, ghost, boss_zone1, and the
   room backdrops. Waiting on the designer's verdict on the sample before drawing the rest.
 

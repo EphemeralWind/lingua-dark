@@ -5,7 +5,7 @@ import { requiredTags } from '../src/combat/sprites';
 import { missingTags, parseAtlas } from '../src/platform/atlas';
 import { CHARACTERS } from '../src/platform/characters';
 import { ART, atlasJsonText, buildSheet, encodePng } from './build';
-import { decodeRow, part, rasterize, rotCW, flipX } from './kit';
+import { decodeRow, flipX, KEYS, part, rasterize, rotCW } from './kit';
 
 describe('art kit', () => {
   it('decodes run-length rows and pads them to the part width', () => {
@@ -47,6 +47,17 @@ describe('hand-drawn characters', () => {
       for (const [tag, frames] of Object.entries(c.tags)) {
         frames.forEach((f, i) => expect(rasterize(f, c.w, c.h).some((k) => k >= 0), `${c.id}/${tag} ${i}`).toBe(true));
       }
+    }
+  });
+
+  it("the readied sword's hilt stays hidden behind the body in every fight frame", () => {
+    const player = ART.find((c) => c.id === 'player')!;
+    const hilt = [KEYS.indexOf('c'), KEYS.indexOf('d')];
+    for (const tag of ['guard', 'parry_north', 'parry_east', 'parry_south', 'hit_north', 'hit_east', 'hit_south']) {
+      player.tags[tag]!.forEach((f, i) => {
+        const shown = [...rasterize(f, player.w, player.h)].filter((k) => hilt.includes(k)).length;
+        expect(shown, `${tag} ${i}`).toBe(0);
+      });
     }
   });
 

@@ -10,7 +10,8 @@ import type { Animation } from './view';
 
 /** Frames per animation tag (SPEC 8). Directional tags get one set per drawn direction. */
 export const ENEMY_FRAMES = { idle: 4, windup: 6, strike: 3, recoil: 4, break: 4, death: 6 } as const;
-export const PLAYER_FRAMES = { idle: 4, walk: 4, parry: 4, hit: 3, death: 6 } as const;
+/** `guard` (sword readied) is an addition to SPEC 8's list: the player's stance in fights (DECISIONS #92). */
+export const PLAYER_FRAMES = { idle: 4, walk: 4, guard: 4, parry: 4, hit: 3, death: 6 } as const;
 
 /** Directions with their own art. West mirrors east. */
 export const DRAWN_DIRECTIONS = ['north', 'east', 'south'] as const;
@@ -74,18 +75,23 @@ export function enemyFrame(a: Animation, clock: FrameClock): SpriteFrame {
   }
 }
 
-export function playerFrame(a: Animation, clock: FrameClock): SpriteFrame {
+/**
+ * The player's frame. In a fight the player stands in guard (sword readied) instead of the
+ * relaxed exploring idle; during a wind-up that is one held frame, whatever the question.
+ */
+export function playerFrame(a: Animation, clock: FrameClock, scene: 'world' | 'fight' = 'world'): SpriteFrame {
+  const rest = scene === 'fight' ? 'guard' : 'idle';
   switch (a.playerPose) {
     case 'guard':
       // One held guard frame for the whole wind-up.
-      return { tag: 'idle', frame: 0, flip: false };
+      return { tag: 'guard', frame: 0, flip: false };
     case 'parry':
-      return a.toward ? directional('parry', a.toward, a.progress, PLAYER_FRAMES.parry) : { tag: 'idle', frame: 0, flip: false };
+      return a.toward ? directional('parry', a.toward, a.progress, PLAYER_FRAMES.parry) : { tag: rest, frame: 0, flip: false };
     case 'hit':
-      return a.toward ? directional('hit', a.toward, a.progress, PLAYER_FRAMES.hit) : { tag: 'idle', frame: 0, flip: false };
+      return a.toward ? directional('hit', a.toward, a.progress, PLAYER_FRAMES.hit) : { tag: rest, frame: 0, flip: false };
     case 'dead':
       return { tag: 'death', frame: Math.min(PLAYER_FRAMES.death - 1, Math.floor(clock.sinceEndMs / DEATH_FRAME_MS)), flip: false };
     case 'idle':
-      return { tag: 'idle', frame: Math.floor(clock.nowMs / IDLE_FRAME_MS) % PLAYER_FRAMES.idle, flip: false };
+      return { tag: rest, frame: Math.floor(clock.nowMs / IDLE_FRAME_MS) % PLAYER_FRAMES[rest], flip: false };
   }
 }

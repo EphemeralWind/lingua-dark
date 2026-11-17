@@ -179,3 +179,9 @@ Each entry: what was ambiguous, the reading picked, and why. Revisit any of them
     - The wind-up frames depend on the frame index only, so the shared-wind-up rule holds, and the blind-bot suite is unchanged.
     - Review aids: `/art-test.html` shows every tag of each drawn character above its placeholder, and `/?seed=N&enemy=<id>` sets the practice-fight opponent.
     - If real art from an artist arrives as an Aseprite export with the same tag names, it replaces this sheet with no code change.
+92. **The player's shield and readied sword are in front of the body; fights use a `guard` stance.** The camera is behind the player, so anything held toward the enemy is farther from the camera than the body. The hand-drawn player now draws shield and readied sword first; the legs, head and cloak cover them, and only what sticks out past the body shows. The arm sleeves are nearer the camera and draw last. The first sample drew the shield on top, so it read as slung on his back. Parries stay shield parries:
+    - north: raised before the face, the head covering its lower edge;
+    - east: out past the right shoulder;
+    - south: low on the left.
+
+    In fights the sword is readied: point up and leaning in, aimed at the enemy, its hilt hidden in front of the chest. A test checks no hilt pixel shows in any fight frame. A hit knocks the sword low. Exploring frames keep it relaxed at the hip. `guard` (4 frames) is a player tag added to SPEC 8's list. `playerFrame(…, 'fight')` uses it for the fight's rest pose, and every wind-up holds guard frame 0, still one frame for every question. West parries are the east frames mirrored, as SPEC 8 asks, so for those frames shield and sword swap hands. Accepted.

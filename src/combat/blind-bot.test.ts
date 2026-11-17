@@ -288,7 +288,7 @@ describe('wind-up animation carries no answer information', () => {
           for (const f of fractions) {
             const view = viewOf(enc, f * span);
             const a = view.animation;
-            const seen = JSON.stringify({ a: { ...a, timerLeft: null }, enemy: enemyFrame(a, clock), player: playerFrame(a, clock), cues: cuesBetween(prev, view) });
+            const seen = JSON.stringify({ a: { ...a, timerLeft: null }, enemy: enemyFrame(a, clock), player: playerFrame(a, clock, 'fight'), cues: cuesBetween(prev, view) });
             prev = view;
             const ref = reference.get(f);
             if (ref) expect(seen).toEqual(ref);
