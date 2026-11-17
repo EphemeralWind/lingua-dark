@@ -42,3 +42,29 @@ export const UPDATE_STEP_MS = 1000 / 60;
 export const PERFECT_PARRY_Q = 0.75;
 /** Parry flash length: 3 frames at 60 Hz (SPEC 8). */
 export const PARRY_FLASH_MS = 50;
+
+// --- Learning (SPEC 6, design doc) ---
+/** Review interval for Leitner boxes 1 to 5, in days. */
+export const LEITNER_INTERVALS_DAYS: readonly number[] = [1, 3, 7, 14, 30];
+/** Untelegraphed correct answers, on different days, that make a component Learned. */
+export const MASTERY_CORRECT_DAYS = 2;
+/** Share of a zone's components that must be Learned to open its boss gate. */
+export const GATE_THRESHOLD = 0.8;
+export const MAX_GHOSTS_PER_ROOM = 3;
+
+// --- default (not in design doc), added in Milestone 3 ---
+/** Questions in one bonfire review round. */
+export const REVIEW_ROUND_SIZE = 5;
+/** A ghost breaks on one parry (any drain exceeds this) and dies to one riposte word. */
+export const GHOST_STANCE_MAX = 1;
+export const GHOST_HP = 15;
+export const ENEMY_XP = 50;
+export const GHOST_XP = 10;
+/** Vitality lost to an ambush after a wrong reading choice. Never kills. */
+export const AMBUSH_DAMAGE = 15;
+/** Seeds tried when looking for a question that shows a target component on its cards. */
+export const TARGET_TRIES = 800;
+/** Seeds tried when looking for a review question that tests a component exactly. */
+export const REVIEW_TRIES = 8000;
+/** Room-to-room walk transition. */
+export const ROOM_TRANSITION_MS = 350;
