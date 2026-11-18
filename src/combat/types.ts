@@ -1,5 +1,5 @@
 // Encounter types from docs/SPEC.md section 9, extended per DECISIONS #17.
-import type { Direction, Question } from '../content/types';
+import type { Direction, Question, QuestionKind } from '../content/types';
 
 export type AttackType = 'jab' | 'overhead' | 'delayed' | 'grab' | 'sweep' | 'combo';
 
@@ -52,11 +52,15 @@ export type EncounterState =
 
 export type RiposteVerdict = 'exact' | 'accent' | 'wrong';
 
-/** One resolved strike, kept for tests and later for playtest logs. */
+/** One resolved strike, kept for tests, the review schedule and the playtest log. */
 export interface ExchangeRecord {
   questionId: string;
   seed: number;
+  kind: QuestionKind;
+  attack: AttackType;
   strike: number;
+  /** 0-based question index within a boss flurry; 0 outside chains. */
+  chainIndex: number;
   chosen: Direction | null;
   correct: Direction;
   result: 'parry' | 'hit';
@@ -65,4 +69,14 @@ export interface ExchangeRecord {
   components: string[];
   /** A flask greyed out two cards on this strike. */
   assisted: boolean;
+  /** Ms from the start of the wind-up to lock-in, or to the window closing on a timeout. */
+  answerMs: number;
+  /** Length of the answer window in ms (it still exists in Hollow mode, where it never closes). */
+  windowMs: number;
+  /** The window closed with no answer. */
+  timedOut: boolean;
+  /** This strike broke the enemy's stance. */
+  stanceBroken: boolean;
+  /** Hollow mode (no timers) was on when the strike resolved. */
+  untimed: boolean;
 }

@@ -150,7 +150,8 @@ export class Encounter {
     if (this.untimed) {
       if (s.greyed.includes(dir)) return false;
       // No deadline: past the window, quality is 0 and the drain sits at the floor.
-      this.resolve(dir, Math.min(Math.max(atMs, s.startMs), s.deadlineMs));
+      // The log keeps the real answer time, even past the window.
+      this.resolve(dir, Math.min(Math.max(atMs, s.startMs), s.deadlineMs), Math.max(atMs, s.startMs));
       return true;
     }
     if (s.greyed.includes(dir) && atMs < s.deadlineMs) return false;
@@ -208,7 +209,8 @@ export class Encounter {
     this.current = { kind: 'windup', question, strike, startMs: nowMs, deadlineMs: nowMs + windowMs(attack, this.zone), greyed: [] };
   }
 
-  private resolve(chosen: Direction | null, atMs: number): void {
+  /** `answeredAtMs` differs from `atMs` only in Hollow mode, where an answer can come after the window. */
+  private resolve(chosen: Direction | null, atMs: number, answeredAtMs = atMs): void {
     const s = this.current;
     if (s.kind !== 'windup') return;
     const strike = s.question.strikes[s.strike];
@@ -237,13 +239,21 @@ export class Encounter {
     this.log.push({
       questionId: s.question.id,
       seed: s.question.seed,
+      kind: s.question.kind,
+      attack,
       strike: s.strike,
+      chainIndex: this.chainIndex,
       chosen,
       correct: strike.correct,
       result: parried ? 'parry' : 'hit',
       quality,
       components: strikeComponents(s.question, s.strike),
       assisted,
+      answerMs: answeredAtMs - s.startMs,
+      windowMs: s.deadlineMs - s.startMs,
+      timedOut: chosen === null,
+      stanceBroken: e.stance <= 0,
+      untimed: this.untimed,
     });
 
     this.current = {

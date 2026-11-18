@@ -412,3 +412,32 @@ describe('Encounter: Hollow mode (no timers)', () => {
     expectKind(t.enc.state, 'windup');
   });
 });
+
+describe('Encounter: exchange log for playtests', () => {
+  it('records attack, timing, timeouts, stance breaks and Hollow per strike', () => {
+    const t = setup(question('vocab', [N]), { stanceMax: 20 });
+    t.lock(E, 1200); // wrong
+    t.advance(RESOLVE_MS);
+    t.advance(4500); // jab window 3 s x 1.5: times out
+    t.advance(RESOLVE_MS);
+    t.lock(N, 300); // parry: drains about 23 from a full 20, so the stance breaks
+    const [wrong, late, right] = t.enc.log;
+    expect(wrong).toMatchObject({ kind: 'vocab', attack: 'jab', chainIndex: 0, answerMs: 1200, windowMs: 4500, timedOut: false, result: 'hit', untimed: false });
+    expect(late).toMatchObject({ chosen: null, timedOut: true, answerMs: 4500, result: 'hit' });
+    expect(right).toMatchObject({ result: 'parry', answerMs: 300, timedOut: false, stanceBroken: true });
+  });
+
+  it('keeps the real answer time in Hollow mode, past the window', () => {
+    const t = setup(question('grammar', [N]), { untimed: true });
+    t.lock(N, 20_000);
+    expect(t.enc.log[0]).toMatchObject({ answerMs: 20_000, windowMs: 7500, quality: 0, timedOut: false, untimed: true });
+  });
+
+  it('counts the question within a boss flurry', () => {
+    const t = setup(question('grammar', [N]), { chain: 2 });
+    t.lock(N);
+    t.advance(RESOLVE_MS);
+    t.lock(N);
+    expect(t.enc.log.map((r) => r.chainIndex)).toEqual([0, 1]);
+  });
+});
