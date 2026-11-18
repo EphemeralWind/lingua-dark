@@ -3,7 +3,7 @@ import tseslint from 'typescript-eslint';
 import globals from 'globals';
 
 // Pure-logic modules must not touch the browser (CLAUDE.md, Architecture rules).
-const PURE_DIRS = ['src/combat/**', 'src/content/**', 'src/learning/**', 'src/save/**', 'src/world/**'];
+const PURE_DIRS = ['src/combat/**', 'src/content/**', 'src/learning/**', 'src/playtest/**', 'src/save/**', 'src/world/**'];
 const BROWSER_GLOBALS = ['window', 'document', 'performance', 'navigator', 'localStorage', 'requestAnimationFrame'];
 
 export default tseslint.config(

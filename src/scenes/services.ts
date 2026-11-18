@@ -7,6 +7,7 @@ import type { Renderer } from '../platform/renderer';
 import type { RiposteInput } from '../platform/riposteInput';
 import type { Speech } from '../platform/speech';
 import { C } from '../platform/palette';
+import type { PlaytestLog } from '../playtest/log';
 import type { Settings } from '../save/settings';
 import { CAPTION_MS } from '../tuning';
 
@@ -41,5 +42,7 @@ export interface Services {
   /** Live settings object; the settings menu edits it in place. */
   settings: Settings;
   riposte: RiposteInput;
+  /** Local playtest log (no network); exported from the settings menu. */
+  playtest: PlaytestLog;
   setTextMode: (on: boolean) => void;
 }

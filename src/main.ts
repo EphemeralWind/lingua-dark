@@ -12,6 +12,7 @@ import { Renderer } from './platform/renderer';
 import { RiposteInput } from './platform/riposteInput';
 import { Speech } from './platform/speech';
 import { BrowserStore } from './platform/storage';
+import { PlaytestLog } from './playtest/log';
 import { defaultSettings, loadSettings, saveSettings } from './save/settings';
 import { SaveStore } from './save/store';
 import { CombatScene } from './scenes/combat';
@@ -49,6 +50,8 @@ async function boot(): Promise<void> {
     time,
     settings,
     riposte: new RiposteInput(field),
+    // Local only: written to localStorage, exported by hand from the settings menu.
+    playtest: new PlaytestLog(kv, () => Date.now()),
     setTextMode: (on) => {
       input.textMode = on;
     },

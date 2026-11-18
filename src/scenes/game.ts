@@ -362,7 +362,7 @@ export class GameScene {
     g: GameState,
     foe: FoeKey,
     templates: Template[] | undefined,
-    o: { label: string; character: string; enemyHp?: number; stanceMax?: number; chain?: number; note?: string; arena?: 'boss' },
+    o: { label: string; character: string; enemyHp?: number; stanceMax?: number; chain?: number; note?: string; arena?: 'boss'; bossPhase?: { n: number; of: number } },
   ): Fight {
     const rng = createRng(nextFightSeed(g));
     const ghost = ghostComponent(foe);
@@ -392,6 +392,7 @@ export class GameScene {
       flasks: { count: () => g.flasks, spend: () => (g.flasks = Math.max(0, g.flasks - 1)), power: FLASK_POWER_BASE },
       ...(o.note ? { note: o.note } : {}),
       ...(o.arena ? { arena: o.arena } : {}),
+      ...(o.bossPhase ? { bossPhase: o.bossPhase } : {}),
     });
   }
 
@@ -407,6 +408,7 @@ export class GameScene {
       stanceMax: phase.stanceMax,
       chain: phase.chain,
       arena: 'boss',
+      bossPhase: { n: boss.index + 1, of: boss.def.phases.length },
       ...(echo ? { note: `ECHO ${echo.xp} XP` } : {}),
     });
     // Each phase opens on a title card; the fight starts when it ends. A phase with a battle cry

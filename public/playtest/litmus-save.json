@@ -1,0 +1,58 @@
+{
+  "format": "lingua-dark-save",
+  "version": 2,
+  "savedAtMs": 1794960000000,
+  "game": {
+    "version": 1,
+    "zone": 1,
+    "seed": 20261118,
+    "fights": 0,
+    "bonfire": "r1_bonfire",
+    "room": "r1_bonfire",
+    "cameFrom": null,
+    "backOf": {
+      "r1_lane": "r1_bonfire",
+      "r1_chapel": "r1_lane",
+      "r1_gate": "r1_chapel"
+    },
+    "visited": [
+      "r1_bonfire",
+      "r1_lane",
+      "r1_chapel",
+      "r1_gate"
+    ],
+    "walked": [
+      "r1_bonfire|r1_lane",
+      "r1_chapel|r1_lane",
+      "r1_chapel|r1_gate"
+    ],
+    "openDoors": [],
+    "defeated": [
+      "r1_lane"
+    ],
+    "wardensBeaten": [
+      "r1_chapel",
+      "r1_cellar",
+      "r1_orchard"
+    ],
+    "seals": [
+      "articles",
+      "present",
+      "words"
+    ],
+    "bossesBeaten": [],
+    "ghosts": {},
+    "echo": null,
+    "xp": 0,
+    "flasks": 3,
+    "vitality": 100,
+    "readingsDone": []
+  },
+  "profile": {
+    "version": 1,
+    "learner": {
+      "components": {}
+    },
+    "bestLearned": 0
+  }
+}

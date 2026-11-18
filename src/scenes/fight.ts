@@ -14,6 +14,7 @@ import { viewOf, type Animation, type CardText, type EncounterView } from '../co
 import type { Direction, Question } from '../content/types';
 import type { SpriteBank } from '../platform/atlas';
 import type { InputEvent } from '../platform/input';
+import type { FightInfo } from '../playtest/log';
 import { C } from '../platform/palette';
 import type { Renderer } from '../platform/renderer';
 import { HIT_SHAKE_PX, RESOLVE_MS } from '../tuning';
@@ -85,6 +86,8 @@ export interface FightOptions {
   note?: string;
   /** Arena look: the boss arena has its own palette and silhouettes. */
   arena?: 'village' | 'boss';
+  /** Boss fights: this phase (1-based) of how many, for the playtest log. */
+  bossPhase?: { n: number; of: number };
 }
 
 export class Fight {
@@ -95,6 +98,10 @@ export class Fight {
   private prevView: EncounterView | null = null;
   private endedAt: number | null = null;
   private lastSpokenStrike: string | null = null;
+  /** Playtest log: this fight's id, and strikes already written to it. */
+  private playtestFight: string | null = null;
+  private playtestLogged = 0;
+  private playtestEnded = false;
 
   constructor(
     readonly enc: Encounter,
@@ -113,6 +120,29 @@ export class Fight {
   start(nowMs: number): void {
     this.enc.untimed = this.svc.settings.hollow;
     this.enc.start(nowMs);
+    this.playtestFight = this.svc.playtest.beginFight(this.playtestInfo(), { hollow: this.enc.untimed, vitality: this.enc.vitality, enemyHp: this.enc.enemy.hp });
+  }
+
+  private playtestInfo(): FightInfo {
+    const b = this.opts.bossPhase;
+    return { foe: this.opts.character, label: this.opts.label, ...(b ? { bossPhase: b.n, bossPhases: b.of } : {}) };
+  }
+
+  /** Writes resolved strikes, ripostes and the outcome to the playtest log. Only after the fact. */
+  private logPlaytest(prevKind: string): void {
+    const fight = this.playtestFight;
+    if (fight === null) return;
+    const info = this.playtestInfo();
+    for (; this.playtestLogged < this.enc.log.length; this.playtestLogged++) {
+      const rec = this.enc.log[this.playtestLogged];
+      if (rec) this.svc.playtest.exchange(fight, info, rec);
+    }
+    const s = this.enc.state;
+    if (s.kind === 'riposteResult' && prevKind === 'riposte') this.svc.playtest.riposte(fight, info, s.verdicts);
+    if ((s.kind === 'won' || s.kind === 'lost') && !this.playtestEnded) {
+      this.playtestEnded = true;
+      this.svc.playtest.endFight(fight, info, { outcome: s.kind, vitality: this.enc.vitality, enemyHp: this.enc.enemy.hp });
+    }
   }
 
   /** Strikes resolved since the last call. */
@@ -141,12 +171,14 @@ export class Fight {
   update(nowMs: number): void {
     // Hollow mode can be switched in the settings menu mid-fight.
     this.enc.untimed = this.svc.settings.hollow;
+    const prevKind = this.enc.state.kind;
     if (this.pendingSubmit) {
       this.pendingSubmit = false;
       this.enc.submitRiposte(this.riposteFields, nowMs);
       this.closeRiposte();
     }
     this.enc.tick(nowMs);
+    this.logPlaytest(prevKind);
     if (this.enc.state.kind === 'riposte' && !this.riposteOpen) this.openRiposte();
 
     const view = viewOf(this.enc, nowMs);

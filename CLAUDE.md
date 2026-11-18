@@ -26,8 +26,8 @@ Non-negotiables:
 
 ## Architecture rules
 
-- Layout: `src/platform` (renderer, input, audio, assets), `src/scenes` (world, combat, title), `src/combat` (encounter state machine, timing), `src/content` (generator, distractors, rng, data/*.json), `src/learning` (components, scheduler, mastery), `src/save` (store).
-- Pure-logic modules (`combat`, `content`, `learning`, `save` logic) must not touch the DOM, Canvas, `window`, or `performance.now()`. They take an injected clock and a seeded RNG, so they run under Vitest with no browser.
+- Layout: `src/platform` (renderer, input, audio, assets), `src/scenes` (world, combat, title), `src/combat` (encounter state machine, timing), `src/content` (generator, distractors, rng, data/*.json), `src/learning` (components, scheduler, mastery), `src/save` (store), `src/world` (zone, run state, boss), `src/playtest` (local playtest log, tuning report).
+- Pure-logic modules (`combat`, `content`, `learning`, `world`, `playtest`, `save` logic) must not touch the DOM, Canvas, `window`, or `performance.now()`. They take an injected clock and a seeded RNG, so they run under Vitest with no browser.
 - Only `platform` and `scenes` touch the browser. Answer deadlines use `performance.now()` read in `platform` and passed in, never frame counts.
 - No `Math.random()` in game logic. Use the seeded RNG in `src/content/rng.ts`. Every generated question stores its seed so a bug report reproduces the exact sentence.
 - Fixed 60 Hz update steps, render with `requestAnimationFrame`.

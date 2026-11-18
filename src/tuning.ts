@@ -94,3 +94,21 @@ export const CAPTION_MS = 900;
 export const LARGE_TEXT_SCALE = 1.5;
 /** Screen shake on a hit, in internal pixels (off with reduced motion). */
 export const HIT_SHAKE_PX = 2;
+
+// --- Playtest (M5) ---
+/**
+ * Events kept in the local playtest log; the oldest drop first. About 400 bytes each, so this
+ * stays near 2 MB, well inside localStorage's usual 5 MB. An hour of play is about 1,000 strikes.
+ * Default (not in design doc).
+ */
+export const PLAYTEST_MAX_EVENTS = 5_000;
+/** Chance of guessing one four-card strike. The litmus test compares accuracy against it. */
+export const CHANCE_ACCURACY = 0.25;
+/** Litmus: a session's timed accuracy is "above chance" when the one-sided binomial p is below this. */
+export const LITMUS_ALPHA = 0.01;
+/** Report hint: flag an attack when more than this share of timed strikes time out. */
+export const REPORT_TIMEOUT_WARN = 0.2;
+/** Report hint: flag a window as generous when accurate players answer within this share of it. */
+export const REPORT_FAST_SHARE = 0.4;
+/** Litmus: the first this-many timed strikes of a session, before revealed answers can teach much. */
+export const LITMUS_EARLY_STRIKES = 40;
