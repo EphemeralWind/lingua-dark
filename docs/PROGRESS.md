@@ -12,10 +12,11 @@ behind each choice, see `docs/DECISIONS.md`. Numbers like #4 refer to entries th
 | 2. Content: procedural Spanish | Done, waiting for native review | `c332f2e`, `d1d64d2` |
 | 3. Learning and world | Done | `d944d25`–`f5af689`; `$back` fix `09b7257`; seals and meta-progression `c00868f`–`058d3eb` |
 | 4. Art, audio, settings | Done (hand-drawn art in-house; an artist's sheet can replace it) | `dc82e6f`–`e71e126`; after M4: art `e1960d8`–`bd6afbf`, boss `8bc815a`, lesson hub `fd54af8`–`b813061` |
-| 5. Playtest and tuning | Tools ready; litmus sessions with people not yet run | see git log after `b59a969` |
+| 5. Playtest and tuning | Tools ready; litmus sessions with people not yet run | `b5ae35e`–`d1aa6d7` |
 
 All checks pass as of the M5 tools: `npm run typecheck`, `npm run lint`, `npm test` (416 tests),
-`npm run build`, `npm run test:e2e`.
+`npm run build`, `npm run test:e2e`. The M5 commits are on local `main` and **not pushed yet**. A push
+deploys the site, and testers need that deploy to download the litmus save from it.
 
 **Deploy:** `.github/workflows/deploy.yml` builds and publishes `dist/` to GitHub Pages
 (https://ephemeralwind.github.io/lingua-dark/) on every push to `main`. The repo's Pages source is
