@@ -12,10 +12,10 @@ behind each choice, see `docs/DECISIONS.md`. Numbers like #4 refer to entries th
 | 2. Content: procedural Spanish | Done, waiting for native review | `c332f2e`, `d1d64d2` |
 | 3. Learning and world | Done | `d944d25`–`f5af689`; `$back` fix `09b7257`; seals and meta-progression `c00868f`–`058d3eb` |
 | 4. Art, audio, settings | Done (hand-drawn art in-house; an artist's sheet can replace it) | `dc82e6f`–`e71e126`; after M4: art `e1960d8`–`bd6afbf`, boss `8bc815a`, lesson hub `fd54af8`–`b813061` |
-| 5. Playtest and tuning | Not started | |
+| 5. Playtest and tuning | Tools ready; litmus sessions with people not yet run | see git log after `b59a969` |
 
-All checks pass as of the lesson hub: `npm run typecheck`, `npm run lint`, `npm test` (397 tests),
-`npm run build`, `npm run test:e2e`. Work is merged to `main`.
+All checks pass as of the M5 tools: `npm run typecheck`, `npm run lint`, `npm test` (416 tests),
+`npm run build`, `npm run test:e2e`.
 
 **Deploy:** `.github/workflows/deploy.yml` builds and publishes `dist/` to GitHub Pages
 (https://ephemeralwind.github.io/lingua-dark/) on every push to `main`. The repo's Pages source is
@@ -295,13 +295,41 @@ Decisions #77–#90.
 - Translation questions show `___` as the whole sentence, even after the answer is revealed. The
   answer is on the ✓ card and is spoken.
 
-## Next: Milestone 5
+## Milestone 5: Playtest and tuning (tools done; sessions pending)
 
-Follow Prompt 5 in `docs/PROMPTS.md`. Notes:
-- Log `settings.hollow` per exchange (the setting is live in `Services.settings`).
-- **Learned is paused (#96),** so the playtest cannot use it to measure learning. Decide how M5 measures
-  it instead: for example, the reading choice, a short paper quiz, or bringing the typed review back as an
-  optional trial at the stele.
-- Watch whether players read the stele, and whether the riddle-plus-examples format teaches. Revise the
-  verse with the designer.
-- The litmus test now has a real boss: `r1_boss_arena`, two phases. The first draws from the easy pool; then comes the battle cry and the hard pool with 3-question flurries (#95).
+Decisions #97–#100. The protocol is `docs/PLAYTEST.md`.
+
+- **Log** (`src/playtest/log.ts`, pure):
+  - Always on, localStorage only (`lingua-dark/playtest`), capped at 5,000 events.
+  - Records fight start and end, each resolved strike, and riposte verdicts. A strike carries kind,
+    attack, answer ms, window ms, correct, timeout, stance break, Hollow, flask, question id and seed.
+  - `ExchangeRecord` gained those fields; `Fight` copies new records into `Services.playtest`.
+  - Settings menu (O): **P** exports JSON, **X X** clears.
+- **Report:** `npm run playtest-report -- <files…>` (`--sample` for simulated players, `--json`).
+  - Per attack: accuracy, median answer time and its share of the window, timeouts, break rate.
+  - Per foe: wins, breaks per fight, strikes per break, riposte hits.
+  - Card-direction bias.
+  - The litmus row per session: timed accuracy, first and last 40 strikes, and p against chance,
+    boss phase reached or cleared.
+  - Sample log: `docs/playtest/sample-log.json`.
+- **Litmus save:** `public/playtest/litmus-save.json` (`npm run litmus-save`): all seals and wardens
+  beaten, three rooms from the boss. It is deployed, so testers import it on the live site
+  (title → I).
+- **Blind bots:** unchanged and at chance. Answer directions are uniform in the deck and both boss
+  pools (#100).
+- **Verified in the browser** with throwaway Playwright scripts:
+  - cleared a practice fight, exported, and the report read the file;
+  - imported the litmus save, walked to the boss, and cleared both phases. The log carried
+    `bossPhase` 1 and 2, and the report said CLEARED;
+  - the settings menu at normal and larger text.
+
+## Next
+
+- **Run the litmus test** with at least three non-Spanish gamers (`docs/PLAYTEST.md`). Put the
+  findings in DECISIONS, and any leak as a new blind bot.
+- **Tune** windows, stance drain, `BOSS_CHAIN`, `BOSS_PHASE_HP` and `WARDEN_HP` from learner sessions.
+  Change only `src/tuning.ts`, and note each change with its report figures.
+- Watch whether players read the stele, and whether the riddle-plus-examples format teaches
+  (debrief question 5). Revise the verse with the designer.
+- Learning is measured for now by Part C, a practice fight in Hollow mode after the session (#99).
+  Learned stays paused (#96).

@@ -283,3 +283,30 @@ Each entry: what was ambiguous, the reading picked, and why. Revisit any of them
       Each face wears differently in shape, not only in colour: I cracked, II mossed with lichen, III with its corner broken off and pitted, IV soot-blackened and rain-streaked. The wear stays outside the text area. Roman numerals I to IV mark the face, the current one boxed. R speaks the page's Spanish (pronoun plus form, or article plus noun). A turned page slides in over `LESSON_TURN_MS` (150 ms), and cuts with reduced motion.
     - **Cues:** `reviewRight`/`reviewWrong` are replaced by `stone` ("stone grinds"), which plays when a page opens or turns.
     - **Draft text:** the English titles and verse are drafts by Claude, to be tuned by the designer. The example rows come from seed data that is already listed for native review.
+
+
+### 2026-11-18: Milestone 5, playtest logging, report and litmus protocol
+
+97. **The playtest log is always on, local only, and exported by hand.** Prompt 5 asks for local-only logging; the simplest reading is a log that needs no setup, so a facilitator cannot forget to turn it on.
+    - `src/playtest/log.ts` (pure, added to the ESLint pure dirs) writes fight starts, resolved strikes, ripostes and fight ends to localStorage under `lingua-dark/playtest`. Nothing is sent anywhere.
+    - Each strike records the question kind and attack, answer time and window, right or wrong, timeout, stance break, Hollow mode, flask use, and the question id and seed. `ExchangeRecord` gained these fields, so the pure encounter is the single source; the fight presenter only copies its log.
+    - **Written after the fact.** A strike is logged only once it has resolved, the same moment the answer is shown on screen, so the log cannot help a player (CLAUDE.md rule 1).
+    - **Hollow mode** comes from the encounter's own `untimed` flag, which follows the live setting each update. In Hollow mode the log keeps the real answer time, even past the window. The parry still uses the window's end for quality, as before.
+    - A session is one page load (`s` plus the load time in base 36). There are no names or device details in the log.
+    - **The cap is 5,000 events** (`PLAYTEST_MAX_EVENTS`; the oldest drop first), about 2 MB. A first cap of 20,000 would have overrun localStorage's usual 5 MB, and the cost of saving every strike grew with the log. An hour of play is about 1,000 strikes.
+    - In the settings menu (O), P exports `lingua-dark-playtest-<time>.json`, and X pressed twice clears the log. The menu shows the strike count, or the storage error if a write failed. It works in every scene, the practice fight included. The menu's small lines now stack up from the footer, so Larger text no longer overlaps them.
+98. **The tuning report** is `npm run playtest-report -- <files…>`. The logic lives in `src/playtest/report.ts`, the CLI in `scripts/playtest-report.ts`.
+    - **Definitions:**
+      - Median answer time is taken over answered strikes; timeouts are counted separately.
+      - Stance-break rate is the share of strikes that broke the stance. Per foe, the report also gives breaks per fight and strikes per break.
+      - Rows split timed from Hollow, because Hollow answer times say nothing about the windows.
+    - **Tuning hints are heuristics.** Their thresholds (`REPORT_TIMEOUT_WARN` 20%, `REPORT_FAST_SHARE` 40%) are placeholders in `tuning.ts`.
+    - **Sample data:** `--sample` runs simulated players through real encounters on a fake clock (`src/playtest/sample.ts`, seeded): fluent, learner, no Spanish, and learner in Hollow mode. `docs/playtest/sample-log.json` is the same data in the export format. The models are crude and are not evidence about people.
+99. **The litmus verdict uses the first 40 timed strikes, and a post-session check in Hollow mode.** A retrying player sees every answer revealed and can learn real Spanish, which is the game working, not a leak. So:
+    - Accuracy above chance in the first 40 timed strikes (`LITMUS_EARLY_STRIKES`; one-sided binomial p < 0.01, `LITMUS_ALPHA`, which is 18 of 40) points to a cue.
+    - Clearing the boss with a Part C check at chance points to a shortcut.
+    - Rising accuracy, with a Part C check above chance and a rule the player can state, is LEARNED.
+    - A build passes with at least three PASS or LEARNED participants and no FAIL. The full protocol is in `docs/PLAYTEST.md`.
+    - **The litmus save.** `public/playtest/litmus-save.json` is built by `npm run litmus-save` from `src/playtest/litmusSave.ts`; a test checks it is current. It holds every seal and every warden beaten, with the lane's villager down, and it is deployed with the site so a tester can import it there.
+    - **Learning is measured by Part C,** for PROGRESS's open question on how M5 measures learning while Learned is paused (#96). Part C is about 20 practice strikes in Hollow mode after the session, tagged `hollow` in the log, plus debrief question 4. It uses existing content and adds no new Spanish. It is not an untelegraphed measure, so it does not bring Learned back.
+100. **The blind-bot suite found nothing new for M5.** All 14 bots on the 8 arenas stay at chance with no wins. A separate check of answer directions over 40,000 questions each (the whole deck and both boss pools) gave 24.5% to 25.4% per direction. The sample report's 20% for east came from its small sample, not from the game. No fix was needed. The litmus test with people has not run yet; its findings go here.
