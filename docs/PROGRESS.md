@@ -15,8 +15,8 @@ behind each choice, see `docs/DECISIONS.md`. Numbers like #4 refer to entries th
 | 5. Playtest and tuning | Tools ready; litmus sessions with people not yet run | `b5ae35e`–`d1aa6d7` |
 
 All checks pass as of the M5 tools: `npm run typecheck`, `npm run lint`, `npm test` (416 tests),
-`npm run build`, `npm run test:e2e`. The M5 commits are on local `main` and **not pushed yet**. A push
-deploys the site, and testers need that deploy to download the litmus save from it.
+`npm run build`, `npm run test:e2e`. M5 is pushed and deployed: testers can download the litmus save
+at https://ephemeralwind.github.io/lingua-dark/playtest/litmus-save.json.
 
 **Deploy:** `.github/workflows/deploy.yml` builds and publishes `dist/` to GitHub Pages
 (https://ephemeralwind.github.io/lingua-dark/) on every push to `main`. The repo's Pages source is
